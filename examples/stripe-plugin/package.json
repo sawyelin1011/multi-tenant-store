@@ -1,0 +1,23 @@
+{
+  "name": "@commerce/stripe-gateway",
+  "version": "1.0.0",
+  "description": "Stripe payment gateway plugin for digital commerce platform",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "stripe": "^14.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3",
+    "eslint": "^8.55.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "vitest": "^1.0.4"
+  }
+}

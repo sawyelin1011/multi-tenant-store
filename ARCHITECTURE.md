@@ -9,6 +9,7 @@ The Digital Commerce Platform is a flexible, multi-tenant digital commerce solut
 3. **Zero Hardcoding** - Database-driven configuration for all entities
 4. **Dynamic Product Types** - Define product types on-the-fly with custom fields
 5. **EAV Pattern** - Entity-Attribute-Value for flexible product attributes
+6. **Dual Runtime Support** - Both Express.js (traditional) and Cloudflare Workers (edge computing)
 
 ## Core Principles
 
@@ -64,6 +65,93 @@ For flexible attributes:
 - `products` table: Core product data
 - `product_attributes` table: Key-value pairs for custom fields
 - `product_variants` table: Product variants with own attributes
+
+## Runtime Architecture
+
+### Express.js Runtime (Traditional)
+
+**Deployment**: Self-hosted, Docker, traditional cloud providers
+
+**Technology Stack:**
+- HTTP Server: Express.js
+- Database: PostgreSQL
+- Cache: Redis (optional)
+- File Storage: AWS S3 or local filesystem
+- Execution Model: Long-running processes
+
+**Advantages:**
+- Familiar Node.js ecosystem
+- Full control over infrastructure
+- Suitable for complex, long-running operations
+- Better for file upload/processing
+- Lower latency for internal APIs
+
+**Constraints:**
+- Requires infrastructure management
+- Higher operational overhead
+- Scaling requires load balancers + multiple instances
+
+### Cloudflare Workers Runtime (Edge Computing)
+
+**Deployment**: Cloudflare Workers platform
+
+**Technology Stack:**
+- HTTP Server: Hono.js
+- Database: D1 SQLite (Cloudflare's database)
+- Cache: KV (Cloudflare Key-Value storage)
+- File Storage: R2 (Cloudflare's S3-like storage)
+- Execution Model: Serverless edge functions
+
+**Advantages:**
+- Global edge deployment (ultra-low latency)
+- Automatic scaling
+- No infrastructure management
+- Pay-per-request pricing
+- Built-in DDoS protection
+- Instant cold starts
+
+**Constraints:**
+- 30-second request timeout
+- Limited memory (~128MB)
+- SQLite instead of PostgreSQL
+- KV eventual consistency
+- Cannot run blocking operations
+
+### Request Flow Comparison
+
+**Express Runtime:**
+```
+Client Request
+    ↓
+Load Balancer
+    ↓
+Express Server(s)
+    ↓
+PostgreSQL Database
+    ↓
+Redis Cache (optional)
+    ↓
+S3 Storage
+    ↓
+Response to Client
+```
+
+**Workers Runtime:**
+```
+Client Request
+    ↓
+Cloudflare Edge Network (globally distributed)
+    ↓
+Hono Worker (nearest edge location)
+    ↓
+D1 SQLite (centralized, replicated)
+    ↓
+KV Cache (global, edge-located)
+    ↓
+R2 Storage (global, edge-replicated)
+    ↓
+Response to Client (from nearest edge)
+```
 
 ## Database Design
 
@@ -482,12 +570,64 @@ interface PluginContext {
 - SQL injection prevention (parameterized)
 - CORS configured
 
+## Workers Runtime Considerations
+
+### Performance Optimization
+
+**30-Second Timeout Limit:**
+- All requests must complete within 30 seconds
+- Batch database queries to minimize round trips
+- Use pagination for large result sets
+- Defer heavy operations to background jobs
+- Stream large responses instead of buffering
+
+**Memory Constraints:**
+- ~128MB shared memory per Worker
+- Don't load large datasets into memory
+- Stream files instead of buffering
+- Implement garbage collection strategies
+- Use KV for temporary storage
+
+**CPU Time Limits:**
+- Limited CPU time per request (~50ms average)
+- Avoid complex computations (crypto, image processing)
+- Use database queries for filtering/sorting (push logic down)
+- Cache computed results in KV
+- Offload heavy tasks to external services
+
+### D1 SQLite Differences
+
+**Key differences from PostgreSQL:**
+- Different JSON functions: `json_extract` vs `jsonb_extract_path`
+- No native array types (use JSON)
+- Limited date/time functions
+- No CASCADE DELETE (must handle in application)
+- No prepared statement support (D1Adapter handles this)
+
+**Mitigation:**
+- D1Adapter (`src/config/d1-database.ts`) provides pg-promise-like API
+- Abstracts database differences for service layer
+- Both runtimes use identical service code
+
+### KV Cache Model
+
+**Eventual Consistency:**
+- KV writes may not immediately read back
+- Use database for authoritative data
+- Good for: sessions, cache, temporary state
+- Not good for: financial transactions, order status
+
+**TTL Management:**
+- KV automatically expires keys with TTL
+- Set reasonable TTLs to avoid stale data
+- Implement refresh logic for important caches
+
 ## Integration Points
 
 ### Third-Party Services
 - **Payment Gateways**: Stripe, PayPal, etc.
 - **Email Services**: SendGrid, Mailgun, etc.
-- **Storage**: AWS S3, Google Cloud Storage
+- **Storage**: AWS S3, Google Cloud Storage, Cloudflare R2
 - **Analytics**: Segment, Mixpanel
 - **CRM**: Salesforce, HubSpot
 
@@ -495,6 +635,7 @@ interface PluginContext {
 - Webhooks from payment providers
 - Sync from product providers
 - Push to fulfillment services
+- Rate-limited to avoid timeout
 
 ### Custom Integrations
 - Field mapping for data transformation

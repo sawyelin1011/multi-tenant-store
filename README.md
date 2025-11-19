@@ -114,12 +114,80 @@ cp .env.example .env
 npm run migrate
 ```
 
-4. **Start development server**
+4. **Start development server (Express)**
 ```bash
 npm run dev
 ```
 
 The API will be available at `http://localhost:3000`
+
+### Cloudflare Workers Deployment
+
+The platform supports deployment to Cloudflare Workers using Hono for a serverless, edge-computing runtime.
+
+#### Prerequisites for Workers
+- Cloudflare account with Workers enabled
+- Wrangler CLI (`npm install -g wrangler` or use `npx wrangler`)
+
+#### Local Development with Workers
+
+1. **Configure Wrangler**
+Update `wrangler.toml` with your Cloudflare account details:
+```toml
+account_id = "your-account-id"
+```
+
+2. **Start local Worker development**
+```bash
+npm run cf:dev
+```
+
+This uses Miniflare for local development. The API will be available at `http://localhost:8787`
+
+#### Bindings Setup
+
+The Worker runtime uses Cloudflare bindings for:
+- **D1**: SQLite database (replaces PostgreSQL)
+- **KV**: Cache and session storage namespaces
+- **R2**: Asset and file storage bucket
+- **Env Secrets**: API keys and JWT secrets
+
+All bindings are defined in `wrangler.toml` with environment-specific configurations.
+
+#### Deployment
+
+Deploy to Cloudflare Workers:
+```bash
+# Deploy to production
+npm run cf:deploy
+
+# Deploy to staging
+npm run cf:deploy:staging
+```
+
+#### Database Migration for D1
+
+For Workers deployment, use the D1 database instead of PostgreSQL:
+```bash
+wrangler d1 execute commerce-prod --remote < src/db/migrations/001_init_schema.sql
+```
+
+#### Environment Configurations
+
+**Development** (`cf:dev`)
+- Local Miniflare runtime
+- Dev namespace bindings
+- Development secrets from wrangler.toml
+
+**Staging** (`cf:deploy:staging`)
+- Cloudflare staging environment
+- Staging D1 database
+- Staging KV and R2 bindings
+
+**Production** (`cf:deploy`)
+- Cloudflare production environment
+- Production D1 database
+- Production KV and R2 bindings
 
 ## API Documentation
 

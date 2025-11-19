@@ -1,0 +1,99 @@
+name = "digital-commerce-platform"
+main = "src/worker.ts"
+type = "service"
+compatibility_date = "2024-01-01"
+
+# Environment: Development
+[env.development]
+vars = { NODE_ENV = "development" }
+
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "commerce-dev"
+database_id = "dev-db-id"
+
+[[env.development.kv_namespaces]]
+binding = "CACHE"
+id = "dev-cache-ns"
+
+[[env.development.kv_namespaces]]
+binding = "SESSION"
+id = "dev-session-ns"
+
+[[env.development.r2_buckets]]
+binding = "ASSETS"
+bucket_name = "commerce-assets-dev"
+
+[env.development.env]
+ADMIN_JWT_SECRET = "dev-admin-secret-key-change-in-production"
+TENANT_JWT_SECRET = "dev-tenant-secret-key-change-in-production"
+BCRYPT_ROUNDS = "10"
+MAX_FILE_SIZE = "104857600"
+
+# Environment: Staging
+[env.staging]
+routes = [
+  { pattern = "staging.example.com/*", zone_name = "example.com" }
+]
+vars = { NODE_ENV = "staging" }
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "commerce-staging"
+database_id = "staging-db-id"
+
+[[env.staging.kv_namespaces]]
+binding = "CACHE"
+id = "staging-cache-ns"
+
+[[env.staging.kv_namespaces]]
+binding = "SESSION"
+id = "staging-session-ns"
+
+[[env.staging.r2_buckets]]
+binding = "ASSETS"
+bucket_name = "commerce-assets-staging"
+
+[env.staging.env]
+ADMIN_JWT_SECRET = ""
+TENANT_JWT_SECRET = ""
+BCRYPT_ROUNDS = "10"
+MAX_FILE_SIZE = "104857600"
+
+# Environment: Production
+[env.production]
+routes = [
+  { pattern = "api.example.com/*", zone_name = "example.com" }
+]
+vars = { NODE_ENV = "production" }
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "commerce-prod"
+database_id = "prod-db-id"
+
+[[env.production.kv_namespaces]]
+binding = "CACHE"
+id = "prod-cache-ns"
+
+[[env.production.kv_namespaces]]
+binding = "SESSION"
+id = "prod-session-ns"
+
+[[env.production.r2_buckets]]
+binding = "ASSETS"
+bucket_name = "commerce-assets-prod"
+
+[env.production.env]
+ADMIN_JWT_SECRET = ""
+TENANT_JWT_SECRET = ""
+BCRYPT_ROUNDS = "10"
+MAX_FILE_SIZE = "104857600"
+
+# Build
+[build]
+command = "npm run build"
+cwd = "."
+
+[build.upload]
+format = "service-worker"

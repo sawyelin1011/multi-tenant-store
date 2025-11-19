@@ -12,3 +12,7 @@ dist/
 coverage/
 uploads/
 plugins/node_modules/
+.wrangler/
+wrangler.local.toml
+*.local.toml
+build/

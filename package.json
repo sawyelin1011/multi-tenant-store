@@ -13,6 +13,11 @@
     "cf:deploy:staging": "wrangler deploy --env staging",
     "migrate": "node --loader ts-node/esm src/db/migrate.ts",
     "migrate:down": "node --loader ts-node/esm src/db/migrate.ts down",
+    "db:generate": "drizzle-kit generate:sqlite --config drizzle.config.ts",
+    "db:migrate:worker": "wrangler d1 migrations apply commerce-dev --env development",
+    "db:migrate:worker:prod": "wrangler d1 migrations apply commerce-prod --env production",
+    "db:migrate:worker:staging": "wrangler d1 migrations apply commerce-staging --env staging",
+    "db:migrate:local": "node --loader ts-node/esm scripts/migrate-local.ts",
     "lint": "eslint src --ext .ts,.tsx",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
     "test": "vitest"
@@ -33,7 +38,7 @@
     "dotenv": "^16.3.1",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
-    "jsonwebtoken": "^9.1.2",
+    "jsonwebtoken": "^9.0.0",
     "bcryptjs": "^2.4.3",
     "joi": "^17.11.0",
     "axios": "^1.6.2",
@@ -41,7 +46,9 @@
     "uuid": "^9.0.1",
     "multer": "^1.4.5-lts.1",
     "sharp": "^0.33.0",
-    "hono": "^3.12.0"
+    "hono": "^3.12.0",
+    "drizzle-orm": "^0.28.0",
+    "better-sqlite3": "^9.0.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
@@ -56,6 +63,8 @@
     "prettier": "^3.1.1",
     "vitest": "^1.0.4",
     "wrangler": "^3.26.0",
-    "miniflare": "^3.20240101.0"
+    "miniflare": "^3.20240101.0",
+    "drizzle-kit": "^0.20.0",
+    "@types/better-sqlite3": "^7.6.4"
   }
 }

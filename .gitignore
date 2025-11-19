@@ -16,3 +16,9 @@ plugins/node_modules/
 wrangler.local.toml
 *.local.toml
 build/
+local.db
+*.db
+*.sqlite
+*.sqlite3
+drizzle/
+.drizzle/

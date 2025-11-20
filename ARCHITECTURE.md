@@ -665,6 +665,173 @@ interface PluginContext {
 - Performance monitoring (New Relic)
 - Uptime monitoring
 
+## UI Template System
+
+### Overview
+The UI Template system provides flexible, tenant-customizable frontend experiences through a component-based architecture.
+
+### Core Tables
+
+#### ui_themes
+Defines visual styling (colors, fonts, spacing):
+```
+- id (UUID, PK)
+- tenant_id (FK to tenants, nullable for system themes)
+- name (e.g., "Default Theme", "Dark Mode")
+- slug (unique per tenant)
+- is_default (boolean)
+- is_system (boolean, for platform defaults)
+- colors (JSONB: primary, secondary, background, etc.)
+- fonts (JSONB: heading, body, mono)
+- spacing (JSONB: scale, unit)
+- borders (JSONB)
+- shadows (JSONB)
+```
+
+#### ui_layouts
+Defines page structure and regions:
+```
+- id (UUID, PK)
+- tenant_id (FK to tenants, nullable for system layouts)
+- plugin_id (FK to plugins, nullable)
+- name (e.g., "Dashboard Layout", "Two Column")
+- slug (unique per tenant)
+- type (e.g., "page", "modal", "panel")
+- is_system (boolean)
+- grid_config (JSONB: columns, gap, rows)
+- regions (JSONB array: [{name, width, height}])
+- responsive_config (JSONB: breakpoints)
+```
+
+#### ui_components
+Reusable UI building blocks:
+```
+- id (UUID, PK)
+- tenant_id (FK to tenants, nullable for system components)
+- plugin_id (FK to plugins, nullable - plugins can contribute)
+- name (e.g., "Stats Card", "Product List")
+- slug (unique per tenant)
+- type (e.g., "widget", "chart", "form")
+- category (e.g., "dashboard", "analytics")
+- is_system (boolean)
+- props_schema (JSONB: JSON Schema for component props)
+- default_props (JSONB: default values)
+- render_config (JSONB: styling, templates)
+- dependencies (JSONB array: other component IDs)
+```
+
+#### ui_widgets
+Configured component instances for pages:
+```
+- id (UUID, PK)
+- tenant_id (FK to tenants)
+- component_id (FK to ui_components)
+- page (e.g., "dashboard", "products", "orders")
+- region (e.g., "header", "sidebar", "main")
+- position (integer, for ordering within region)
+- props (JSONB: component configuration)
+- visibility_rules (JSONB: role/permission conditions)
+- is_active (boolean)
+```
+
+#### ui_templates
+Complete page configurations:
+```
+- id (UUID, PK)
+- tenant_id (FK to tenants, nullable for system templates)
+- plugin_id (FK to plugins, nullable - plugins can provide)
+- page (unique per tenant)
+- name (e.g., "Dashboard Page", "Product Catalog")
+- layout_id (FK to ui_layouts)
+- theme_id (FK to ui_themes)
+- is_default (boolean)
+- is_system (boolean)
+- override_config (JSONB: layout/theme overrides)
+```
+
+### Template Resolution
+
+When a page is requested:
+1. **Fetch template**: Query `ui_templates` by page + tenant_id
+2. **Resolve layout**: Load associated `ui_layouts` record
+3. **Resolve theme**: Load associated `ui_themes` record, merge tenant branding
+4. **Load widgets**: Query `ui_widgets` for page, ordered by region + position
+5. **Load components**: For each widget, fetch `ui_components` definition
+6. **Merge overrides**: Apply `override_config` from template
+7. **Check visibility**: Filter widgets by user role/permissions
+
+### Tenant Customization
+
+Tenants can:
+- **Create themes**: Custom color schemes matching brand
+- **Override layouts**: Create tenant-specific layouts
+- **Add widgets**: Position components on pages
+- **Configure props**: Customize widget behavior per page
+- **Set visibility**: Show/hide widgets by role
+
+System templates/themes/components serve as defaults.
+
+### Plugin Contributions
+
+Plugins can provide:
+- **Components**: Via `plugin_id` in `ui_components`
+- **Layouts**: Via `plugin_id` in `ui_layouts`
+- **Templates**: Via `plugin_id` in `ui_templates`
+
+Example: A "Stripe Analytics" plugin adds:
+- Component: `stripe-revenue-chart`
+- Widget: Placed on dashboard/main region
+- Data binding: Fetches Stripe metrics via plugin hooks
+
+### Response Example
+
+Resolved template for "dashboard" page:
+```json
+{
+  "id": "abc123",
+  "page": "dashboard",
+  "layout": {
+    "regions": [
+      { "name": "header", "width": "100%" },
+      { "name": "main", "width": "1fr" }
+    ],
+    "grid_config": { "columns": 12 }
+  },
+  "theme": {
+    "colors": {
+      "primary": "#3b82f6",
+      "background": "#ffffff"
+    },
+    "fonts": {
+      "body": "Inter, sans-serif"
+    }
+  },
+  "widgets": [
+    {
+      "id": "w1",
+      "region": "main",
+      "position": 0,
+      "component": {
+        "slug": "stats-card",
+        "type": "widget"
+      },
+      "props": {
+        "title": "Total Products",
+        "value": "42",
+        "icon": "📦"
+      }
+    }
+  ]
+}
+```
+
+### Caching Strategy
+
+- **System templates**: Cached indefinitely (no tenant_id)
+- **Tenant templates**: Cache per tenant, invalidate on update
+- **Resolved templates**: Short TTL (5 min), full page config
+- **Theme with branding**: Cache invalidated on tenant branding update
+
 ## Future Extensibility
 
 ### Ready For

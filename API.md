@@ -803,6 +803,231 @@ Plugins can listen to webhooks. Common webhook events:
 }
 ```
 
+### UI Templates
+
+#### Get Template for Page
+```http
+GET /api/{tenant_slug}/admin/ui/templates/{page}?resolved=true
+```
+
+Returns the template configuration for a specific page. When `resolved=true`, includes all relationships (layout, theme, widgets with components).
+
+Response with `resolved=true`:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "tenant_id": "uuid",
+    "page": "dashboard",
+    "name": "Dashboard Page",
+    "layout_id": "uuid",
+    "theme_id": "uuid",
+    "is_default": true,
+    "override_config": {},
+    "layout": {
+      "id": "uuid",
+      "name": "Dashboard Layout",
+      "regions": [
+        { "name": "header", "width": "100%" },
+        { "name": "sidebar", "width": "250px" },
+        { "name": "main", "width": "1fr" }
+      ],
+      "grid_config": { "columns": 12, "gap": "1rem" }
+    },
+    "theme": {
+      "id": "uuid",
+      "name": "Default Theme",
+      "colors": {
+        "primary": "#3b82f6",
+        "secondary": "#8b5cf6",
+        "background": "#ffffff"
+      },
+      "fonts": {
+        "heading": "Inter, sans-serif",
+        "body": "Inter, sans-serif"
+      }
+    },
+    "widgets": [
+      {
+        "id": "uuid",
+        "page": "dashboard",
+        "region": "main",
+        "position": 0,
+        "props": { "title": "Total Products", "value": "42" },
+        "component": {
+          "id": "uuid",
+          "name": "Stats Card",
+          "type": "widget",
+          "props_schema": {},
+          "default_props": {}
+        }
+      }
+    ]
+  }
+}
+```
+
+#### Create/Update Template
+```http
+PUT /api/{tenant_slug}/admin/ui/templates/{page}
+Authorization: Bearer {tenant_token}
+Content-Type: application/json
+
+{
+  "name": "Custom Dashboard",
+  "layout_id": "uuid",
+  "theme_id": "uuid",
+  "is_default": true,
+  "override_config": {}
+}
+```
+
+#### Get Current Theme
+```http
+GET /api/{tenant_slug}/admin/ui/themes/current
+```
+
+Returns the active theme for the tenant, merging tenant branding (colors, fonts, logo).
+
+#### List Themes
+```http
+GET /api/{tenant_slug}/admin/ui/themes
+```
+
+#### Create Theme
+```http
+POST /api/{tenant_slug}/admin/ui/themes
+Authorization: Bearer {tenant_token}
+Content-Type: application/json
+
+{
+  "name": "Dark Theme",
+  "slug": "dark",
+  "is_default": false,
+  "colors": {
+    "primary": "#3b82f6",
+    "secondary": "#8b5cf6",
+    "background": "#1f2937",
+    "foreground": "#f9fafb"
+  },
+  "fonts": {
+    "heading": "Inter, sans-serif",
+    "body": "Inter, sans-serif"
+  },
+  "spacing": {
+    "unit": "rem",
+    "scale": [0, 0.25, 0.5, 1, 1.5, 2, 3, 4]
+  }
+}
+```
+
+#### Update Theme
+```http
+PUT /api/{tenant_slug}/admin/ui/themes/{themeId}
+Authorization: Bearer {tenant_token}
+Content-Type: application/json
+
+{
+  "colors": {
+    "primary": "#10b981"
+  }
+}
+```
+
+#### List Components
+```http
+GET /api/{tenant_slug}/admin/ui/components?type=widget&category=dashboard
+```
+
+#### Get Component
+```http
+GET /api/{tenant_slug}/admin/ui/components/{componentId}
+```
+
+#### List Layouts
+```http
+GET /api/{tenant_slug}/admin/ui/layouts?type=page
+```
+
+#### Create Layout
+```http
+POST /api/{tenant_slug}/admin/ui/layouts
+Authorization: Bearer {tenant_token}
+Content-Type: application/json
+
+{
+  "name": "Two Column Layout",
+  "slug": "two-column",
+  "type": "page",
+  "grid_config": {
+    "columns": 12,
+    "gap": "1rem"
+  },
+  "regions": [
+    { "name": "header", "width": "100%" },
+    { "name": "main", "width": "8fr" },
+    { "name": "aside", "width": "4fr" }
+  ],
+  "responsive_config": {
+    "breakpoints": {
+      "sm": 640,
+      "md": 768,
+      "lg": 1024
+    }
+  }
+}
+```
+
+#### List Widgets
+```http
+GET /api/{tenant_slug}/admin/ui/widgets?page=dashboard&region=main
+```
+
+#### Create Widget
+```http
+POST /api/{tenant_slug}/admin/ui/widgets
+Authorization: Bearer {tenant_token}
+Content-Type: application/json
+
+{
+  "component_id": "uuid",
+  "page": "dashboard",
+  "region": "main",
+  "position": 0,
+  "props": {
+    "title": "Total Orders",
+    "value": "156",
+    "trend": "+23%"
+  },
+  "visibility_rules": {
+    "roles": ["admin", "manager"]
+  },
+  "is_active": true
+}
+```
+
+#### Update Widget
+```http
+PUT /api/{tenant_slug}/admin/ui/widgets/{widgetId}
+Authorization: Bearer {tenant_token}
+Content-Type: application/json
+
+{
+  "position": 5,
+  "props": {
+    "title": "Updated Title"
+  },
+  "is_active": false
+}
+```
+
+#### Delete Widget
+```http
+DELETE /api/{tenant_slug}/admin/ui/widgets/{widgetId}
+Authorization: Bearer {tenant_token}
+```
+
 ## Best Practices
 
 1. **Always include the tenant slug in the URL**: `/api/{tenant_slug}/...`

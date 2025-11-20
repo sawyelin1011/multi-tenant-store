@@ -56,7 +56,7 @@
   "author": "Platform Team",
   "license": "MIT",
   "dependencies": {
-    "@mtc-platform/config": "^1.0.0",
+    "@mtc-platform/config": "file:packages/config",
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^9.0.9",
     "@types/semver": "^7.7.1",

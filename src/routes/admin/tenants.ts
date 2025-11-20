@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { AdminAuthRequest } from '../../types/express.js';
 import { tenantService } from '../../services/tenantService.js';
-import { verifyAdminToken } from '../../middleware/auth.js';
+import { verifyAdminTokenOrApiKey } from '../../middleware/auth.js';
 
 const router = Router();
 
 // Create tenant
-router.post('/', verifyAdminToken, async (req: AdminAuthRequest, res, next) => {
+router.post('/', verifyAdminTokenOrApiKey, async (req: AdminAuthRequest, res, next) => {
   try {
     const { slug, name, domain, subdomain, plan } = req.body;
 
@@ -25,7 +25,7 @@ router.post('/', verifyAdminToken, async (req: AdminAuthRequest, res, next) => {
 });
 
 // List tenants
-router.get('/', verifyAdminToken, async (req: AdminAuthRequest, res, next) => {
+router.get('/', verifyAdminTokenOrApiKey, async (req: AdminAuthRequest, res, next) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
@@ -40,7 +40,7 @@ router.get('/', verifyAdminToken, async (req: AdminAuthRequest, res, next) => {
 });
 
 // Get tenant
-router.get('/:id', verifyAdminToken, async (req: AdminAuthRequest, res, next) => {
+router.get('/:id', verifyAdminTokenOrApiKey, async (req: AdminAuthRequest, res, next) => {
   try {
     const tenant = await tenantService.getTenant(req.params.id);
     res.json({ success: true, data: tenant });
@@ -50,7 +50,7 @@ router.get('/:id', verifyAdminToken, async (req: AdminAuthRequest, res, next) =>
 });
 
 // Update tenant
-router.put('/:id', verifyAdminToken, async (req: AdminAuthRequest, res, next) => {
+router.put('/:id', verifyAdminTokenOrApiKey, async (req: AdminAuthRequest, res, next) => {
   try {
     const tenant = await tenantService.updateTenant(req.params.id, req.body);
     res.json({ success: true, data: tenant });
@@ -60,7 +60,7 @@ router.put('/:id', verifyAdminToken, async (req: AdminAuthRequest, res, next) =>
 });
 
 // Delete tenant
-router.delete('/:id', verifyAdminToken, async (req: AdminAuthRequest, res, next) => {
+router.delete('/:id', verifyAdminTokenOrApiKey, async (req: AdminAuthRequest, res, next) => {
   try {
     await tenantService.deleteTenant(req.params.id);
     res.json({ success: true, message: 'Tenant deleted' });

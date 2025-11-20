@@ -2,6 +2,50 @@
 
 A flexible, multi-tenant digital commerce platform supporting ANY type of digital products (games, software, courses, ebooks, SaaS, subscriptions, NFTs, etc.) with complete store isolation and plugin architecture.
 
+## 🚀 Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server (auto-creates super admin)
+npm run dev
+
+# In another terminal, seed demo data via API
+npm run seed
+
+# Run all tests
+npm run test:all
+```
+
+The platform will be available at `http://localhost:3000` with:
+- **Super Admin**: admin@platform.example.com / admin123
+- **API Key**: sk_test_anyvaluedemo
+- **Demo Tenants**: gamestore, ebookstore, courseplatform
+
+## 🧪 Testing & Quality
+
+This project is **production-ready** with comprehensive testing and code quality tools:
+
+### Testing Suite
+- **Unit Tests**: `npm run test` - Core functionality testing
+- **Integration Tests**: `npm run test:integration` - API endpoint testing  
+- **API Tests**: `npm run test:api` - All 28+ endpoints with X-API-Key auth
+- **E2E Tests**: `npm run test:e2e` - Full user workflows with Playwright
+- **Coverage**: `npm run test:coverage` - >80% code coverage target
+
+### Code Quality
+- **Linting**: `npm run lint` - Biome linter (zero warnings)
+- **Formatting**: `npm run format` - Biome formatter (consistent code style)
+- **Type Checking**: `npm run type-check` - TypeScript strict mode
+- **All Checks**: `npm run test:all` - Run linting, tests, and E2E together
+
+### Seeding & Demo Data
+- **Seed Script**: `npm run seed` - Creates 3 demo tenants with products via API
+- **Idempotent**: Safe to run multiple times
+- **API Authenticated**: Uses X-API-Key header with configured key
+- **Comprehensive**: Games, ebooks, courses with realistic sample data
+
 ## Features
 
 ### 🏢 Multi-Tenant Architecture
@@ -723,6 +767,43 @@ volumes:
 - JSONB fields for flexible schema
 - Row-level security can be implemented per tenant
 - Caching layer ready for Redis integration
+
+## 🔑 API Key Configuration
+
+The platform supports API key authentication for automation and external integrations:
+
+### Environment Variables
+
+```bash
+# .env.example
+SUPER_ADMIN_API_KEY=sk_test_anyvaluedemo
+SUPER_ADMIN_EMAIL=admin@platform.example.com
+SUPER_ADMIN_PASSWORD=admin123
+```
+
+### API Key Usage
+
+```bash
+# Using X-API-Key header
+curl -X POST "http://localhost:3000/api/admin/tenants" \
+  -H "X-API-Key: sk_test_anyvaluedemo" \
+  -H "Content-Type: application/json" \
+  -d '{"slug": "my-store", "name": "My Store"}'
+```
+
+### Super Admin Auto-Initialization
+
+On startup, the platform automatically:
+1. Checks if super admin user exists
+2. Creates with configured email/password if not exists
+3. Sets/updates API key from environment
+4. Logs initialization status
+
+### Default Credentials
+
+- **Email**: admin@platform.example.com
+- **Password**: admin123  
+- **API Key**: sk_test_anyvaluedemo
 
 ## Security
 

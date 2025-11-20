@@ -8,6 +8,8 @@ export { workflowService } from './workflowService.js';
 export { deliveryService } from './deliveryService.js';
 export { paymentService } from './paymentService.js';
 export { integrationService } from './integrationService.js';
+export { userService } from './userService.js';
+export { SuperAdminService } from './superAdminService.js';
 
 // Cloudflare Workers services (Drizzle + D1)
 export { drizzleTenantService } from './drizzle-tenant-service.js';

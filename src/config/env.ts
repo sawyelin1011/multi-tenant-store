@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { brand } from '@mtc-platform/config';
 
 // Load environment variables from .env.local for local development
 dotenv.config({ path: '.env.local' });
@@ -28,6 +29,7 @@ export const config = {
   redisUrl: process.env.REDIS_URL,
   runtime,
   isCloudflareWorker,
+  brand,
 };
 
 export default config;

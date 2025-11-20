@@ -443,8 +443,8 @@ export class PaymentPluginBuilder extends PluginBuilder {
       authRequired: false,
     });
     
-    this.webhook('payment.success', 'src/handlers/payment-success');
-    this.webhook('payment.failure', 'src/handlers/payment-failure');
+    this.hook('payment.success', 'src/handlers/payment-success');
+    this.hook('payment.failure', 'src/handlers/payment-failure');
     
     return this;
   }

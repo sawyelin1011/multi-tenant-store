@@ -50,7 +50,7 @@ wrangler --version
 
 ```bash
 git clone <repository-url>
-cd digital-commerce-platform
+cd mtc-platform
 ```
 
 ### 2. Install Dependencies
@@ -145,7 +145,7 @@ curl http://localhost:8787/health
 ### wrangler.toml Structure
 
 ```toml
-name = "digital-commerce-platform"
+name = "mtc-platform"
 main = "src/worker.ts"
 type = "service"
 compatibility_date = "2024-01-01"

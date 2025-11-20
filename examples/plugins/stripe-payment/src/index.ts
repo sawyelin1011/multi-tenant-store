@@ -1,4 +1,4 @@
-import { PaymentPlugin, PluginContext } from '@digital-commerce/plugin-sdk';
+import { PaymentPlugin, PluginContext } from '@mtc-platform/plugin-sdk';
 
 export default class StripePaymentPlugin implements PaymentPlugin {
   name = 'Stripe Payment Gateway';

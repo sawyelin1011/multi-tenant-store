@@ -1,4 +1,4 @@
-import { HookHandler, PluginContext, PaymentHookData } from '@digital-commerce/plugin-sdk';
+import { HookHandler, PluginContext, PaymentHookData } from '@mtc-platform/plugin-sdk';
 
 const handler: HookHandler<PaymentHookData> = async (context: PluginContext, data) => {
   context.logger.info('After payment success hook triggered', {

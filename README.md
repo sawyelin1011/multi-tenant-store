@@ -1,4 +1,4 @@
-# Digital Commerce Platform
+# MTC Platform
 
 A flexible, multi-tenant digital commerce platform supporting ANY type of digital products (games, software, courses, ebooks, SaaS, subscriptions, NFTs, etc.) with complete store isolation and plugin architecture.
 
@@ -143,7 +143,7 @@ src/
 1. **Clone the repository**
 ```bash
 git clone <repo>
-cd digital-commerce-platform
+cd mtc-platform
 npm install
 ```
 

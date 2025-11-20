@@ -1,7 +1,7 @@
 {
-  "name": "digital-commerce-platform",
+  "name": "@mtc-platform/core",
   "version": "1.0.0",
-  "description": "Multi-tenant digital commerce platform with plugin architecture",
+  "description": "Multi-tenant MTC Platform with plugin architecture",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
@@ -42,8 +42,10 @@
     "dev:cli": "cd packages/admin-cli && npm run dev",
     "plugin:scaffold": "cd packages/admin-cli && npm run scaffold",
     "plugin:validate": "cd packages/admin-cli && npm run validate",
+    "scaffold": "cd packages/admin-cli && npm run scaffold",
     "dev:both": "concurrently \"npm run dev:watch\" \"npm run cf:dev\"",
-    "check:setup": "node scripts/check-setup.js"
+    "check:setup": "node scripts/check-setup.js",
+    "brand:sync": "tsx scripts/rebrand.ts"
   },
   "keywords": [
     "commerce",
@@ -54,6 +56,7 @@
   "author": "Platform Team",
   "license": "MIT",
   "dependencies": {
+    "@mtc-platform/config": "^1.0.0",
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^9.0.9",
     "@types/semver": "^7.7.1",
@@ -68,6 +71,7 @@
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
     "fs-extra": "^11.3.2",
+    "glob": "^10.3.0",
     "handlebars": "^4.7.8",
     "helmet": "^7.1.0",
     "hono": "^3.12.0",

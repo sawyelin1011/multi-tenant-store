@@ -1,7 +1,7 @@
 {
-  "name": "@mtc-platform/plugin-sdk",
+  "name": "@mtc-platform/config",
   "version": "1.0.0",
-  "description": "SDK for developing plugins for the MTC Platform",
+  "description": "Brand configuration utilities for MTC Platform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -11,22 +11,16 @@
     "clean": "rm -rf dist"
   },
   "keywords": [
-    "plugin",
-    "sdk",
-    "ecommerce",
-    "digital-commerce"
+    "config",
+    "brand",
+    "branding",
+    "mtc-platform"
   ],
-  "author": "Platform Team",
+  "author": "MTC Platform Team",
   "license": "MIT",
-  "dependencies": {
-    "zod": "^3.22.0"
-  },
   "devDependencies": {
     "@types/node": "^20.10.0",
     "typescript": "^5.3.3"
-  },
-  "peerDependencies": {
-    "hono": "^3.12.0"
   },
   "files": [
     "dist",

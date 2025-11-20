@@ -286,6 +286,29 @@ GET /api/{tenant_slug}/storefront/products       # List products
 GET /api/{tenant_slug}/storefront/products/:id   # Get product
 ```
 
+## Postman Collection
+
+A ready-to-use Postman collection is available at [postman-collection.json](./postman-collection.json) in the project root. It covers every major API surface area (super admin, tenant admin, storefront, and health) with sample payloads, headers, and query parameters so you can start testing immediately.
+
+### Import instructions
+
+1. Download the file or copy its absolute path.
+2. In Postman choose **Import → Upload Files** and select `postman-collection.json`.
+3. After the collection loads, open the **Variables** tab and adjust the defaults for your environment.
+
+The collection defines helpful variables such as `base_url` (defaults to `http://localhost:3000`), `api_key`, `admin_token`, `tenant_token`, `tenant_id`, `tenant_slug`, `product_type_id`, `product_id`, and `order_id`. Update them with real values before sending requests. Checkout examples also demonstrate passing `X-API-Key` headers for storefront flows.
+
+### Quick start testing flow
+
+1. Run the ❤️ **Health Check** request to verify the API is reachable.
+2. Use 🔐 **Super Admin Auth → Admin Login** (or set the `admin_token` variable) to obtain a JWT.
+3. Generate an API key if you plan to exercise storefront checkout calls.
+4. Create or list tenants via 🏢 **Super Admin Tenants** and capture the resulting `tenant_id` / `tenant_slug`.
+5. Switch to tenant-scoped folders (Products, Product Types, Orders, Plugins) after setting a valid `tenant_token`.
+6. Finish by testing 🛍️ **Storefront Public** and 🛒 **Cart & Checkout** flows to simulate a shopper experience.
+
+This workflow mirrors how most teams stand up a tenant, seed catalog data, and walk through checkout end-to-end.
+
 ## Development
 
 The platform supports dual runtime development: Node.js (Express) and Cloudflare Workers (Hono).

@@ -173,6 +173,30 @@ export const plugins = sqliteTable(
   }
 );
 
+export const apiKeys = sqliteTable(
+  'api_keys',
+  {
+    id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+    name: text('name').notNull(),
+    key_hash: text('key_hash').notNull().unique(),
+    key_prefix: text('key_prefix').notNull(),
+    permissions: text('permissions').default('[]'), // JSON array of permissions
+    tenant_id: text('tenant_id'), // null for super admin keys
+    user_id: text('user_id'), // null for system keys
+    expires_at: text('expires_at'), // null for non-expiring keys
+    last_used_at: text('last_used_at'),
+    usage_count: integer('usage_count').default(0),
+    is_active: integer('is_active', { mode: 'boolean' }).default(true),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    keyHashIdx: index('idx_api_keys_key_hash').on(table.key_hash),
+    tenantIdIdx: index('idx_api_keys_tenant_id').on(table.tenant_id),
+    userIdIdx: index('idx_api_keys_user_id').on(table.user_id),
+  })
+);
+
 export const tenantPlugins = sqliteTable(
   'tenant_plugins',
   {
@@ -186,6 +210,7 @@ export const tenantPlugins = sqliteTable(
     status: text('status').default('inactive'),
     config: text('config').default('{}'),
     installed_at: text('installed_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => ({
     tenantIdIdx: index('idx_tenant_plugins_tenant_id').on(table.tenant_id),
@@ -604,4 +629,8 @@ export const integrationsRelations = relations(integrations, ({ one, many }) => 
 
 export const integrationSyncsRelations = relations(integrationSyncs, ({ one }) => ({
   integration: one(integrations, { fields: [integrationSyncs.integration_id], references: [integrations.id] }),
+}));
+
+export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
+  tenant: one(tenants, { fields: [apiKeys.tenant_id], references: [tenants.id] }),
 }));

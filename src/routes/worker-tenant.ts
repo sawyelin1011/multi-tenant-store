@@ -15,8 +15,8 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   const tenant = new Hono<HonoEnv>();
 
   // Helper to get tenantId with type assertion
-  const getTenantId = (c: Context<HonoEnv>) => {
-    const tenantId = getTenantId(c);
+  const getTenantId = (c: Context<HonoEnv>): string => {
+    const tenantId = c.get('tenantId');
     if (!tenantId) {
       throw new Error('Tenant ID not found in context');
     }
@@ -242,7 +242,7 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   plugins.put('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
     const tenantId = getTenantId(c);
     const body = await c.req.json();
-    const plugin = await drizzlePluginService.updateTenantPluginConfig(tenantId, c.req.param('id'), body);
+    const plugin = await drizzlePluginService.updatePluginConfig(tenantId, c.req.param('id'), body);
     return c.json({ success: true, data: plugin });
   });
 

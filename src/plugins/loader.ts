@@ -7,6 +7,7 @@ export interface LoadedPlugin {
   instance: any;
   context: PluginContext;
   sandbox: PluginSandbox;
+  active: boolean;
   hooks: Map<string, Array<{ handler: Function; priority: number }>>;
   routes: Map<string, { handler: Function; method: string; middleware: Function[] }>;
   tasks: Map<string, { handler: Function; schedule: string }>;
@@ -96,7 +97,18 @@ export class PluginLoader {
     context: PluginContext
   ): Promise<LoadedPlugin> {
     // Create sandbox
-    const sandbox = new PluginSandbox(context, manifest.runtime);
+    const sandboxConfig = manifest.runtime ? {
+      timeoutMs: manifest.runtime.timeout_ms || 30000,
+      memoryLimitMB: manifest.runtime.memory_mb || 128,
+      allowedDomains: [],
+      allowedBindings: manifest.runtime.bindings || ['DB', 'KV', 'R2'],
+      rateLimit: {
+        requests: 100,
+        window: 60000, // 1 minute
+      },
+      permissions: [],
+    } : {};
+    const sandbox = new PluginSandbox(context, sandboxConfig);
 
     // Load plugin entry point
     const pluginInstance = await this.loadPluginEntry(pluginSlug, manifest, sandbox);
@@ -114,6 +126,7 @@ export class PluginLoader {
       instance: pluginInstance,
       context,
       sandbox,
+      active: true,
       hooks,
       routes,
       tasks,

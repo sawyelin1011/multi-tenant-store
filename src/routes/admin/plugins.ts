@@ -4,8 +4,9 @@ import { getWorkerDb } from '../../config/worker-database.js';
 import { plugins, tenantPlugins } from '../../db/schema.js';
 import { PluginManager } from '../../plugins/index.js';
 import { eq, and, desc, like } from 'drizzle-orm';
+import { HonoEnv } from '../../types/bindings.js';
 
-const app = new Hono();
+const app = new Hono<HonoEnv>();
 
 // Initialize plugin manager
 const pluginManager = new PluginManager();
@@ -85,13 +86,13 @@ app.get('/available', async (c) => {
 // List tenant plugins
 app.get('/installed', async (c) => {
   try {
-    const tenantId = c.get('tenantId');
+    const tenantId = c.get('tenantId')!;
     const db = getWorkerDb();
     const limit = parseInt(c.req.query('limit') || '50');
     const offset = parseInt(c.req.query('offset') || '0');
     const status = c.req.query('status');
 
-    let whereCondition = eq(tenantPlugins.tenant_id, tenantId);
+    let whereCondition: any = eq(tenantPlugins.tenant_id, tenantId);
     
     if (status) {
       whereCondition = and(
@@ -154,7 +155,7 @@ app.get('/installed', async (c) => {
 // Get plugin details
 app.get('/:pluginSlug', async (c) => {
   try {
-    const tenantId = c.get('tenantId');
+    const tenantId = c.get('tenantId')!;
     const pluginSlug = c.req.param('pluginSlug');
 
     const db = getWorkerDb();
@@ -205,7 +206,7 @@ app.get('/:pluginSlug', async (c) => {
 // Install plugin
 app.post('/:pluginSlug/install', async (c) => {
   try {
-    const tenantId = c.get('tenantId');
+    const tenantId = c.get('tenantId')!;
     const pluginSlug = c.req.param('pluginSlug');
     const body = await c.req.json();
     const { config } = InstallPluginSchema.parse(body);
@@ -259,7 +260,7 @@ app.post('/:pluginSlug/install', async (c) => {
 // Activate plugin
 app.post('/:pluginSlug/activate', async (c) => {
   try {
-    const tenantId = c.get('tenantId');
+    const tenantId = c.get('tenantId')!;
     const pluginSlug = c.req.param('pluginSlug');
 
     // Activate plugin using plugin manager
@@ -282,7 +283,7 @@ app.post('/:pluginSlug/activate', async (c) => {
 // Deactivate plugin
 app.post('/:pluginSlug/deactivate', async (c) => {
   try {
-    const tenantId = c.get('tenantId');
+    const tenantId = c.get('tenantId')!;
     const pluginSlug = c.req.param('pluginSlug');
 
     // Deactivate plugin using plugin manager
@@ -305,7 +306,7 @@ app.post('/:pluginSlug/deactivate', async (c) => {
 // Uninstall plugin
 app.delete('/:pluginSlug', async (c) => {
   try {
-    const tenantId = c.get('tenantId');
+    const tenantId = c.get('tenantId')!;
     const pluginSlug = c.req.param('pluginSlug');
 
     // Uninstall plugin using plugin manager
@@ -328,7 +329,7 @@ app.delete('/:pluginSlug', async (c) => {
 // Update plugin configuration
 app.put('/:pluginSlug/config', async (c) => {
   try {
-    const tenantId = c.get('tenantId');
+    const tenantId = c.get('tenantId')!;
     const pluginSlug = c.req.param('pluginSlug');
     const body = await c.req.json();
     const { config } = UpdateConfigSchema.parse(body);
@@ -378,7 +379,7 @@ app.put('/:pluginSlug/config', async (c) => {
 // Get plugin configuration
 app.get('/:pluginSlug/config', async (c) => {
   try {
-    const tenantId = c.get('tenantId');
+    const tenantId = c.get('tenantId')!;
     const pluginSlug = c.req.param('pluginSlug');
 
     const db = getWorkerDb();
@@ -455,7 +456,7 @@ app.get('/:pluginSlug/dependencies', async (c) => {
 // Get plugin health status
 app.get('/:pluginSlug/health', async (c) => {
   try {
-    const tenantId = c.get('tenantId');
+    const tenantId = c.get('tenantId')!;
     const pluginSlug = c.req.param('pluginSlug');
 
     // Get plugin info including health

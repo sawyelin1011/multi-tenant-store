@@ -22,7 +22,7 @@ export async function resolveTenantWorker(c: Context<HonoEnv>, next: Next) {
     }
 
     c.set('tenant', tenant);
-    c.set('tenantId', tenant.id);
+    c.set('tenantId', (tenant as any).id);
     await next();
   } catch (error) {
     throw error;
@@ -57,7 +57,7 @@ export async function resolveTenantByDomainWorker(c: Context<HonoEnv>, next: Nex
     }
 
     c.set('tenant', tenant);
-    c.set('tenantId', tenant.id);
+    c.set('tenantId', (tenant as any).id);
     await next();
   } catch (error) {
     throw error;

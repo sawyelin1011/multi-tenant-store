@@ -2,7 +2,7 @@ import { PluginManifest, validatePluginManifest } from './manifest.js';
 import { DependencyResolver, ResolutionResult } from './dependency-resolver.js';
 import { PluginContext, PluginSandbox, PluginExecutionResult } from './context.js';
 import { getWorkerDb } from '../config/worker-database.js';
-import { plugins, tenantPlugins } from '../db/schema.js';
+import { plugins, tenantPlugins, tenants } from '../db/schema.js';
 import { eq, and, inArray } from 'drizzle-orm';
 
 export interface PluginRegistry {
@@ -117,7 +117,18 @@ export class PluginLifecycleManager {
       const context = await this.createPluginContext(tenantId, pluginSlug, config);
       
       // Create sandbox
-      const sandbox = new PluginSandbox(context, plugin.manifest.runtime);
+      const sandboxConfig = plugin.manifest.runtime ? {
+        timeoutMs: plugin.manifest.runtime.timeout_ms || 30000,
+        memoryLimitMB: plugin.manifest.runtime.memory_mb || 128,
+        allowedDomains: [],
+        allowedBindings: plugin.manifest.runtime.bindings || ['DB', 'KV', 'R2'],
+        rateLimit: {
+          requests: 100,
+          window: 60000, // 1 minute
+        },
+        permissions: [],
+      } : {};
+      const sandbox = new PluginSandbox(context, sandboxConfig);
 
       // Run install script if present
       if (plugin.manifest.install_script) {

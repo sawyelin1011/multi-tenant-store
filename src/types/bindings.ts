@@ -14,12 +14,15 @@ export interface Bindings {
   NODE_ENV?: string;
 }
 
-export interface HonoEnv {
-  Bindings: Bindings;
-  Variables: {
-    tenantId?: string;
-    userId?: string;
-    pluginManager?: any;
-    [key: string]: any;
-  };
+export interface Variables {
+  tenantId?: string;
+  userId?: string;
+  pluginManager?: any;
+  tenant?: any;
+  [key: string]: any;
 }
+
+export type HonoEnv = {
+  Bindings: Bindings;
+  Variables: Variables;
+};

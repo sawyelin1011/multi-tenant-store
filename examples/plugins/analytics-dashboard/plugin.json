@@ -1,0 +1,182 @@
+{
+  "name": "Analytics Dashboard",
+  "slug": "analytics-dashboard",
+  "version": "1.0.0",
+  "description": "Comprehensive analytics dashboard with shadcn UI components",
+  "author": "Platform Team",
+  "platform_version": "1.0.0",
+  "category": "analytics",
+  "tags": ["analytics", "dashboard", "charts", "shadcn"],
+  
+  "dependencies": [],
+  "peer_dependencies": [],
+  
+  "hooks": [
+    {
+      "name": "event_tracked",
+      "handler": "src/hooks/eventTracked.ts",
+      "priority": 100
+    },
+    {
+      "name": "page_viewed",
+      "handler": "src/hooks/pageViewed.ts",
+      "priority": 100
+    },
+    {
+      "name": "order_completed",
+      "handler": "src/hooks/orderCompleted.ts",
+      "priority": 100
+    }
+  ],
+  
+  "api_endpoints": [
+    {
+      "method": "GET",
+      "path": "/analytics/metrics",
+      "handler": "src/api/getMetrics.ts",
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/analytics/dashboard",
+      "handler": "src/api/getDashboard.ts",
+      "auth_required": true
+    },
+    {
+      "method": "POST",
+      "path": "/analytics/track",
+      "handler": "src/api/trackEvent.ts",
+      "auth_required": false
+    }
+  ],
+  
+  "admin_ui": {
+    "menu_items": [
+      {
+        "label": "Analytics",
+        "path": "/analytics",
+        "component": "src/admin/Dashboard.tsx",
+        "icon": "bar-chart",
+        "order": 50,
+        "permissions": ["analytics.view"]
+      }
+    ],
+    "widgets": [
+      {
+        "id": "revenue-chart",
+        "component": "src/admin/widgets/RevenueChart.tsx",
+        "dashboard": "analytics",
+        "order": 100,
+        "permissions": ["analytics.view"]
+      },
+      {
+        "id": "orders-chart",
+        "component": "src/admin/widgets/OrdersChart.tsx",
+        "dashboard": "analytics",
+        "order": 200,
+        "permissions": ["analytics.view"]
+      },
+      {
+        "id": "top-products",
+        "component": "src/admin/widgets/TopProducts.tsx",
+        "dashboard": "analytics",
+        "order": 300,
+        "permissions": ["analytics.view"]
+      },
+      {
+        "id": "user-metrics",
+        "component": "src/admin/widgets/UserMetrics.tsx",
+        "dashboard": "main",
+        "order": 100,
+        "permissions": ["analytics.view"]
+      },
+      {
+        "id": "conversion-funnel",
+        "component": "src/admin/widgets/ConversionFunnel.tsx",
+        "dashboard": "orders",
+        "order": 100,
+        "permissions": ["analytics.view"]
+      }
+    ]
+  },
+  
+  "permissions": [
+    "analytics.view",
+    "analytics.manage"
+  ],
+  
+  "settings_schema": {
+    "enabled": {
+      "type": "boolean",
+      "label": "Enable Analytics",
+      "default": true,
+      "group": "General"
+    },
+    "retention_days": {
+      "type": "number",
+      "label": "Data Retention Days",
+      "default": 365,
+      "description": "Number of days to retain analytics data",
+      "validation": {
+        "min": 30,
+        "max": 3650
+      },
+      "group": "Data Management"
+    },
+    "anonymize_ip": {
+      "type": "boolean",
+      "label": "Anonymize IP Addresses",
+      "default": true,
+      "description": "Anonymize user IP addresses for privacy compliance",
+      "group": "Privacy"
+    },
+    "track_page_views": {
+      "type": "boolean",
+      "label": "Track Page Views",
+      "default": true,
+      "group": "Tracking"
+    },
+    "track_events": {
+      "type": "boolean",
+      "label": "Track Custom Events",
+      "default": true,
+      "group": "Tracking"
+    }
+  },
+  
+  "database_migrations": [
+    {
+      "version": "1.0.0",
+      "description": "Create analytics tables",
+      "up": "migrations/001_create_analytics_tables.sql",
+      "down": "migrations/001_drop_analytics_tables.sql"
+    }
+  ],
+  
+  "runtime": {
+    "memory_mb": 256,
+    "timeout_ms": 30000,
+    "bindings": ["KV"]
+  },
+  
+  "scheduled_tasks": [
+    {
+      "name": "cleanup-old-data",
+      "schedule": "0 2 * * *",
+      "handler": "src/tasks/cleanupOldData.ts",
+      "enabled": true
+    },
+    {
+      "name": "aggregate-daily-metrics",
+      "schedule": "0 1 * * *",
+      "handler": "src/tasks/aggregateDailyMetrics.ts",
+      "enabled": true
+    }
+  ],
+  
+  "health_check": {
+    "endpoint": "/health",
+    "interval": "5m",
+    "timeout": 5000
+  }
+}

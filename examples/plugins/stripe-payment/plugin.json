@@ -1,0 +1,191 @@
+{
+  "name": "Stripe Payment Gateway",
+  "slug": "stripe-gateway",
+  "version": "1.0.0",
+  "description": "Stripe payment gateway integration for Digital Commerce Platform",
+  "author": "Platform Team",
+  "platform_version": "1.0.0",
+  "category": "payment",
+  "tags": ["payment", "stripe", "gateway"],
+  
+  "dependencies": [],
+  "peer_dependencies": [],
+  
+  "hooks": [
+    {
+      "name": "before_payment_process",
+      "handler": "src/hooks/beforePaymentProcess.ts",
+      "priority": 100
+    },
+    {
+      "name": "after_payment_success",
+      "handler": "src/hooks/afterPaymentSuccess.ts",
+      "priority": 100
+    },
+    {
+      "name": "after_payment_failure",
+      "handler": "src/hooks/afterPaymentFailure.ts",
+      "priority": 100
+    },
+    {
+      "name": "before_payment_refund",
+      "handler": "src/hooks/beforePaymentRefund.ts",
+      "priority": 100
+    }
+  ],
+  
+  "api_endpoints": [
+    {
+      "method": "POST",
+      "path": "/process-payment",
+      "handler": "src/api/processPayment.ts",
+      "auth_required": true,
+      "rate_limit": {
+        "requests": 10,
+        "window": "1m"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/webhook",
+      "handler": "src/api/webhook.ts",
+      "auth_required": false,
+      "rate_limit": {
+        "requests": 100,
+        "window": "1m"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/payment-methods",
+      "handler": "src/api/getPaymentMethods.ts",
+      "auth_required": true
+    }
+  ],
+  
+  "admin_ui": {
+    "settings_component": "src/admin/Settings.tsx",
+    "menu_items": [
+      {
+        "label": "Stripe Settings",
+        "path": "/stripe",
+        "component": "src/admin/Dashboard.tsx",
+        "icon": "credit-card",
+        "order": 100,
+        "permissions": ["stripe.manage"]
+      }
+    ],
+    "widgets": [
+      {
+        "id": "stripe-revenue",
+        "component": "src/admin/RevenueWidget.tsx",
+        "dashboard": "analytics",
+        "order": 100,
+        "permissions": ["analytics.view"]
+      },
+      {
+        "id": "stripe-transactions",
+        "component": "src/admin/TransactionsWidget.tsx",
+        "dashboard": "orders",
+        "order": 100,
+        "permissions": ["orders.view"]
+      }
+    ]
+  },
+  
+  "permissions": [
+    "stripe.manage",
+    "stripe.view",
+    "stripe.webhook"
+  ],
+  
+  "settings_schema": {
+    "api_key": {
+      "type": "string",
+      "label": "Stripe API Key",
+      "required": true,
+      "sensitive": true,
+      "description": "Your Stripe secret API key",
+      "group": "API Configuration"
+    },
+    "webhook_secret": {
+      "type": "string",
+      "label": "Webhook Signing Secret",
+      "required": true,
+      "sensitive": true,
+      "description": "Webhook signing secret for verifying Stripe events",
+      "group": "API Configuration"
+    },
+    "publishable_key": {
+      "type": "string",
+      "label": "Publishable Key",
+      "required": true,
+      "sensitive": true,
+      "description": "Your Stripe publishable API key",
+      "group": "API Configuration"
+    },
+    "enabled": {
+      "type": "boolean",
+      "label": "Enable Stripe",
+      "default": true,
+      "group": "General"
+    },
+    "test_mode": {
+      "type": "boolean",
+      "label": "Test Mode",
+      "default": true,
+      "description": "Use Stripe test environment",
+      "group": "General"
+    },
+    "webhook_url": {
+      "type": "string",
+      "label": "Webhook URL",
+      "description": "URL where Stripe will send webhook events",
+      "group": "Webhooks"
+    },
+    "success_url": {
+      "type": "string",
+      "label": "Success URL",
+      "description": "URL to redirect to after successful payment",
+      "group": "Checkout"
+    },
+    "cancel_url": {
+      "type": "string",
+      "label": "Cancel URL",
+      "description": "URL to redirect to when payment is cancelled",
+      "group": "Checkout"
+    }
+  },
+  
+  "runtime": {
+    "memory_mb": 256,
+    "timeout_ms": 30000,
+    "cpu_units": 1,
+    "environment": ["STRIPE_API_KEY", "STRIPE_WEBHOOK_SECRET"],
+    "bindings": ["KV", "R2"]
+  },
+  
+  "webhooks": [
+    {
+      "event": "payment_intent.succeeded",
+      "handler": "src/webhooks/paymentIntentSucceeded.ts",
+      "async": true
+    },
+    {
+      "event": "payment_intent.payment_failed",
+      "handler": "src/webhooks/paymentIntentFailed.ts",
+      "async": true
+    },
+    {
+      "event": "payment_intent.canceled",
+      "handler": "src/webhooks/paymentIntentCanceled.ts",
+      "async": true
+    }
+  ],
+  
+  "health_check": {
+    "endpoint": "/health",
+    "interval": "5m",
+    "timeout": 10000
+  }
+}

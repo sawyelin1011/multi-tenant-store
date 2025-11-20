@@ -9,8 +9,8 @@ export function registerStorefrontRoutes(app: Hono<HonoEnv>) {
   const storefront = new Hono<HonoEnv>();
 
   // Helper to get tenantId with type assertion
-  const getTenantId = (c: Context<HonoEnv>) => {
-    const tenantId = getTenantId(c);
+  const getTenantId = (c: Context<HonoEnv>): string => {
+    const tenantId = c.get('tenantId');
     if (!tenantId) {
       throw new Error('Tenant ID not found in context');
     }

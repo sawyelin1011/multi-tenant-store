@@ -10,10 +10,10 @@ export class R2Storage {
 
   async upload(
     key: string,
-    data: ArrayBuffer | ReadableStream,
+    data: ArrayBuffer | ReadableStream<any>,
     options?: UploadOptions
   ): Promise<R2Object> {
-    return this.bucket.put(key, data, {
+    return this.bucket.put(key, data as any, {
       httpMetadata: {
         contentType: options?.contentType,
       },
@@ -54,7 +54,7 @@ export class AssetStore extends R2Storage {
   async uploadAsset(
     tenantId: string,
     filename: string,
-    data: ArrayBuffer | ReadableStream,
+    data: ArrayBuffer | ReadableStream<any>,
     contentType?: string
   ): Promise<string> {
     const key = `${tenantId}/assets/${filename}`;

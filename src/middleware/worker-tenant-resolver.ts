@@ -11,7 +11,7 @@ export async function resolveTenantWorker(c: Context<HonoEnv>, next: Next) {
       throw new NotFoundError('Tenant not found');
     }
 
-    const db = new D1Adapter(c.env.Bindings.DB);
+    const db = new D1Adapter(c.env.DB);
     const tenant = await db.oneOrNone(
       'SELECT * FROM tenants WHERE slug = ? AND status = ?',
       [tenantSlug, 'active']
@@ -36,7 +36,7 @@ export async function resolveTenantByDomainWorker(c: Context<HonoEnv>, next: Nex
       throw new NotFoundError('Tenant not found');
     }
 
-    const db = new D1Adapter(c.env.Bindings.DB);
+    const db = new D1Adapter(c.env.DB);
     let tenant;
 
     tenant = await db.oneOrNone(

@@ -1,4 +1,4 @@
-import { R2Bucket } from '@cloudflare/workers-types';
+import { R2Bucket, R2Object, R2ObjectBody, R2Objects } from '@cloudflare/workers-types';
 
 export interface UploadOptions {
   contentType?: string;
@@ -12,7 +12,7 @@ export class R2Storage {
     key: string,
     data: ArrayBuffer | ReadableStream,
     options?: UploadOptions
-  ): Promise<R2.R2Object> {
+  ): Promise<R2Object> {
     return this.bucket.put(key, data, {
       httpMetadata: {
         contentType: options?.contentType,
@@ -21,7 +21,7 @@ export class R2Storage {
     });
   }
 
-  async download(key: string): Promise<R2.R2ObjectBody | null> {
+  async download(key: string): Promise<R2ObjectBody | null> {
     return this.bucket.get(key);
   }
 
@@ -30,11 +30,10 @@ export class R2Storage {
   }
 
   async deleteMany(keys: string[]): Promise<void> {
-    const objects = await Promise.all(keys.map(key => this.bucket.head(key)));
-    await this.bucket.delete(objects.filter((o): o is R2.R2Object => !!o));
+    await this.bucket.delete(keys);
   }
 
-  async list(options?: { prefix?: string; limit?: number }): Promise<R2.R2Objects> {
+  async list(options?: { prefix?: string; limit?: number }): Promise<R2Objects> {
     return this.bucket.list(options);
   }
 
@@ -63,7 +62,7 @@ export class AssetStore extends R2Storage {
     return key;
   }
 
-  async downloadAsset(tenantId: string, assetKey: string): Promise<R2.R2ObjectBody | null> {
+  async downloadAsset(tenantId: string, assetKey: string): Promise<R2ObjectBody | null> {
     const key = `${tenantId}/assets/${assetKey}`;
     return this.download(key);
   }
@@ -73,7 +72,7 @@ export class AssetStore extends R2Storage {
     await this.delete(key);
   }
 
-  async listAssets(tenantId: string): Promise<R2.R2Objects> {
+  async listAssets(tenantId: string): Promise<R2Objects> {
     return this.list({ prefix: `${tenantId}/assets/` });
   }
 }

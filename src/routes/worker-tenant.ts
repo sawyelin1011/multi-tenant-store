@@ -1,52 +1,61 @@
-import { Hono } from 'hono';
+import { Hono, Context } from 'hono';
 import { HonoEnv } from '../types/bindings.js';
 import { resolveTenantWorker } from '../middleware/worker-tenant-resolver.js';
 import { verifyTenantTokenWorker } from '../middleware/worker-auth.js';
-import { productService } from '../services/productService.js';
-import { productTypeService } from '../services/productTypeService.js';
-import { workflowService } from '../services/workflowService.js';
-import { deliveryService } from '../services/deliveryService.js';
-import { pluginService } from '../services/pluginService.js';
-import { orderService } from '../services/orderService.js';
-import { integrationService } from '../services/integrationService.js';
-import { paymentService } from '../services/paymentService.js';
+import { drizzleProductService } from '../services/drizzle-product-service.js';
+import { drizzleProductTypeService } from '../services/drizzle-product-type-service.js';
+import { drizzleWorkflowService } from '../services/drizzle-workflow-service.js';
+import { drizzleDeliveryService } from '../services/drizzle-delivery-service.js';
+import { drizzlePluginService } from '../services/drizzle-plugin-service.js';
+import { drizzleOrderService } from '../services/drizzle-order-service.js';
+import { drizzleIntegrationService } from '../services/drizzle-integration-service.js';
+import { drizzlePaymentService } from '../services/drizzle-payment-service.js';
 
 export function registerTenantRoutes(app: Hono<HonoEnv>) {
   const tenant = new Hono<HonoEnv>();
+
+  // Helper to get tenantId with type assertion
+  const getTenantId = (c: Context<HonoEnv>) => {
+    const tenantId = getTenantId(c);
+    if (!tenantId) {
+      throw new Error('Tenant ID not found in context');
+    }
+    return tenantId;
+  };
 
   // Product Types
   const productTypes = new Hono<HonoEnv>();
 
   productTypes.post('/', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
 
-    const productType = await productTypeService.createProductType(tenantId, body);
+    const productType = await drizzleProductTypeService.createProductType(tenantId, body);
     return c.json({ success: true, data: productType }, 201);
   });
 
   productTypes.get('/', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const result = await productTypeService.listProductTypes(tenantId);
+    const tenantId = getTenantId(c);
+    const result = await drizzleProductTypeService.listProductTypes(tenantId);
     return c.json({ success: true, data: result });
   });
 
   productTypes.get('/:id', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const productType = await productTypeService.getProductType(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    const productType = await drizzleProductTypeService.getProductType(tenantId, c.req.param('id'));
     return c.json({ success: true, data: productType });
   });
 
   productTypes.put('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
-    const productType = await productTypeService.updateProductType(tenantId, c.req.param('id'), body);
+    const productType = await drizzleProductTypeService.updateProductType(tenantId, c.req.param('id'), body);
     return c.json({ success: true, data: productType });
   });
 
   productTypes.delete('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    await productTypeService.deleteProductType(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    await drizzleProductTypeService.deleteProductType(tenantId, c.req.param('id'));
     return c.json({ success: true, message: 'Product type deleted' });
   });
 
@@ -54,10 +63,10 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   const products = new Hono<HonoEnv>();
 
   products.post('/', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const { product_type_id, name, slug, status, metadata } = await c.req.json();
 
-    const product = await productService.createProduct(tenantId, {
+    const product = await drizzleProductService.createProduct(tenantId, {
       product_type_id,
       name,
       slug,
@@ -69,7 +78,7 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   });
 
   products.get('/', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const page = parseInt(c.req.query('page') || '1') || 1;
     const limit = parseInt(c.req.query('limit') || '50') || 50;
     const offset = (page - 1) * limit;
@@ -79,14 +88,14 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
       status: c.req.query('status'),
     };
 
-    const result = await productService.listProducts(tenantId, filters, limit, offset);
+    const result = await drizzleProductService.listProducts(tenantId, filters, limit, offset);
     return c.json({ success: true, data: result });
   });
 
   products.get('/:id', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const product = await productService.getProduct(tenantId, c.req.param('id'));
-    const attributes = await productService.getAttributes(product.id);
+    const tenantId = getTenantId(c);
+    const product = await drizzleProductService.getProduct(tenantId, c.req.param('id'));
+    const attributes = await drizzleProductService.getAttributes(product.id);
 
     return c.json({
       success: true,
@@ -98,10 +107,10 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   });
 
   products.put('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const { name, slug, status, metadata } = await c.req.json();
 
-    const product = await productService.updateProduct(tenantId, c.req.param('id'), {
+    const product = await drizzleProductService.updateProduct(tenantId, c.req.param('id'), {
       name,
       slug,
       status,
@@ -114,7 +123,7 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   products.post('/:id/attributes/:key', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
     const { value, type } = await c.req.json();
 
-    const attribute = await productService.setAttribute(
+    const attribute = await drizzleProductService.setAttribute(
       c.req.param('id'),
       c.req.param('key'),
       value,
@@ -125,13 +134,13 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   });
 
   products.get('/:id/attributes', resolveTenantWorker, async (c) => {
-    const attributes = await productService.getAttributes(c.req.param('id'));
+    const attributes = await drizzleProductService.getAttributes(c.req.param('id'));
     return c.json({ success: true, data: attributes });
   });
 
   products.delete('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    await productService.deleteProduct(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    await drizzleProductService.deleteProduct(tenantId, c.req.param('id'));
     return c.json({ success: true, message: 'Product deleted' });
   });
 
@@ -139,35 +148,35 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   const workflows = new Hono<HonoEnv>();
 
   workflows.post('/', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
 
-    const workflow = await workflowService.createWorkflow(tenantId, body);
+    const workflow = await drizzleWorkflowService.createWorkflow(tenantId, body);
     return c.json({ success: true, data: workflow }, 201);
   });
 
   workflows.get('/', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const result = await workflowService.listWorkflows(tenantId);
+    const tenantId = getTenantId(c);
+    const result = await drizzleWorkflowService.listWorkflows(tenantId);
     return c.json({ success: true, data: result });
   });
 
   workflows.get('/:id', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const workflow = await workflowService.getWorkflow(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    const workflow = await drizzleWorkflowService.getWorkflow(tenantId, c.req.param('id'));
     return c.json({ success: true, data: workflow });
   });
 
   workflows.put('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
-    const workflow = await workflowService.updateWorkflow(tenantId, c.req.param('id'), body);
+    const workflow = await drizzleWorkflowService.updateWorkflow(tenantId, c.req.param('id'), body);
     return c.json({ success: true, data: workflow });
   });
 
   workflows.delete('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    await workflowService.deleteWorkflow(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    await drizzleWorkflowService.deleteWorkflow(tenantId, c.req.param('id'));
     return c.json({ success: true, message: 'Workflow deleted' });
   });
 
@@ -175,35 +184,35 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   const deliveryMethods = new Hono<HonoEnv>();
 
   deliveryMethods.post('/', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
 
-    const method = await deliveryService.createDeliveryMethod(tenantId, body);
+    const method = await drizzleDeliveryService.createDeliveryMethod(tenantId, body);
     return c.json({ success: true, data: method }, 201);
   });
 
   deliveryMethods.get('/', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const result = await deliveryService.listDeliveryMethods(tenantId);
+    const tenantId = getTenantId(c);
+    const result = await drizzleDeliveryService.listDeliveryMethods(tenantId);
     return c.json({ success: true, data: result });
   });
 
   deliveryMethods.get('/:id', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const method = await deliveryService.getDeliveryMethod(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    const method = await drizzleDeliveryService.getDeliveryMethod(tenantId, c.req.param('id'));
     return c.json({ success: true, data: method });
   });
 
   deliveryMethods.put('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
-    const method = await deliveryService.updateDeliveryMethod(tenantId, c.req.param('id'), body);
+    const method = await drizzleDeliveryService.updateDeliveryMethod(tenantId, c.req.param('id'), body);
     return c.json({ success: true, data: method });
   });
 
   deliveryMethods.delete('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    await deliveryService.deleteDeliveryMethod(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    await drizzleDeliveryService.deleteDeliveryMethod(tenantId, c.req.param('id'));
     return c.json({ success: true, message: 'Delivery method deleted' });
   });
 
@@ -211,35 +220,35 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   const plugins = new Hono<HonoEnv>();
 
   plugins.post('/', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const { plugin_id, config } = await c.req.json();
 
-    const result = await pluginService.installPlugin(tenantId, plugin_id, config);
+    const result = await drizzlePluginService.installPlugin(tenantId, plugin_id, config);
     return c.json({ success: true, data: result }, 201);
   });
 
   plugins.get('/', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const result = await pluginService.listTenantPlugins(tenantId);
+    const tenantId = getTenantId(c);
+    const result = await drizzlePluginService.listTenantPlugins(tenantId);
     return c.json({ success: true, data: result });
   });
 
   plugins.get('/:id', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const plugin = await pluginService.getTenantPlugin(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    const plugin = await drizzlePluginService.getTenantPlugin(tenantId, c.req.param('id'));
     return c.json({ success: true, data: plugin });
   });
 
   plugins.put('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
-    const plugin = await pluginService.updateTenantPluginConfig(tenantId, c.req.param('id'), body);
+    const plugin = await drizzlePluginService.updateTenantPluginConfig(tenantId, c.req.param('id'), body);
     return c.json({ success: true, data: plugin });
   });
 
   plugins.delete('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    await pluginService.uninstallPlugin(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    await drizzlePluginService.uninstallPlugin(tenantId, c.req.param('id'));
     return c.json({ success: true, message: 'Plugin uninstalled' });
   });
 
@@ -247,26 +256,26 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   const orders = new Hono<HonoEnv>();
 
   orders.post('/', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
 
-    const order = await orderService.createOrder(tenantId, body);
+    const order = await drizzleOrderService.createOrder(tenantId, body);
     return c.json({ success: true, data: order }, 201);
   });
 
   orders.get('/', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const page = parseInt(c.req.query('page') || '1') || 1;
     const limit = parseInt(c.req.query('limit') || '50') || 50;
     const offset = (page - 1) * limit;
 
-    const result = await orderService.listOrders(tenantId, limit, offset);
+    const result = await drizzleOrderService.listOrders(tenantId, limit, offset);
     return c.json({ success: true, data: result });
   });
 
   orders.get('/:id', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const order = await orderService.getOrder(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    const order = await drizzleOrderService.getOrder(tenantId, c.req.param('id'));
     return c.json({ success: true, data: order });
   });
 
@@ -274,35 +283,35 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   const integrations = new Hono<HonoEnv>();
 
   integrations.post('/', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
 
-    const integration = await integrationService.createIntegration(tenantId, body);
+    const integration = await drizzleIntegrationService.createIntegration(tenantId, body);
     return c.json({ success: true, data: integration }, 201);
   });
 
   integrations.get('/', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const result = await integrationService.listIntegrations(tenantId);
+    const tenantId = getTenantId(c);
+    const result = await drizzleIntegrationService.listIntegrations(tenantId);
     return c.json({ success: true, data: result });
   });
 
   integrations.get('/:id', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const integration = await integrationService.getIntegration(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    const integration = await drizzleIntegrationService.getIntegration(tenantId, c.req.param('id'));
     return c.json({ success: true, data: integration });
   });
 
   integrations.put('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
-    const integration = await integrationService.updateIntegration(tenantId, c.req.param('id'), body);
+    const integration = await drizzleIntegrationService.updateIntegration(tenantId, c.req.param('id'), body);
     return c.json({ success: true, data: integration });
   });
 
   integrations.delete('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    await integrationService.deleteIntegration(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    await drizzleIntegrationService.deleteIntegration(tenantId, c.req.param('id'));
     return c.json({ success: true, message: 'Integration deleted' });
   });
 
@@ -310,28 +319,28 @@ export function registerTenantRoutes(app: Hono<HonoEnv>) {
   const paymentGateways = new Hono<HonoEnv>();
 
   paymentGateways.post('/', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
+    const tenantId = getTenantId(c);
     const body = await c.req.json();
 
-    const gateway = await paymentService.configurePaymentGateway(tenantId, body);
+    const gateway = await drizzlePaymentService.createPaymentGateway(tenantId, body);
     return c.json({ success: true, data: gateway }, 201);
   });
 
   paymentGateways.get('/', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const result = await paymentService.listPaymentGateways(tenantId);
+    const tenantId = getTenantId(c);
+    const result = await drizzlePaymentService.listPaymentGateways(tenantId);
     return c.json({ success: true, data: result });
   });
 
   paymentGateways.get('/:id', resolveTenantWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    const gateway = await paymentService.getPaymentGateway(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    const gateway = await drizzlePaymentService.getPaymentGateway(tenantId, c.req.param('id'));
     return c.json({ success: true, data: gateway });
   });
 
   paymentGateways.delete('/:id', resolveTenantWorker, verifyTenantTokenWorker, async (c) => {
-    const tenantId = c.get('tenantId');
-    await paymentService.removePaymentGateway(tenantId, c.req.param('id'));
+    const tenantId = getTenantId(c);
+    await drizzlePaymentService.deletePaymentGateway(tenantId, c.req.param('id'));
     return c.json({ success: true, message: 'Payment gateway removed' });
   });
 

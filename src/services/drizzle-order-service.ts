@@ -62,11 +62,11 @@ export class DrizzleOrderService {
     let whereClause = eq(orders.tenant_id, tenantId);
 
     if (filters.status) {
-      whereClause = and(whereClause, eq(orders.status, filters.status));
+      whereClause = and(whereClause, eq(orders.status, filters.status))!;
     }
 
     if (filters.user_id) {
-      whereClause = and(whereClause, eq(orders.user_id, filters.user_id));
+      whereClause = and(whereClause, eq(orders.user_id, filters.user_id))!;
     }
 
     const data = await db.query.orders.findMany({

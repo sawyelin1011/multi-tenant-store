@@ -29,7 +29,7 @@ export class KVStorage {
     await this.kv.delete(key);
   }
 
-  async list(options?: { prefix?: string; limit?: number }): Promise<KVNamespace.ListResult<unknown>> {
+  async list(options?: { prefix?: string; limit?: number }): Promise<{ keys: Array<{ name: string; expiration?: number }>; list_complete: boolean; cursor?: string }> {
     return this.kv.list(options);
   }
 }

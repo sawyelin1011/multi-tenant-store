@@ -44,7 +44,7 @@ async function rollbackMigration(version: number, name: string) {
 async function up() {
   const migrations = await getMigrations();
   const executed = await getExecutedMigrations();
-  const executedVersions = new Set(executed.map(m => m.version));
+  const executedVersions = new Set(executed.map((m: { version: number; name: string }) => m.version));
 
   for (const file of migrations) {
     const version = parseInt(file.split('_')[0], 10);

@@ -127,7 +127,7 @@ export class DrizzlePluginService {
     const data = await db.query.tenantPlugins.findMany({
       where: eq(tenantPlugins.tenant_id, tenantId),
       with: {
-        plugins: true,
+        plugin: true,
       },
       orderBy: (tp) => desc(tp.installed_at),
       limit,
@@ -161,7 +161,6 @@ export class DrizzlePluginService {
       .update(tenantPlugins)
       .set({
         config: JSON.stringify(config),
-        updated_at: new Date().toISOString(),
       })
       .where(and(eq(tenantPlugins.tenant_id, tenantId), eq(tenantPlugins.plugin_id, pluginId)))
       .returning();

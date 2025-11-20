@@ -2,7 +2,7 @@
   "name": "Stripe Payment Gateway",
   "slug": "stripe-gateway",
   "version": "1.0.0",
-  "description": "Stripe payment gateway integration for Digital Commerce Platform",
+  "description": "Stripe payment gateway integration for MTC Platform",
   "author": "Platform Team",
   "platform_version": "1.0.0",
   "category": "payment",

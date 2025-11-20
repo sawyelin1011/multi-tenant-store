@@ -1,6 +1,6 @@
-# Getting Started with Digital Commerce Platform
+# Getting Started with MTC Platform
 
-Complete beginner's guide to setting up and using the Digital Commerce Platform with both Express.js and Cloudflare Workers support.
+Complete beginner's guide to setting up and using the MTC Platform with both Express.js and Cloudflare Workers support.
 
 ## Quick Start (5 minutes)
 
@@ -9,7 +9,7 @@ Complete beginner's guide to setting up and using the Digital Commerce Platform 
 ```bash
 # Clone and install
 git clone <repository>
-cd digital-commerce-platform
+cd mtc-platform
 npm install
 
 # Setup database

@@ -1,6 +1,6 @@
 # Documentation Index
 
-Complete reference guide to all documentation for the Digital Commerce Platform.
+Complete reference guide to all documentation for the MTC Platform.
 
 ## Quick Navigation
 

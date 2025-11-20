@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import Handlebars from 'handlebars';
 import { kebabCase, pascalCase, camelCase } from 'lodash-es';
+import { loadBrandConfigFromArgs, getPackageScope, getPlatformName, type BrandConfig } from '@mtc-platform/config';
 
 interface ScaffoldOptions {
   directory: string;
@@ -13,10 +14,28 @@ interface ScaffoldOptions {
   template?: string;
 }
 
-export async function scaffoldPlugin(type: string, name: string, options: ScaffoldOptions): Promise<void> {
+interface BrandOptions {
+  brand?: string;
+  scope?: string;
+  npmOrg?: string;
+  githubOrg?: string;
+  brandColor?: string;
+  brandLogo?: string;
+  platformName?: string;
+  cliName?: string;
+  docsUrl?: string;
+  supportEmail?: string;
+}
+
+export async function scaffoldPlugin(type: string, name: string, options: ScaffoldOptions, brandOptions?: BrandOptions): Promise<void> {
   const spinner = ora('Scaffolding plugin...').start();
   
   try {
+    // Load brand configuration
+    const brandConfig = brandOptions ? loadBrandConfigFromArgs(brandOptions) : loadBrandConfigFromArgs({});
+    const platformName = getPlatformName(brandConfig);
+    const packageScope = getPackageScope('plugin-sdk', brandConfig);
+    
     // Validate plugin type
     const validTypes = ['cms', 'auth', 'payment', 'delivery', 'email', 'analytics', 'integration', 'ui', 'workflow', 'utility'];
     if (!validTypes.includes(type)) {
@@ -40,6 +59,9 @@ export async function scaffoldPlugin(type: string, name: string, options: Scaffo
       author: options.author || 'Plugin Developer',
       description: options.description || `${pascalCase(name)} ${type} plugin`,
       year: new Date().getFullYear(),
+      brand: brandConfig,
+      platformName,
+      packageScope,
     };
 
     // Copy template files
@@ -64,7 +86,7 @@ export async function scaffoldPlugin(type: string, name: string, options: Scaffo
     console.log(`  2. npm install`);
     console.log(`  3. Edit plugin.json with your details`);
     console.log(`  4. Implement your plugin logic in src/`);
-    console.log(`  5. Run "admin-cli validate" to check your plugin`);
+    console.log(`  5. Run "mtc-admin validate" to check your plugin`);
     
   } catch (error) {
     spinner.fail('Scaffolding failed');
@@ -128,7 +150,7 @@ async function createPluginFiles(pluginDir: string, context: any): Promise<void>
       test: 'vitest',
     },
     dependencies: {
-      '@digital-commerce/plugin-sdk': '^1.0.0',
+      [context.packageScope]: '^1.0.0',
     },
     devDependencies: {
       '@types/node': '^20.10.0',
@@ -302,7 +324,7 @@ function generatePluginManifest(context: any): any {
 }
 
 function generateIndexFile(context: any): string {
-  return `import { ${context.type === 'payment' ? 'PaymentPlugin' : context.type === 'email' ? 'EmailPlugin' : context.type === 'auth' ? 'AuthPlugin' : 'BasePlugin'}, PluginContext } from '@digital-commerce/plugin-sdk';
+  return `import { ${context.type === 'payment' ? 'PaymentPlugin' : context.type === 'email' ? 'EmailPlugin' : context.type === 'auth' ? 'AuthPlugin' : 'BasePlugin'}, PluginContext } from '${context.packageScope}';
 
 export default class ${context.className}Plugin implements ${context.type === 'payment' ? 'PaymentPlugin' : context.type === 'email' ? 'EmailPlugin' : context.type === 'auth' ? 'AuthPlugin' : 'BasePlugin'} {
   name = '${context.name}';
@@ -368,7 +390,7 @@ ${context.description}
 
 ## Installation
 
-1. Add the plugin to your Digital Commerce Platform
+1. Add the plugin to your ${context.platformName}
 2. Configure the plugin settings
 3. Activate the plugin
 

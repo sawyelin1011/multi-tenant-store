@@ -1,6 +1,6 @@
 # Development Guide
 
-This guide covers the dual runtime development setup for the Digital Commerce Platform.
+This guide covers the dual runtime development setup for the MTC Platform.
 
 ## Architecture Overview
 

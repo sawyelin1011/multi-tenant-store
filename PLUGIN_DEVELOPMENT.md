@@ -1,6 +1,6 @@
 # Plugin Development Guide
 
-This guide covers how to develop plugins for the Digital Commerce Platform.
+This guide covers how to develop plugins for the MTC Platform.
 
 ## Plugin Structure
 

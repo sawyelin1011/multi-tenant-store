@@ -1,8 +1,8 @@
-# Digital Commerce Platform - Architecture Documentation
+# MTC Platform - Architecture Documentation
 
 ## System Overview
 
-The Digital Commerce Platform is a flexible, multi-tenant digital commerce solution that supports ANY type of digital products through a combination of:
+The MTC Platform is a flexible, multi-tenant digital commerce solution that supports ANY type of digital products through a combination of:
 
 1. **Multi-Tenant Architecture** - Complete data isolation with shared infrastructure
 2. **Plugin System** - Extensible hooks for all major events

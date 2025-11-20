@@ -1,6 +1,6 @@
 # API Documentation
 
-Complete API reference for the Digital Commerce Platform.
+Complete API reference for the MTC Platform.
 
 ## Authentication
 

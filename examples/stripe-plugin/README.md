@@ -1,6 +1,6 @@
 # Stripe Payment Gateway Plugin
 
-Official Stripe payment gateway integration for the Digital Commerce Platform.
+Official Stripe payment gateway integration for the MTC Platform.
 
 ## Features
 

@@ -1,11 +1,11 @@
-# Digital Commerce Platform - Plugin SDK
+# MTC Platform - Plugin SDK
 
-A comprehensive SDK for developing plugins for the Digital Commerce Platform. Built with TypeScript, provides type-safe plugin development with a Medusa-like architecture.
+A comprehensive SDK for developing plugins for the MTC Platform. Built with TypeScript, provides type-safe plugin development with a Medusa-like architecture.
 
 ## Installation
 
 ```bash
-npm install @digital-commerce/plugin-sdk
+npm install @mtc-platform/plugin-sdk
 ```
 
 ## Quick Start
@@ -13,7 +13,7 @@ npm install @digital-commerce/plugin-sdk
 ### Create a Payment Plugin
 
 ```typescript
-import { createPaymentPlugin, PluginContext } from '@digital-commerce/plugin-sdk';
+import { createPaymentPlugin, PluginContext } from '@mtc-platform/plugin-sdk';
 
 export default class StripePaymentPlugin {
   name = 'Stripe Payment Gateway';
@@ -58,7 +58,7 @@ export { manifest };
 ### Create an Auth Plugin
 
 ```typescript
-import { createAuthPlugin, PluginContext } from '@digital-commerce/plugin-sdk';
+import { createAuthPlugin, PluginContext } from '@mtc-platform/plugin-sdk';
 
 export default class GoogleAuthPlugin {
   name = 'Google OAuth';
@@ -156,7 +156,7 @@ The SDK provides fluent builders for creating plugin manifests:
 ### Basic Builder
 
 ```typescript
-import { createPlugin } from '@digital-commerce/plugin-sdk';
+import { createPlugin } from '@mtc-platform/plugin-sdk';
 
 const manifest = createPlugin('My Plugin', 'my-plugin')
   .version('1.0.0')
@@ -263,7 +263,7 @@ const manifest = createPlugin('My Plugin', 'my-plugin')
 ### Hook Implementation
 
 ```typescript
-import { HookHandler, PluginContext, PaymentHookData } from '@digital-commerce/plugin-sdk';
+import { HookHandler, PluginContext, PaymentHookData } from '@mtc-platform/plugin-sdk';
 
 const handler: HookHandler<PaymentHookData> = async (context: PluginContext, data) => {
   // Your hook logic here
@@ -284,7 +284,7 @@ export default handler;
 ### Hook Decorator
 
 ```typescript
-import { Hook, HookDefinitions } from '@digital-commerce/plugin-sdk';
+import { Hook, HookDefinitions } from '@mtc-platform/plugin-sdk';
 
 export default class MyPlugin {
   @Hook(HookDefinitions.BEFORE_PAYMENT_PROCESS, 50)
@@ -299,7 +299,7 @@ export default class MyPlugin {
 ### Registering Components
 
 ```typescript
-import { createComponent, createWidget, createMenuItem } from '@digital-commerce/plugin-sdk';
+import { createComponent, createWidget, createMenuItem } from '@mtc-platform/plugin-sdk';
 
 // Register a component
 createComponent('my-component', 'My Component')
@@ -328,7 +328,7 @@ createMenuItem('My Plugin', '/my-plugin')
 ### shadcn/ui Components
 
 ```typescript
-import { ShadcnComponents } from '@digital-commerce/plugin-sdk';
+import { ShadcnComponents } from '@mtc-platform/plugin-sdk';
 
 // Create a form with shadcn components
 const formSchema = {
@@ -417,7 +417,7 @@ interface PluginContext {
 ## Example: Complete Payment Plugin
 
 ```typescript
-import { createPaymentPlugin, PluginContext } from '@digital-commerce/plugin-sdk';
+import { createPaymentPlugin, PluginContext } from '@mtc-platform/plugin-sdk';
 
 export default class StripePaymentPlugin {
   name = 'Stripe Payment Gateway';

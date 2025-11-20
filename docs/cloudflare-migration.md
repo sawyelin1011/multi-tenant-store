@@ -14,7 +14,7 @@ A comprehensive guide to migrating from Express.js + PostgreSQL to Cloudflare Wo
 
 ## Overview
 
-The Digital Commerce Platform now supports dual runtimes:
+The MTC Platform now supports dual runtimes:
 
 - **Express.js**: Traditional Node.js runtime for local development and self-hosted deployments
 - **Cloudflare Workers**: Serverless edge computing for global, low-latency production deployments

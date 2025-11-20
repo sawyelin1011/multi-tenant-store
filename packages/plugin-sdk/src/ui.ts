@@ -296,7 +296,7 @@ export class ComponentBuilder {
     return this;
   }
 
-  component(comp: any): ComponentBuilder {
+  componentType(comp: any): ComponentBuilder {
     this.component.component = comp;
     return this;
   }
@@ -517,14 +517,4 @@ export const ShadcnComponents = {
   }),
 };
 
-// Export all UI-related types and utilities
-export type {
-  UIComponent,
-  WidgetDefinition,
-  MenuItem,
-  FormField,
-  FormSchema,
-  DataTableColumn,
-  DataTableConfig,
-  ChartConfig,
-};
+// All exports are already handled by individual exports above

@@ -2,7 +2,7 @@
   "name": "Google OAuth Auth Provider",
   "slug": "google-oauth",
   "version": "1.0.0",
-  "description": "Google OAuth authentication provider for Digital Commerce Platform",
+  "description": "Google OAuth authentication provider for MTC Platform",
   "author": "Platform Team",
   "platform_version": "1.0.0",
   "category": "auth",

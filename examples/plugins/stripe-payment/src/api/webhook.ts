@@ -1,4 +1,4 @@
-import { RouteHandler, PluginContext } from '@digital-commerce/plugin-sdk';
+import { RouteHandler, PluginContext } from '@mtc-platform/plugin-sdk';
 import crypto from 'crypto';
 
 const handler: RouteHandler = async (context: PluginContext, req, res, next) => {

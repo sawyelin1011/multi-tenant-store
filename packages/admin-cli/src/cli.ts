@@ -2,23 +2,39 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { scaffoldPlugin } from './commands/scaffold.js';
-import { addHook } from './commands/add-hook.js';
-import { generateManifest } from './commands/generate-manifest.js';
-import { validatePlugin } from './commands/validate.js';
-import { listPlugins } from './commands/list.js';
-import { installPlugin } from './commands/install.js';
-import { uninstallPlugin } from './commands/uninstall.js';
+import { loadBrandConfigFromArgs, getCliName, getPlatformName } from '@mtc-platform/config';
+import { scaffoldPlugin } from './commands/scaffold';
+import { addHook } from './commands/add-hook';
+import { generateManifest } from './commands/generate-manifest';
+import { validatePlugin } from './commands/validate';
+import { listPlugins } from './commands/list';
+import { installPlugin } from './commands/install';
+import { uninstallPlugin } from './commands/uninstall';
 
 const program = new Command();
 
+// Load brand configuration from CLI args
+const brandConfig = loadBrandConfigFromArgs(process.argv);
+const cliName = getCliName(brandConfig);
+const platformName = getPlatformName(brandConfig);
+
 // CLI configuration
 program
-  .name('admin-cli')
-  .description('CLI tool for managing Digital Commerce Platform plugins')
+  .name(cliName)
+  .description(`CLI tool for managing ${platformName} plugins`)
   .version('1.0.0')
   .option('-v, --verbose', 'Enable verbose logging')
-  .option('--config <path>', 'Path to configuration file', './admin-cli.config.json');
+  .option('--config <path>', 'Path to configuration file', './mtc-admin.config.json')
+  .option('--brand <brand>', 'Brand name override')
+  .option('--scope <scope>', 'Package scope override')
+  .option('--npm-org <org>', 'NPM organization override')
+  .option('--github-org <org>', 'GitHub organization override')
+  .option('--brand-color <color>', 'Brand color override (hex)')
+  .option('--brand-logo <url>', 'Brand logo URL override')
+  .option('--platform-name <name>', 'Platform name override')
+  .option('--cli-name <name>', 'CLI binary name override')
+  .option('--docs-url <url>', 'Documentation URL override')
+  .option('--support-email <email>', 'Support email override');
 
 // Plugin scaffolding command
 program
@@ -31,9 +47,26 @@ program
   .option('--author <author>', 'Plugin author')
   .option('--description <description>', 'Plugin description')
   .option('--template <template>', 'Custom template to use')
+  .option('--brand <brand>', 'Brand name override')
+  .option('--scope <scope>', 'Package scope override')
   .action(async (type, name, options) => {
     try {
-      await scaffoldPlugin(type, name, options);
+      // Merge brand options from global CLI options
+      const globalOptions = program.opts();
+      const brandOptions = {
+        brand: options.brand || globalOptions.brand,
+        scope: options.scope || globalOptions.scope,
+        npmOrg: globalOptions['npm-org'],
+        githubOrg: globalOptions['github-org'],
+        brandColor: globalOptions['brand-color'],
+        brandLogo: globalOptions['brand-logo'],
+        platformName: globalOptions['platform-name'],
+        cliName: globalOptions['cli-name'],
+        docsUrl: globalOptions['docs-url'],
+        supportEmail: globalOptions['support-email'],
+      };
+      
+      await scaffoldPlugin(type, name, options, brandOptions);
       console.log(chalk.green(`✅ Plugin "${name}" scaffolded successfully!`));
     } catch (error) {
       console.error(chalk.red(`❌ Error scaffolding plugin: ${error instanceof Error ? error.message : String(error)}`));

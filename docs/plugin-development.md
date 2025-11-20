@@ -1,6 +1,6 @@
 # Plugin Development Guide (Updated for Workers + shadcn)
 
-Comprehensive guide to developing plugins for the Digital Commerce Platform with support for both Express and Cloudflare Workers runtimes, including plugin hooks, UI components, admin dashboard integration, and the new shadcn-based UI system.
+Comprehensive guide to developing plugins for the MTC Platform with support for both Express and Cloudflare Workers runtimes, including plugin hooks, UI components, admin dashboard integration, and the new shadcn-based UI system.
 
 ## Table of Contents
 

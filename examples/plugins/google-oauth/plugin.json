@@ -1,0 +1,133 @@
+{
+  "name": "Google OAuth Auth Provider",
+  "slug": "google-oauth",
+  "version": "1.0.0",
+  "description": "Google OAuth authentication provider for Digital Commerce Platform",
+  "author": "Platform Team",
+  "platform_version": "1.0.0",
+  "category": "auth",
+  "tags": ["auth", "oauth", "google"],
+  
+  "dependencies": [],
+  "peer_dependencies": [],
+  
+  "hooks": [
+    {
+      "name": "before_authenticate",
+      "handler": "src/hooks/beforeAuthenticate.ts",
+      "priority": 100
+    },
+    {
+      "name": "after_authenticate",
+      "handler": "src/hooks/afterAuthenticate.ts",
+      "priority": 100
+    },
+    {
+      "name": "user_login",
+      "handler": "src/hooks/userLogin.ts",
+      "priority": 100
+    }
+  ],
+  
+  "api_endpoints": [
+    {
+      "method": "GET",
+      "path": "/auth/google",
+      "handler": "src/api/oauthRedirect.ts",
+      "auth_required": false
+    },
+    {
+      "method": "GET",
+      "path": "/auth/google/callback",
+      "handler": "src/api/oauthCallback.ts",
+      "auth_required": false
+    },
+    {
+      "method": "POST",
+      "path": "/auth/google/verify",
+      "handler": "src/api/verifyToken.ts",
+      "auth_required": false
+    }
+  ],
+  
+  "admin_ui": {
+    "settings_component": "src/admin/Settings.tsx",
+    "menu_items": [
+      {
+        "label": "Google Auth",
+        "path": "/auth/google",
+        "component": "src/admin/Dashboard.tsx",
+        "icon": "google",
+        "order": 100,
+        "permissions": ["auth.manage"]
+      }
+    ]
+  },
+  
+  "permissions": [
+    "auth.manage",
+    "auth.view"
+  ],
+  
+  "settings_schema": {
+    "client_id": {
+      "type": "string",
+      "label": "Google Client ID",
+      "required": true,
+      "sensitive": true,
+      "description": "Google OAuth 2.0 Client ID",
+      "group": "OAuth Configuration"
+    },
+    "client_secret": {
+      "type": "string",
+      "label": "Google Client Secret",
+      "required": true,
+      "sensitive": true,
+      "description": "Google OAuth 2.0 Client Secret",
+      "group": "OAuth Configuration"
+    },
+    "redirect_uri": {
+      "type": "string",
+      "label": "Redirect URI",
+      "required": true,
+      "description": "Callback URL after Google authentication",
+      "group": "OAuth Configuration"
+    },
+    "enabled": {
+      "type": "boolean",
+      "label": "Enable Google Auth",
+      "default": true,
+      "group": "General"
+    },
+    "auto_create_users": {
+      "type": "boolean",
+      "label": "Auto-create Users",
+      "default": true,
+      "description": "Automatically create new users on first login",
+      "group": "User Management"
+    },
+    "default_role": {
+      "type": "select",
+      "label": "Default Role",
+      "default": "customer",
+      "options": [
+        {"label": "Customer", "value": "customer"},
+        {"label": "Admin", "value": "admin"},
+        {"label": "Manager", "value": "manager"}
+      ],
+      "group": "User Management"
+    }
+  },
+  
+  "runtime": {
+    "memory_mb": 128,
+    "timeout_ms": 30000,
+    "environment": ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"]
+  },
+  
+  "health_check": {
+    "endpoint": "/health",
+    "interval": "5m",
+    "timeout": 5000
+  }
+}

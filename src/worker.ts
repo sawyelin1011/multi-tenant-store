@@ -9,8 +9,17 @@ import { AppError } from './utils/errors.js';
 import { registerAdminRoutes } from './routes/worker-admin.js';
 import { registerTenantRoutes } from './routes/worker-tenant.js';
 import { registerStorefrontRoutes } from './routes/worker-storefront.js';
+import { PluginManager } from './plugins/index.js';
 
 const app = new Hono<HonoEnv>();
+
+// Initialize plugin manager
+const pluginManager = new PluginManager({
+  enableHotReload: false,
+  enableSandboxing: true,
+  maxPluginMemory: 128,
+  allowedPluginCategories: ['cms', 'auth', 'payment', 'delivery', 'email', 'analytics', 'integration', 'ui', 'workflow', 'utility'],
+});
 
 // Middleware
 app.use('*', logger());
@@ -25,9 +34,17 @@ app.use(
   })
 );
 
-// Initialize bindings
+// Initialize bindings and plugins
 app.use('*', async (c, next) => {
   setBindings(c.env.Bindings);
+  
+  // Initialize worker database
+  const { initWorkerDb } = await import('./config/worker-database.js');
+  initWorkerDb(c.env.DB);
+  
+  // Make plugin manager available to routes
+  c.set('pluginManager', pluginManager);
+  
   await next();
 });
 

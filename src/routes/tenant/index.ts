@@ -7,6 +7,7 @@ import pluginsRouter from './plugins.js';
 import ordersRouter from './orders.js';
 import integrationsRouter from './integrations.js';
 import paymentGatewaysRouter from './paymentGateways.js';
+import uiRouter from './ui.js';
 
 const router = Router({ mergeParams: true });
 
@@ -18,5 +19,6 @@ router.use('/plugins', pluginsRouter);
 router.use('/orders', ordersRouter);
 router.use('/integrations', integrationsRouter);
 router.use('/payment-gateways', paymentGatewaysRouter);
+router.use('/ui', uiRouter);
 
 export default router;

@@ -117,6 +117,135 @@ class SeedService {
     }
   }
 
+  async seedUITemplates(tenantSlug: string) {
+    console.log('🎨 Creating UI templates and components...');
+
+    try {
+      const themeResponse = await this.makeRequest(`/api/${tenantSlug}/admin/ui/themes`, {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Default Theme',
+          slug: 'default',
+          is_default: true,
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#8b5cf6',
+            accent: '#10b981',
+            background: '#ffffff',
+            foreground: '#1f2937',
+            muted: '#f3f4f6',
+            border: '#e5e7eb',
+            success: '#10b981',
+            warning: '#f59e0b',
+            error: '#ef4444',
+            info: '#3b82f6',
+          },
+          fonts: {
+            heading: 'Inter, sans-serif',
+            body: 'Inter, sans-serif',
+            mono: 'JetBrains Mono, monospace',
+          },
+          spacing: {
+            unit: 'rem',
+            scale: [0, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8],
+          },
+        }),
+      });
+      console.log(`✅ Created theme: ${themeResponse.data.name}`);
+
+      const layoutResponse = await this.makeRequest(`/api/${tenantSlug}/admin/ui/layouts`, {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Dashboard Layout',
+          slug: 'dashboard',
+          type: 'page',
+          grid_config: {
+            columns: 12,
+            gap: '1rem',
+          },
+          regions: [
+            { name: 'header', width: '100%' },
+            { name: 'sidebar', width: '250px' },
+            { name: 'main', width: '1fr' },
+            { name: 'footer', width: '100%' },
+          ],
+          responsive_config: {
+            breakpoints: {
+              sm: 640,
+              md: 768,
+              lg: 1024,
+              xl: 1280,
+            },
+          },
+        }),
+      });
+      console.log(`✅ Created layout: ${layoutResponse.data.name}`);
+
+      const componentResponse = await this.makeRequest(`/api/${tenantSlug}/admin/ui/components`, {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Stats Card',
+          slug: 'stats-card',
+          type: 'widget',
+          category: 'dashboard',
+          props_schema: {
+            type: 'object',
+            properties: {
+              title: { type: 'string' },
+              value: { type: 'string' },
+              icon: { type: 'string' },
+              trend: { type: 'string' },
+            },
+          },
+          default_props: {
+            title: 'Stat',
+            value: '0',
+          },
+        }),
+      });
+      console.log(`✅ Created component: ${componentResponse.data.name}`);
+
+      const pages = ['dashboard', 'products', 'orders', 'settings'];
+      for (const page of pages) {
+        await this.makeRequest(`/api/${tenantSlug}/admin/ui/templates/${page}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name: `${page.charAt(0).toUpperCase() + page.slice(1)} Page`,
+            layout_id: layoutResponse.data.id,
+            theme_id: themeResponse.data.id,
+            is_default: true,
+          }),
+        });
+        console.log(`✅ Created template for: ${page}`);
+      }
+
+      await this.makeRequest(`/api/${tenantSlug}/admin/ui/widgets`, {
+        method: 'POST',
+        body: JSON.stringify({
+          component_id: componentResponse.data.id,
+          page: 'dashboard',
+          region: 'main',
+          position: 0,
+          props: {
+            title: 'Total Products',
+            value: '42',
+            icon: '📦',
+            trend: '+12%',
+          },
+          is_active: true,
+        }),
+      });
+      console.log(`✅ Created widget for dashboard`);
+
+    } catch (error) {
+      if (error.message.includes('already exists')) {
+        console.log('⚠️  UI templates already exist');
+      } else {
+        throw error;
+      }
+    }
+  }
+
   async seedDemoData() {
     console.log('🌱 Starting demo data seeding...\n');
 
@@ -162,6 +291,8 @@ class SeedService {
         } else if (tenant.slug === 'courseplatform') {
           await this.seedCoursePlatform(tenant.slug);
         }
+
+        await this.seedUITemplates(tenant.slug);
 
         console.log(`\n✅ Completed seeding for ${tenant.name}\n`);
       }

@@ -525,6 +525,141 @@ export const integrationSyncs = sqliteTable(
   })
 );
 
+// UI Template System Tables
+
+export const uiThemes = sqliteTable(
+  'ui_themes',
+  {
+    id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+    tenant_id: text('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    is_default: integer('is_default', { mode: 'boolean' }).default(false),
+    is_system: integer('is_system', { mode: 'boolean' }).default(false),
+    colors: text('colors').default('{}'),
+    fonts: text('fonts').default('{}'),
+    spacing: text('spacing').default('{}'),
+    borders: text('borders').default('{}'),
+    shadows: text('shadows').default('{}'),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    tenantIdIdx: index('idx_ui_themes_tenant_id').on(table.tenant_id),
+    slugIdx: index('idx_ui_themes_slug').on(table.slug),
+    tenantSlugUq: unique('uq_ui_themes_tenant_slug').on(table.tenant_id, table.slug),
+  })
+);
+
+export const uiLayouts = sqliteTable(
+  'ui_layouts',
+  {
+    id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+    tenant_id: text('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }),
+    plugin_id: text('plugin_id').references(() => plugins.id, { onDelete: 'set null' }),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    type: text('type').default('page'),
+    is_system: integer('is_system', { mode: 'boolean' }).default(false),
+    grid_config: text('grid_config').default('{}'),
+    regions: text('regions').default('[]'),
+    responsive_config: text('responsive_config').default('{}'),
+    metadata: text('metadata').default('{}'),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    tenantIdIdx: index('idx_ui_layouts_tenant_id').on(table.tenant_id),
+    pluginIdIdx: index('idx_ui_layouts_plugin_id').on(table.plugin_id),
+    slugIdx: index('idx_ui_layouts_slug').on(table.slug),
+    typeIdx: index('idx_ui_layouts_type').on(table.type),
+    tenantSlugUq: unique('uq_ui_layouts_tenant_slug').on(table.tenant_id, table.slug),
+  })
+);
+
+export const uiComponents = sqliteTable(
+  'ui_components',
+  {
+    id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+    tenant_id: text('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }),
+    plugin_id: text('plugin_id').references(() => plugins.id, { onDelete: 'set null' }),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    type: text('type').notNull(),
+    category: text('category'),
+    is_system: integer('is_system', { mode: 'boolean' }).default(false),
+    props_schema: text('props_schema').default('{}'),
+    default_props: text('default_props').default('{}'),
+    render_config: text('render_config').default('{}'),
+    dependencies: text('dependencies').default('[]'),
+    metadata: text('metadata').default('{}'),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    tenantIdIdx: index('idx_ui_components_tenant_id').on(table.tenant_id),
+    pluginIdIdx: index('idx_ui_components_plugin_id').on(table.plugin_id),
+    slugIdx: index('idx_ui_components_slug').on(table.slug),
+    typeIdx: index('idx_ui_components_type').on(table.type),
+    categoryIdx: index('idx_ui_components_category').on(table.category),
+    tenantSlugUq: unique('uq_ui_components_tenant_slug').on(table.tenant_id, table.slug),
+  })
+);
+
+export const uiWidgets = sqliteTable(
+  'ui_widgets',
+  {
+    id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+    tenant_id: text('tenant_id')
+      .notNull()
+      .references(() => tenants.id, { onDelete: 'cascade' }),
+    component_id: text('component_id')
+      .notNull()
+      .references(() => uiComponents.id, { onDelete: 'cascade' }),
+    page: text('page').notNull(),
+    region: text('region').notNull(),
+    position: integer('position').default(0),
+    props: text('props').default('{}'),
+    visibility_rules: text('visibility_rules').default('{}'),
+    is_active: integer('is_active', { mode: 'boolean' }).default(true),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    tenantIdIdx: index('idx_ui_widgets_tenant_id').on(table.tenant_id),
+    componentIdIdx: index('idx_ui_widgets_component_id').on(table.component_id),
+    pageIdx: index('idx_ui_widgets_page').on(table.page),
+    pageRegionIdx: index('idx_ui_widgets_page_region').on(table.page, table.region),
+  })
+);
+
+export const uiTemplates = sqliteTable(
+  'ui_templates',
+  {
+    id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+    tenant_id: text('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }),
+    plugin_id: text('plugin_id').references(() => plugins.id, { onDelete: 'set null' }),
+    page: text('page').notNull(),
+    name: text('name').notNull(),
+    layout_id: text('layout_id').references(() => uiLayouts.id),
+    theme_id: text('theme_id').references(() => uiThemes.id),
+    is_default: integer('is_default', { mode: 'boolean' }).default(false),
+    is_system: integer('is_system', { mode: 'boolean' }).default(false),
+    override_config: text('override_config').default('{}'),
+    metadata: text('metadata').default('{}'),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    tenantIdIdx: index('idx_ui_templates_tenant_id').on(table.tenant_id),
+    pluginIdIdx: index('idx_ui_templates_plugin_id').on(table.plugin_id),
+    pageIdx: index('idx_ui_templates_page').on(table.page),
+    layoutIdIdx: index('idx_ui_templates_layout_id').on(table.layout_id),
+    themeIdIdx: index('idx_ui_templates_theme_id').on(table.theme_id),
+    tenantPageUq: unique('uq_ui_templates_tenant_page').on(table.tenant_id, table.page),
+  })
+);
+
 // Migrations tracking
 
 export const schemaMigrations = sqliteTable('schema_migrations', {
@@ -549,6 +684,11 @@ export const tenantRelations = relations(tenants, ({ many }) => ({
   paymentGateways: many(paymentGateways),
   paymentTransactions: many(paymentTransactions),
   integrations: many(integrations),
+  uiThemes: many(uiThemes),
+  uiLayouts: many(uiLayouts),
+  uiComponents: many(uiComponents),
+  uiWidgets: many(uiWidgets),
+  uiTemplates: many(uiTemplates),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -656,4 +796,33 @@ export const integrationSyncsRelations = relations(integrationSyncs, ({ one }) =
 
 export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
   tenant: one(tenants, { fields: [apiKeys.tenant_id], references: [tenants.id] }),
+}));
+
+export const uiThemesRelations = relations(uiThemes, ({ one, many }) => ({
+  tenant: one(tenants, { fields: [uiThemes.tenant_id], references: [tenants.id] }),
+  uiTemplates: many(uiTemplates),
+}));
+
+export const uiLayoutsRelations = relations(uiLayouts, ({ one, many }) => ({
+  tenant: one(tenants, { fields: [uiLayouts.tenant_id], references: [tenants.id] }),
+  plugin: one(plugins, { fields: [uiLayouts.plugin_id], references: [plugins.id] }),
+  uiTemplates: many(uiTemplates),
+}));
+
+export const uiComponentsRelations = relations(uiComponents, ({ one, many }) => ({
+  tenant: one(tenants, { fields: [uiComponents.tenant_id], references: [tenants.id] }),
+  plugin: one(plugins, { fields: [uiComponents.plugin_id], references: [plugins.id] }),
+  uiWidgets: many(uiWidgets),
+}));
+
+export const uiWidgetsRelations = relations(uiWidgets, ({ one }) => ({
+  tenant: one(tenants, { fields: [uiWidgets.tenant_id], references: [tenants.id] }),
+  component: one(uiComponents, { fields: [uiWidgets.component_id], references: [uiComponents.id] }),
+}));
+
+export const uiTemplatesRelations = relations(uiTemplates, ({ one }) => ({
+  tenant: one(tenants, { fields: [uiTemplates.tenant_id], references: [tenants.id] }),
+  plugin: one(plugins, { fields: [uiTemplates.plugin_id], references: [plugins.id] }),
+  layout: one(uiLayouts, { fields: [uiTemplates.layout_id], references: [uiLayouts.id] }),
+  theme: one(uiThemes, { fields: [uiTemplates.theme_id], references: [uiThemes.id] }),
 }));

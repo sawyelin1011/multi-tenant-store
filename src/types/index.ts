@@ -149,3 +149,6 @@ export interface ApiResponse<T> {
   error?: string;
   message?: string;
 }
+
+// Re-export UI types
+export * from './ui.js';

@@ -5,7 +5,8 @@ compatibility_date = "2024-01-01"
 
 # Environment: Development
 [env.development]
-vars = { NODE_ENV = "development" }
+vars = { NODE_ENV = "development", CF_ENVIRONMENT = "development" }
+port = 8787  # Different port from Express server (3000)
 
 [[env.development.d1_databases]]
 binding = "DB"

@@ -286,6 +286,163 @@ GET /api/{tenant_slug}/storefront/products       # List products
 GET /api/{tenant_slug}/storefront/products/:id   # Get product
 ```
 
+## Development
+
+The platform supports dual runtime development: Node.js (Express) and Cloudflare Workers (Hono).
+
+📖 **For detailed development instructions, see [DEVELOPMENT.md](./DEVELOPMENT.md)**
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+- PostgreSQL (for Express development)
+- Cloudflare account (for Workers deployment)
+
+### Setup
+
+1. **Install dependencies:**
+```bash
+npm install
+```
+
+2. **Environment configuration:**
+
+For local Express development:
+```bash
+cp .env.example .env.local
+# Edit .env.local with your PostgreSQL connection
+```
+
+For Workers development:
+```bash
+# Configure wrangler.toml with your Cloudflare credentials
+wrangler auth login
+```
+
+### Development Scripts
+
+#### Express (Node.js) Development
+```bash
+# Start Express server (port 3000)
+npm run dev
+
+# Start with file watching
+npm run dev:watch
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+#### Cloudflare Workers Development
+```bash
+# Start Workers dev server with Miniflare (port 8787)
+npm run cf:dev
+
+# Build Workers bundle
+npm run cf:build
+
+# Deploy to staging
+npm run cf:deploy:staging
+
+# Deploy to production
+npm run cf:deploy
+```
+
+#### Dual Runtime Development
+```bash
+# Run both Express and Workers concurrently
+npm run dev:both
+```
+
+#### Database Operations
+```bash
+# Generate Drizzle migrations
+npm run db:generate
+
+# Apply migrations to local PostgreSQL
+npm run migrate
+
+# Apply migrations to D1 (development)
+npm run db:migrate:worker
+
+# Apply migrations to D1 (staging)
+npm run db:migrate:worker:staging
+
+# Apply migrations to D1 (production)
+npm run db:migrate:worker:prod
+
+# Migrate PostgreSQL to D1 (one-time export)
+npm run db:migrate:postgres-to-d1
+```
+
+### Port Configuration
+
+- **Express Server**: `http://localhost:3000`
+- **Workers Server**: `http://localhost:8787`
+
+### Environment Detection
+
+The application automatically detects the runtime:
+
+```typescript
+import { isCloudflareWorker, runtime } from './config/env.js';
+
+// runtime === 'node' || runtime === 'worker'
+// isCloudflareWorker === true/false
+```
+
+### TypeScript Configuration
+
+The project uses a unified `tsconfig.json` compatible with both runtimes:
+- Target: ES2022
+- Module: ESNext
+- Module Resolution: Bundler
+- Types: Node.js + Cloudflare Workers
+
+### Troubleshooting
+
+#### Common Issues
+
+1. **ts-node deprecation warnings:**
+   - Fixed by using `tsx` instead of `ts-node/esm` loader
+   - Use `npm run dev` or `npm run dev:watch`
+
+2. **fs.Stats deprecation:**
+   - Suppressed with `NODE_OPTIONS="--no-deprecation"` in .env.local
+
+3. **Module resolution errors:**
+   - Ensure `type: "module"` in package.json
+   - Use `.js` extensions in imports
+
+4. **Workers D1 database not found:**
+   - Run `wrangler d1 create commerce-dev`
+   - Update database_id in wrangler.toml
+
+5. **Concurrent development conflicts:**
+   - Express uses port 3000, Workers uses port 8787
+   - Use different terminal windows for each runtime
+
+### Development Workflow
+
+1. **Feature Development:**
+   - Start with Express (`npm run dev:watch`) for rapid iteration
+   - Test with Workers (`npm run cf:dev`) before deployment
+   - Use `npm run dev:both` to run both simultaneously
+
+2. **Database Changes:**
+   - Update Drizzle schema in `src/db/schema.ts`
+   - Generate migrations: `npm run db:generate`
+   - Apply to both runtimes as needed
+
+3. **Testing:**
+   - Run unit tests: `npm test`
+   - Lint code: `npm run lint`
+   - Format code: `npm run format`
+
 ## Database Schema
 
 The platform uses PostgreSQL with a comprehensive schema supporting:

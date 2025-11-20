@@ -1,0 +1,1272 @@
+{
+  "info": {
+    "_postman_id": "416d4dcd-b09e-47a5-a61f-36ac4a4c0be3",
+    "name": "Digital Commerce Platform API",
+    "description": "Comprehensive Postman collection for exercising the Digital Commerce Platform REST API across admin, tenant, and storefront flows.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "\ud83d\udd10 Super Admin Auth",
+      "description": "Authentication utilities for platform operators.",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/admin/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "admin",
+                "login"
+              ]
+            },
+            "description": "Exchange admin credentials for a JWT token used across super admin endpoints.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"super-secure-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/api-keys",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "api-keys"
+              ]
+            },
+            "description": "Create a scoped API key for automation or storefront checkout flows.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Local Development Key\",\n  \"tenant_id\": \"{{tenant_id}}\",\n  \"scopes\": [\n    \"tenants.read\",\n    \"tenants.write\",\n    \"analytics.read\"\n  ],\n  \"expires_at\": \"2025-01-01T00:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udfe2 Super Admin Tenants",
+      "description": "Tenant lifecycle management for the platform owner.",
+      "item": [
+        {
+          "name": "Create Tenant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/tenants",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "tenants"
+              ]
+            },
+            "description": "Provision a new tenant with its domain metadata.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"demo-store\",\n  \"name\": \"Demo Store\",\n  \"domain\": \"demo.example.com\",\n  \"subdomain\": \"demo\",\n  \"plan\": \"pro\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Tenants",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/tenants?page=1&limit=25&status=active",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "tenants"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "25",
+                  "description": "Results per page"
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "description": "Filter by tenant status"
+                }
+              ]
+            },
+            "description": "Retrieve paginated tenants with optional status filters."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Tenant Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/tenants/{{tenant_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "tenants",
+                "{{tenant_id}}"
+              ]
+            },
+            "description": "Fetch a specific tenant by ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Tenant",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/tenants/{{tenant_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "tenants",
+                "{{tenant_id}}"
+              ]
+            },
+            "description": "Update tenant metadata such as plan, status, or branding.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo Store Updated\",\n  \"plan\": \"enterprise\",\n  \"status\": \"active\",\n  \"branding\": {\n    \"primaryColor\": \"#5F4B8B\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Tenant",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/tenants/{{tenant_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "tenants",
+                "{{tenant_id}}"
+              ]
+            },
+            "description": "Remove a tenant and all associated data."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd0c Super Admin Plugins",
+      "description": "Manage platform-wide plugins and tenant installations.",
+      "item": [
+        {
+          "name": "List Available Plugins",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/plugins/available?limit=25&offset=0&search=payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "plugins",
+                "available"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "25",
+                  "description": "Max plugins to return"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Pagination offset"
+                },
+                {
+                  "key": "search",
+                  "value": "payments",
+                  "description": "Case-insensitive search term"
+                }
+              ]
+            },
+            "description": "View marketplace plugins with optional text search."
+          },
+          "response": []
+        },
+        {
+          "name": "Install Plugin for Tenant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/plugins/{{plugin_slug}}/install",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "plugins",
+                "{{plugin_slug}}",
+                "install"
+              ]
+            },
+            "description": "Install a plugin for a tenant and seed its configuration.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenant_id\": \"{{tenant_id}}\",\n  \"config\": {\n    \"mode\": \"test\",\n    \"apiKey\": \"{{api_key}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcca Super Admin Analytics",
+      "description": "High-level metrics for the overall platform.",
+      "item": [
+        {
+          "name": "Analytics Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/analytics/overview?range=7d&timezone=UTC",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "analytics",
+                "overview"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "7d",
+                  "description": "Time window (e.g. 24h, 7d, 30d)"
+                },
+                {
+                  "key": "timezone",
+                  "value": "UTC",
+                  "description": "IANA timezone identifier"
+                }
+              ]
+            },
+            "description": "Aggregate GMV, orders, and tenant counts for the selected time range."
+          },
+          "response": []
+        },
+        {
+          "name": "Top Tenants",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/analytics/top-tenants?metric=revenue&range=30d",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "analytics",
+                "top-tenants"
+              ],
+              "query": [
+                {
+                  "key": "metric",
+                  "value": "revenue",
+                  "description": "Metric to sort by"
+                },
+                {
+                  "key": "range",
+                  "value": "30d",
+                  "description": "Time window to evaluate"
+                }
+              ]
+            },
+            "description": "Rank tenants by revenue, orders, or users."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udfea Tenant Admin Products",
+      "description": "Product catalog CRUD for a specific tenant.",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "products"
+              ]
+            },
+            "description": "Create a new product belonging to the selected product type.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_type_id\": \"{{product_type_id}}\",\n  \"name\": \"Premium Game Key\",\n  \"slug\": \"premium-game-key\",\n  \"status\": \"draft\",\n  \"metadata\": {\n    \"price\": 59.99,\n    \"currency\": \"USD\",\n    \"tags\": [\"digital\", \"key\"]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/products?page=1&limit=25&status=active&product_type_id={{product_type_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "25",
+                  "description": "Results per page"
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "description": "Optional status filter"
+                },
+                {
+                  "key": "product_type_id",
+                  "value": "{{product_type_id}}",
+                  "description": "Filter by product type"
+                }
+              ]
+            },
+            "description": "List tenant products with pagination and filters."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/products/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "products",
+                "{{product_id}}"
+              ]
+            },
+            "description": "Retrieve a single product with its attributes."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/products/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "products",
+                "{{product_id}}"
+              ]
+            },
+            "description": "Update product metadata or activation status.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Game Key Deluxe\",\n  \"status\": \"active\",\n  \"metadata\": {\n    \"price\": 49.99,\n    \"currency\": \"USD\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/products/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "products",
+                "{{product_id}}"
+              ]
+            },
+            "description": "Permanently delete a product and its attributes."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udce6 Tenant Admin Product Types",
+      "description": "Define structured product templates per tenant.",
+      "item": [
+        {
+          "name": "Create Product Type",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/product-types",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "product-types"
+              ]
+            },
+            "description": "Create a reusable schema for products (fields, validation, icons).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Digital Download\",\n  \"slug\": \"digital-download\",\n  \"icon\": \"\ud83d\udcbe\",\n  \"category\": \"digital\",\n  \"schema\": {\n    \"fields\": [\n      {\n        \"name\": \"title\",\n        \"type\": \"text\",\n        \"label\": \"Title\",\n        \"required\": true\n      },\n      {\n        \"name\": \"file\",\n        \"type\": \"file\",\n        \"label\": \"Download File\",\n        \"required\": true\n      },\n      {\n        \"name\": \"release_notes\",\n        \"type\": \"markdown\",\n        \"label\": \"Release Notes\"\n      }\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Product Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/product-types?page=1&limit=25",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "product-types"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "25",
+                  "description": "Results per page"
+                }
+              ]
+            },
+            "description": "List the available product type schemas for the tenant."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcb0 Tenant Admin Orders",
+      "description": "Order management endpoints for tenant operators.",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/orders?page=1&limit=25&status=paid&user_id=customer-uuid",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "25",
+                  "description": "Results per page"
+                },
+                {
+                  "key": "status",
+                  "value": "paid",
+                  "description": "Filter by order status"
+                },
+                {
+                  "key": "user_id",
+                  "value": "customer-uuid",
+                  "description": "Filter by buyer user_id"
+                }
+              ]
+            },
+            "description": "Retrieve orders with pagination and optional status filtering."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/orders/{{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "orders",
+                "{{order_id}}"
+              ]
+            },
+            "description": "Fetch an order with its line items."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd0c Tenant Admin Plugins",
+      "description": "Tenant-scoped plugin installation and configuration.",
+      "item": [
+        {
+          "name": "Install Plugin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/plugins/{{plugin_slug}}/install",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "plugins",
+                "{{plugin_slug}}",
+                "install"
+              ]
+            },
+            "description": "Install a plugin for this tenant with optional config overrides.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"config\": {\n    \"apiKey\": \"{{api_key}}\",\n    \"webhookUrl\": \"https://example.com/plugins/webhook\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Plugin Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/plugins/{{plugin_slug}}/config",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "plugins",
+                "{{plugin_slug}}",
+                "config"
+              ]
+            },
+            "description": "Update plugin configuration after installation.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"credentials\": {\n    \"apiKey\": \"{{api_key}}\"\n  },\n  \"settings\": {\n    \"captureMode\": \"automatic\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Plugin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenant_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/admin/plugins/{{plugin_slug}}/enable",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "admin",
+                "plugins",
+                "{{plugin_slug}}",
+                "enable"
+              ]
+            },
+            "description": "Enable a previously installed plugin."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udecd\ufe0f Storefront Public",
+      "description": "Customer-facing configuration and catalog endpoints.",
+      "item": [
+        {
+          "name": "Get Storefront Config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/storefront/config",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "storefront",
+                "config"
+              ]
+            },
+            "description": "Retrieve public storefront settings such as theme and navigation."
+          },
+          "response": []
+        },
+        {
+          "name": "List Public Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/storefront/products?page=1&limit=12&product_type_id={{product_type_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "storefront",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "12",
+                  "description": "Number of products to return"
+                },
+                {
+                  "key": "product_type_id",
+                  "value": "{{product_type_id}}",
+                  "description": "Optional product type filter"
+                }
+              ]
+            },
+            "description": "List active products available for purchase."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Public Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/storefront/products/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "storefront",
+                "products",
+                "{{product_id}}"
+              ]
+            },
+            "description": "Get details for a single public product, including attributes."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\uded2 Storefront Cart & Checkout",
+      "description": "Cart, checkout, and fulfillment flows exposed publicly.",
+      "item": [
+        {
+          "name": "Add Item to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/storefront/cart/items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "storefront",
+                "cart",
+                "items"
+              ]
+            },
+            "description": "Add a product variant to the shopper's cart.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": \"{{cart_id}}\",\n  \"product_id\": \"{{product_id}}\",\n  \"quantity\": 1,\n  \"metadata\": {\n    \"variant\": \"standard\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/storefront/cart?cart_id={{cart_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "storefront",
+                "cart"
+              ],
+              "query": [
+                {
+                  "key": "cart_id",
+                  "value": "{{cart_id}}",
+                  "description": "Cart identifier"
+                }
+              ]
+            },
+            "description": "Fetch the current contents of the shopper cart."
+          },
+          "response": []
+        },
+        {
+          "name": "Checkout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/storefront/checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "storefront",
+                "checkout"
+              ]
+            },
+            "description": "Create a checkout session for the supplied cart.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": \"{{cart_id}}\",\n  \"customer\": {\n    \"email\": \"{{customer_email}}\",\n    \"name\": \"{{customer_name}}\"\n  },\n  \"payment\": {\n    \"method\": \"card\",\n    \"token\": \"tok_test_123\"\n  },\n  \"delivery\": {\n    \"method\": \"email\",\n    \"address\": null\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Download Purchase",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{tenant_slug}}/storefront/orders/{{order_id}}/download/{{product_id}}?token={{download_token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "{{tenant_slug}}",
+                "storefront",
+                "orders",
+                "{{order_id}}",
+                "download",
+                "{{product_id}}"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{download_token}}",
+                  "description": "Secure download token"
+                }
+              ]
+            },
+            "description": "Download a digital product using a secure token."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "\u2764\ufe0f Health Check",
+      "description": "Basic service availability check.",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Simple endpoint to ensure the API is reachable."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "sk_test_anyvaluedemo",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "replace-with-admin-jwt",
+      "type": "string"
+    },
+    {
+      "key": "tenant_token",
+      "value": "replace-with-tenant-jwt",
+      "type": "string"
+    },
+    {
+      "key": "tenant_id",
+      "value": "00000000-0000-4000-8000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "tenant_slug",
+      "value": "demo-store",
+      "type": "string"
+    },
+    {
+      "key": "product_type_id",
+      "value": "11111111-1111-4111-8111-111111111111",
+      "type": "string"
+    },
+    {
+      "key": "product_id",
+      "value": "22222222-2222-4222-8222-222222222222",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "33333333-3333-4333-8333-333333333333",
+      "type": "string"
+    },
+    {
+      "key": "plugin_slug",
+      "value": "stripe-payments",
+      "type": "string"
+    },
+    {
+      "key": "cart_id",
+      "value": "cart_demo_123",
+      "type": "string"
+    },
+    {
+      "key": "download_token",
+      "value": "secure-download-token",
+      "type": "string"
+    },
+    {
+      "key": "customer_email",
+      "value": "customer@example.com",
+      "type": "string"
+    },
+    {
+      "key": "customer_name",
+      "value": "Demo Customer",
+      "type": "string"
+    }
+  ]
+}

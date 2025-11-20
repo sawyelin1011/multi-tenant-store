@@ -62,11 +62,11 @@ export class DrizzleProductService {
     let whereClause = eq(products.tenant_id, tenantId);
 
     if (filters.product_type_id) {
-      whereClause = and(whereClause, eq(products.product_type_id, filters.product_type_id));
+      whereClause = and(whereClause, eq(products.product_type_id, filters.product_type_id))!;
     }
 
     if (filters.status) {
-      whereClause = and(whereClause, eq(products.status, filters.status));
+      whereClause = and(whereClause, eq(products.status, filters.status))!;
     }
 
     const data = await db.query.products.findMany({

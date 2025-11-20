@@ -1,6 +1,7 @@
-import { D1Database } from '@cloudflare/workers-types';
+import { D1Database, R2Bucket, KVNamespace } from '@cloudflare/workers-types';
 
 export interface Bindings {
+  [key: string]: any;
   DB: D1Database;
   CACHE: KVNamespace;
   SESSION: KVNamespace;
@@ -15,4 +16,10 @@ export interface Bindings {
 
 export interface HonoEnv {
   Bindings: Bindings;
+  Variables: {
+    tenantId?: string;
+    userId?: string;
+    pluginManager?: any;
+    [key: string]: any;
+  };
 }

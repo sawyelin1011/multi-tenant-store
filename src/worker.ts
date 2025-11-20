@@ -36,7 +36,11 @@ app.use(
 
 // Initialize bindings and plugins
 app.use('*', async (c, next) => {
-  setBindings(c.env.Bindings);
+  if (!c.env) {
+    throw new Error('Environment bindings not available');
+  }
+  
+  setBindings(c.env);
   
   // Initialize worker database
   const { initWorkerDb } = await import('./config/worker-database.js');

@@ -11,6 +11,24 @@ import { sql, relations } from 'drizzle-orm';
 
 // Multi-Tenant Core Tables
 
+export const users = sqliteTable(
+  'users',
+  {
+    id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+    email: text('email').unique().notNull(),
+    password_hash: text('password_hash').notNull(),
+    role: text('role').default('user'),
+    api_key: text('api_key'),
+    is_active: integer('is_active', { mode: 'boolean' }).default(true),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    emailIdx: index('idx_users_email').on(table.email),
+    apiKeyIdx: index('idx_users_api_key').on(table.api_key),
+  })
+);
+
 export const tenants = sqliteTable(
   'tenants',
   {
@@ -533,8 +551,13 @@ export const tenantRelations = relations(tenants, ({ many }) => ({
   integrations: many(integrations),
 }));
 
+export const usersRelations = relations(users, ({ many }) => ({
+  tenantUsers: many(tenantUsers),
+}));
+
 export const tenantUsersRelations = relations(tenantUsers, ({ one }) => ({
   tenant: one(tenants, { fields: [tenantUsers.tenant_id], references: [tenants.id] }),
+  user: one(users, { fields: [tenantUsers.user_id], references: [users.id] }),
 }));
 
 export const productTypeRelations = relations(productTypes, ({ one, many }) => ({

@@ -4,11 +4,16 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { config } from './config/env.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { SuperAdminService } from './services/superAdminService.js';
+import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin/index.js';
 import tenantRoutes from './routes/tenant/index.js';
 import storefrontRoutes from './routes/storefront/index.js';
 
 const app = express();
+
+// Initialize super admin
+SuperAdminService.initializeSuperAdmin().catch(console.error);
 
 // Middleware
 app.use(helmet());
@@ -22,6 +27,7 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/:tenant_slug/admin', tenantRoutes);
 app.use('/api/:tenant_slug/storefront', storefrontRoutes);

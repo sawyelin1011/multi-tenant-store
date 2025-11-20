@@ -1,0 +1,20 @@
+import type { PluginContext, {{pluginInterface}} } from '{{sdkPackageName}}';
+import { PluginCategory } from '{{sdkPackageName}}';
+
+export default class {{className}}Plugin implements {{pluginInterface}} {
+  name = '{{name}}';
+  version = '0.1.0';
+  category = PluginCategory.{{categoryEnum}};
+
+  async initialize(context: PluginContext) {
+    context.logger.info('Initializing {{name}} plugin for {{brand.platformName}}', {
+      tenant: context.tenant.slug,
+    });
+  }
+
+  async destroy(context: PluginContext) {
+    context.logger.info('Destroying {{name}} plugin');
+  }
+
+{{{lifecycleSnippet}}}
+}

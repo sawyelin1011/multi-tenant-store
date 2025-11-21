@@ -1,33 +1,9 @@
-/**
- * Default MTC Platform brand configuration
- */
-export interface BrandConfig {
-  /** Brand name for display purposes */
-  brandName: string;
-  /** NPM package scope (without @) */
-  packageScope: string;
-  /** NPM organization name */
-  npmOrg: string;
-  /** GitHub organization name */
-  githubOrg: string;
-  /** Primary brand color (hex code) */
-  brandColor: string;
-  /** Brand logo URL or path */
-  brandLogo: string;
-  /** Platform display name */
-  platformName: string;
-  /** CLI binary name */
-  cliName: string;
-  /** Documentation URL */
-  docsUrl: string;
-  /** Support email */
-  supportEmail: string;
-}
+import type { BrandConfig, BrandConfigOverrides, LoadBrandConfigOptions } from './types.js';
 
 /**
  * Default brand configuration for MTC Platform
  */
-export const defaultBrandConfig: BrandConfig = {
+export const BRAND_DEFAULTS: BrandConfig = {
   brandName: 'MTC Platform',
   packageScope: 'mtc-platform',
   npmOrg: 'mtc-platform',
@@ -41,7 +17,7 @@ export const defaultBrandConfig: BrandConfig = {
 };
 
 /**
- * Environment variable mappings
+ * Environment variable mappings for overrides
  */
 const ENV_MAPPINGS: Record<keyof BrandConfig, string> = {
   brandName: 'MTC_BRAND_NAME',
@@ -56,21 +32,26 @@ const ENV_MAPPINGS: Record<keyof BrandConfig, string> = {
   supportEmail: 'MTC_SUPPORT_EMAIL',
 };
 
-/**
- * Load brand configuration with environment variable overrides
- */
-export function loadBrandConfig(overrides?: Partial<BrandConfig>): BrandConfig {
-  const config = { ...defaultBrandConfig };
-
-  // Apply environment variable overrides
+function applyEnvOverrides(target: BrandConfig, env: Record<string, string | undefined>): void {
   for (const [key, envVar] of Object.entries(ENV_MAPPINGS)) {
-    const envValue = process.env[envVar];
-    if (envValue) {
-      (config as any)[key] = envValue;
+    const value = env[envVar];
+    if (value) {
+      const typedKey = key as keyof BrandConfig;
+      target[typedKey] = value as BrandConfig[keyof BrandConfig];
     }
   }
+}
 
-  // Apply direct overrides
+/**
+ * Load brand configuration with env and manual overrides
+ */
+export function loadBrandConfig(
+  overrides?: BrandConfigOverrides,
+  env: Record<string, string | undefined> = process.env,
+): BrandConfig {
+  const config: BrandConfig = { ...BRAND_DEFAULTS };
+  applyEnvOverrides(config, env);
+
   if (overrides) {
     Object.assign(config, overrides);
   }
@@ -79,50 +60,46 @@ export function loadBrandConfig(overrides?: Partial<BrandConfig>): BrandConfig {
 }
 
 /**
- * Load brand configuration from CLI arguments
+ * Load brand configuration from CLI flags/arguments
  */
-export function loadBrandConfigFromArgs(args: Record<string, any>): BrandConfig {
-  const overrides: Partial<BrandConfig> = {};
+export function loadBrandConfigFromArgs(
+  args: Record<string, unknown>,
+  options?: LoadBrandConfigOptions,
+): BrandConfig {
+  const overrides: BrandConfigOverrides = {};
 
-  if (args.brand) overrides.brandName = args.brand;
-  if (args.scope) overrides.packageScope = args.scope;
-  if (args['npm-org']) overrides.npmOrg = args['npm-org'];
-  if (args['github-org']) overrides.githubOrg = args['github-org'];
-  if (args['brand-color']) overrides.brandColor = args['brand-color'];
-  if (args['brand-logo']) overrides.brandLogo = args['brand-logo'];
-  if (args['platform-name']) overrides.platformName = args['platform-name'];
-  if (args['cli-name']) overrides.cliName = args['cli-name'];
-  if (args['docs-url']) overrides.docsUrl = args['docs-url'];
-  if (args['support-email']) overrides.supportEmail = args['support-email'];
+  if (typeof args.brand === 'string') overrides.brandName = args.brand;
+  if (typeof args.scope === 'string') overrides.packageScope = args.scope;
+  if (typeof args['npm-org'] === 'string') overrides.npmOrg = args['npm-org'];
+  if (typeof args['github-org'] === 'string') overrides.githubOrg = args['github-org'];
+  if (typeof args['brand-color'] === 'string') overrides.brandColor = args['brand-color'];
+  if (typeof args['brand-logo'] === 'string') overrides.brandLogo = args['brand-logo'];
+  if (typeof args['platform-name'] === 'string') overrides.platformName = args['platform-name'];
+  if (typeof args['cli-name'] === 'string') overrides.cliName = args['cli-name'];
+  if (typeof args['docs-url'] === 'string') overrides.docsUrl = args['docs-url'];
+  if (typeof args['support-email'] === 'string') overrides.supportEmail = args['support-email'];
 
-  return loadBrandConfig(overrides);
+  const combinedOverrides: BrandConfigOverrides = {
+    ...options?.overrides,
+    ...overrides,
+  };
+
+  return loadBrandConfig(combinedOverrides, options?.env);
 }
 
 /**
- * Get the full package name with scope
+ * Convenience helpers
  */
-export function getPackageScope(packageName: string, config?: BrandConfig): string {
-  const brandConfig = config || loadBrandConfig();
-  return `@${brandConfig.packageScope}/${packageName}`;
+export function getPackageScope(packageName: string, config: BrandConfig = brand): string {
+  return `@${config.packageScope}/${packageName}`;
 }
 
-/**
- * Get the CLI binary name
- */
-export function getCliName(config?: BrandConfig): string {
-  const brandConfig = config || loadBrandConfig();
-  return brandConfig.cliName;
+export function getCliName(config: BrandConfig = brand): string {
+  return config.cliName;
 }
 
-/**
- * Get the platform display name
- */
-export function getPlatformName(config?: BrandConfig): string {
-  const brandConfig = config || loadBrandConfig();
-  return brandConfig.platformName;
+export function getPlatformName(config: BrandConfig = brand): string {
+  return config.platformName;
 }
 
-/**
- * Export the current brand configuration
- */
 export const brand = loadBrandConfig();

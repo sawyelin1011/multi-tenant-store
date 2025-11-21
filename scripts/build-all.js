@@ -4,9 +4,10 @@ import path from 'node:path';
 import process from 'node:process';
 
 const tasks = [
-  { name: 'Admin starter', cwd: 'packages/admin' },
+  { name: 'Config', cwd: 'packages/config' },
   { name: 'Plugin SDK', cwd: 'packages/plugin-sdk' },
   { name: 'Admin CLI', cwd: 'packages/admin-cli' },
+  { name: 'Admin starter', cwd: 'packages/admin' },
   { name: 'Sample plugin (Stripe Gateway)', cwd: 'examples/stripe-plugin' },
 ];
 

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
+    "module": "NodeNext",
     "lib": ["ES2022", "DOM"],
     "types": ["@cloudflare/workers-types", "node"],
     "outDir": "./dist",
@@ -14,11 +14,18 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "NodeNext",
     "allowSyntheticDefaultImports": true,
     "moduleDetection": "force",
     "allowImportingTsExtensions": false,
-    "noEmit": false
+    "noEmit": false,
+    "baseUrl": ".",
+    "paths": {
+      "@mtc-platform/config": ["packages/config/src/index.ts"],
+      "@mtc-platform/config/*": ["packages/config/src/*"],
+      "@mtc-platform/plugin-sdk": ["packages/plugin-sdk/src/index.ts"],
+      "@mtc-platform/plugin-sdk/*": ["packages/plugin-sdk/src/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]

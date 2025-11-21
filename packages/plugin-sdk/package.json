@@ -19,6 +19,7 @@
   "author": "Platform Team",
   "license": "MIT",
   "dependencies": {
+    "@mtc-platform/config": "file:../config",
     "zod": "^3.22.0"
   },
   "devDependencies": {

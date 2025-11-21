@@ -3,8 +3,21 @@ import path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
 import Handlebars from 'handlebars';
-import { kebabCase, pascalCase, camelCase } from 'lodash-es';
 import { loadBrandConfigFromArgs, getPackageScope, getPlatformName, type BrandConfig } from '@mtc-platform/config';
+
+// Helper functions for string manipulation
+function kebabCase(str: string): string {
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[\s_]+/g, '-').toLowerCase();
+}
+
+function pascalCase(str: string): string {
+  return str.replace(/(?:^|[-_\s])(\w)/g, (_, char) => char.toUpperCase()).replace(/[-_\s]/g, '');
+}
+
+function camelCase(str: string): string {
+  const pascal = pascalCase(str);
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+}
 
 interface ScaffoldOptions {
   directory: string;
@@ -14,7 +27,7 @@ interface ScaffoldOptions {
   template?: string;
 }
 
-interface BrandOptions {
+interface BrandOptions extends Record<string, string | undefined> {
   brand?: string;
   scope?: string;
   npmOrg?: string;

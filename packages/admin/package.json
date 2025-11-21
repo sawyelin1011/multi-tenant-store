@@ -19,6 +19,8 @@
   "author": "Platform Team",
   "license": "MIT",
   "dependencies": {
+    "@mtc-platform/config": "file:../config",
+    "@mtc-platform/plugin-sdk": "file:../plugin-sdk",
     "clsx": "^2.1.0",
     "lucide-react": "^0.452.0",
     "react": "^18.3.1",

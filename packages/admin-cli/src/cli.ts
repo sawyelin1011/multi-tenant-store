@@ -2,19 +2,19 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { loadBrandConfigFromArgs, getCliName, getPlatformName } from '@mtc-platform/config';
-import { scaffoldPlugin } from './commands/scaffold';
-import { addHook } from './commands/add-hook';
-import { generateManifest } from './commands/generate-manifest';
-import { validatePlugin } from './commands/validate';
-import { listPlugins } from './commands/list';
-import { installPlugin } from './commands/install';
-import { uninstallPlugin } from './commands/uninstall';
+import { loadBrandConfig, loadBrandConfigFromArgs, getCliName, getPlatformName } from '@mtc-platform/config';
+import { scaffoldPlugin } from './commands/scaffold.js';
+import { addHook } from './commands/add-hook.js';
+import { generateManifest } from './commands/generate-manifest.js';
+import { validatePlugin } from './commands/validate.js';
+import { listPlugins } from './commands/list.js';
+import { installPlugin } from './commands/install.js';
+import { uninstallPlugin } from './commands/uninstall.js';
 
 const program = new Command();
 
-// Load brand configuration from CLI args
-const brandConfig = loadBrandConfigFromArgs(process.argv);
+// Load brand configuration using defaults for now
+const brandConfig = loadBrandConfig();
 const cliName = getCliName(brandConfig);
 const platformName = getPlatformName(brandConfig);
 

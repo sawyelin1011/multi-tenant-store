@@ -168,7 +168,20 @@ async function executeMigration(adapter: DatabaseAdapter, version: number, name:
         if (process.env.DEBUG_SQL) {
           console.log('Executing SQL:', statement);
         }
-        await adapter.run(statement);
+        try {
+          await adapter.run(statement);
+        } catch (stmtError) {
+          const errorMsg = String(stmtError).toLowerCase();
+          // Gracefully handle "already exists" errors for idempotent operations
+          if (errorMsg.includes('already exists') || errorMsg.includes('duplicate')) {
+            if (process.env.DEBUG_SQL) {
+              console.log(`⚠️  Statement skipped (already exists): ${statement.substring(0, 50)}...`);
+            }
+            // Continue execution - this is okay for idempotent CREATE IF NOT EXISTS
+          } else {
+            throw stmtError;
+          }
+        }
       }
       await adapter.run('INSERT INTO schema_migrations (version, name) VALUES (?, ?)', [version, name]);
       await adapter.run('COMMIT');
@@ -210,6 +223,8 @@ export async function runMigrations(adapter?: DatabaseAdapter): Promise<void> {
     const executedVersions = new Set(executed.map((m) => m.version));
 
     let ranCount = 0;
+    let skippedCount = 0;
+    
     for (const file of migrations) {
       const version = parseInt(file.split('_')[0], 10);
       if (!executedVersions.has(version)) {
@@ -217,13 +232,20 @@ export async function runMigrations(adapter?: DatabaseAdapter): Promise<void> {
         const sql = fs.readFileSync(filePath, 'utf-8');
         await executeMigration(db, version, file.replace('.sql', ''), sql);
         ranCount++;
+      } else {
+        skippedCount++;
+        if (process.env.VERBOSE_MIGRATIONS) {
+          console.log(`⊘ Migration ${version}: ${file} (already executed)`);
+        }
       }
     }
     
-    if (ranCount === 0) {
-      console.log('✓ No pending migrations');
+    if (ranCount === 0 && skippedCount > 0) {
+      console.log(`✓ All migrations already executed (${skippedCount} skipped)`);
+    } else if (ranCount > 0) {
+      console.log(`✓ Ran ${ranCount} migration(s)${skippedCount > 0 ? ` (${skippedCount} already executed)` : ''}`);
     } else {
-      console.log(`✓ Ran ${ranCount} migration(s)`);
+      console.log('✓ No pending migrations');
     }
   } finally {
     if (ownAdapter) {
@@ -254,7 +276,7 @@ async function status() {
     await ensureMigrationsTable(adapter);
     const migrations = await getMigrations();
     const executed = await getExecutedMigrations(adapter);
-    const executedVersions = new Set(executed.map((m) => m.version));
+    const executedVersions = new Map(executed.map((m) => [m.version, m]));
     
     console.log('\nMigration Status:\n');
     console.log(`Database Type: ${config.dbType}`);
@@ -264,8 +286,13 @@ async function status() {
     
     for (const file of migrations) {
       const version = parseInt(file.split('_')[0], 10);
-      const status = executedVersions.has(version) ? '✓' : '○';
-      console.log(`${status} ${file}`);
+      const executedMigration = executedVersions.get(version);
+      
+      if (executedMigration) {
+        console.log(`✓ ${file} (executed)`);
+      } else {
+        console.log(`○ ${file} (pending)`);
+      }
     }
     console.log();
   } finally {

@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS tenants (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_tenants_slug ON tenants(slug);
-CREATE INDEX idx_tenants_domain ON tenants(domain);
+CREATE INDEX IF NOT EXISTS idx_tenants_slug ON tenants(slug);
+CREATE INDEX IF NOT EXISTS idx_tenants_domain ON tenants(domain);
 
 CREATE TABLE IF NOT EXISTS tenant_users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS tenant_users (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_tenant_users_tenant_id ON tenant_users(tenant_id);
-CREATE INDEX idx_tenant_users_user_id ON tenant_users(user_id);
+CREATE INDEX IF NOT EXISTS idx_tenant_users_tenant_id ON tenant_users(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_tenant_users_user_id ON tenant_users(user_id);
 
 -- Dynamic Product System
 
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS product_types (
   UNIQUE(tenant_id, slug)
 );
 
-CREATE INDEX idx_product_types_tenant_id ON product_types(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_product_types_tenant_id ON product_types(tenant_id);
 
 CREATE TABLE IF NOT EXISTS field_types (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -74,8 +74,8 @@ CREATE TABLE IF NOT EXISTS products (
   UNIQUE(tenant_id, slug)
 );
 
-CREATE INDEX idx_products_tenant_id ON products(tenant_id);
-CREATE INDEX idx_products_product_type_id ON products(product_type_id);
+CREATE INDEX IF NOT EXISTS idx_products_tenant_id ON products(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_products_product_type_id ON products(product_type_id);
 
 CREATE TABLE IF NOT EXISTS product_attributes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS product_attributes (
   UNIQUE(product_id, attribute_key)
 );
 
-CREATE INDEX idx_product_attributes_product_id ON product_attributes(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_attributes_product_id ON product_attributes(product_id);
 
 CREATE TABLE IF NOT EXISTS product_variants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS product_variants (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_product_variants_product_id ON product_variants(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_variants_product_id ON product_variants(product_id);
 
 -- Plugin System
 
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS tenant_plugins (
   UNIQUE(tenant_id, plugin_id)
 );
 
-CREATE INDEX idx_tenant_plugins_tenant_id ON tenant_plugins(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_tenant_plugins_tenant_id ON tenant_plugins(tenant_id);
 
 CREATE TABLE IF NOT EXISTS plugin_hooks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS plugin_hooks (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_plugin_hooks_plugin_id ON plugin_hooks(plugin_id);
+CREATE INDEX IF NOT EXISTS idx_plugin_hooks_plugin_id ON plugin_hooks(plugin_id);
 
 -- Workflow System
 
@@ -157,7 +157,7 @@ CREATE TABLE IF NOT EXISTS workflows (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_workflows_tenant_id ON workflows(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_workflows_tenant_id ON workflows(tenant_id);
 
 CREATE TABLE IF NOT EXISTS workflow_executions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -171,8 +171,8 @@ CREATE TABLE IF NOT EXISTS workflow_executions (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_workflow_executions_workflow_id ON workflow_executions(workflow_id);
-CREATE INDEX idx_workflow_executions_status ON workflow_executions(status);
+CREATE INDEX IF NOT EXISTS idx_workflow_executions_workflow_id ON workflow_executions(workflow_id);
+CREATE INDEX IF NOT EXISTS idx_workflow_executions_status ON workflow_executions(status);
 
 -- Delivery System
 
@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS delivery_methods (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_delivery_methods_tenant_id ON delivery_methods(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_delivery_methods_tenant_id ON delivery_methods(tenant_id);
 
 CREATE TABLE IF NOT EXISTS deliveries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -205,8 +205,8 @@ CREATE TABLE IF NOT EXISTS deliveries (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_deliveries_tenant_id ON deliveries(tenant_id);
-CREATE INDEX idx_deliveries_order_id ON deliveries(order_id);
+CREATE INDEX IF NOT EXISTS idx_deliveries_tenant_id ON deliveries(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_deliveries_order_id ON deliveries(order_id);
 
 -- Flexible Pricing
 
@@ -225,7 +225,7 @@ CREATE TABLE IF NOT EXISTS pricing_rules (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_pricing_rules_tenant_id ON pricing_rules(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_pricing_rules_tenant_id ON pricing_rules(tenant_id);
 
 CREATE TABLE IF NOT EXISTS user_roles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS user_roles (
   UNIQUE(tenant_id, slug)
 );
 
-CREATE INDEX idx_user_roles_tenant_id ON user_roles(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_user_roles_tenant_id ON user_roles(tenant_id);
 
 -- Orders & Transactions
 
@@ -259,9 +259,9 @@ CREATE TABLE IF NOT EXISTS orders (
   UNIQUE(tenant_id, order_number)
 );
 
-CREATE INDEX idx_orders_tenant_id ON orders(tenant_id);
-CREATE INDEX idx_orders_user_id ON orders(user_id);
-CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_tenant_id ON orders(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 
 CREATE TABLE IF NOT EXISTS order_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -276,8 +276,8 @@ CREATE TABLE IF NOT EXISTS order_items (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_order_items_order_id ON order_items(order_id);
-CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id);
 
 -- Payment Gateway Abstraction
 
@@ -293,7 +293,7 @@ CREATE TABLE IF NOT EXISTS payment_gateways (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_payment_gateways_tenant_id ON payment_gateways(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_payment_gateways_tenant_id ON payment_gateways(tenant_id);
 
 CREATE TABLE IF NOT EXISTS payment_transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -308,8 +308,8 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_payment_transactions_tenant_id ON payment_transactions(tenant_id);
-CREATE INDEX idx_payment_transactions_order_id ON payment_transactions(order_id);
+CREATE INDEX IF NOT EXISTS idx_payment_transactions_tenant_id ON payment_transactions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_payment_transactions_order_id ON payment_transactions(order_id);
 
 -- Integration System
 
@@ -327,7 +327,7 @@ CREATE TABLE IF NOT EXISTS integrations (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_integrations_tenant_id ON integrations(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_integrations_tenant_id ON integrations(tenant_id);
 
 CREATE TABLE IF NOT EXISTS integration_syncs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -341,7 +341,7 @@ CREATE TABLE IF NOT EXISTS integration_syncs (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_integration_syncs_integration_id ON integration_syncs(integration_id);
+CREATE INDEX IF NOT EXISTS idx_integration_syncs_integration_id ON integration_syncs(integration_id);
 
 -- Migrations tracking
 

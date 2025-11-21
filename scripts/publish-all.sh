@@ -10,10 +10,10 @@ PACKAGES=(
 )
 
 for pkg in "${PACKAGES[@]}"; do
-  echo "\n=============================="
+  printf '\n==============================\n'
   echo "Preparing ${pkg}"
   "${ROOT_DIR}/scripts/publish-single.sh" "${ROOT_DIR}/${pkg}"
-  echo "==============================\n"
+  printf '==============================\n\n'
 
 done
 

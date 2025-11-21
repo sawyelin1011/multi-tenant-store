@@ -2,187 +2,136 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { loadBrandConfigFromArgs, getCliName, getPlatformName } from '@mtc-platform/config';
-import { scaffoldPlugin } from './commands/scaffold';
-import { addHook } from './commands/add-hook';
-import { generateManifest } from './commands/generate-manifest';
-import { validatePlugin } from './commands/validate';
-import { listPlugins } from './commands/list';
-import { installPlugin } from './commands/install';
-import { uninstallPlugin } from './commands/uninstall';
+import { createAdminApp } from './commands/create-app.js';
+import { scaffoldPlugin } from './commands/plugin-scaffold.js';
+import { addPluginComponent } from './commands/plugin-add-component.js';
+import { runPluginDev } from './commands/plugin-dev.js';
+import { runPluginBuild } from './commands/plugin-build.js';
+import { preparePluginPublish } from './commands/plugin-publish-prepare.js';
+import { createPluginMigration } from './commands/plugin-migration-create.js';
+import { SUPPORTED_PLUGIN_TYPES } from './templates/plugin-presets.js';
 
 const program = new Command();
 
-// Load brand configuration from CLI args
-const brandConfig = loadBrandConfigFromArgs(process.argv);
-const cliName = getCliName(brandConfig);
-const platformName = getPlatformName(brandConfig);
-
-// CLI configuration
 program
-  .name(cliName)
-  .description(`CLI tool for managing ${platformName} plugins`)
-  .version('1.0.0')
-  .option('-v, --verbose', 'Enable verbose logging')
-  .option('--config <path>', 'Path to configuration file', './mtc-admin.config.json')
-  .option('--brand <brand>', 'Brand name override')
-  .option('--scope <scope>', 'Package scope override')
-  .option('--npm-org <org>', 'NPM organization override')
-  .option('--github-org <org>', 'GitHub organization override')
-  .option('--brand-color <color>', 'Brand color override (hex)')
-  .option('--brand-logo <url>', 'Brand logo URL override')
-  .option('--platform-name <name>', 'Platform name override')
-  .option('--cli-name <name>', 'CLI binary name override')
-  .option('--docs-url <url>', 'Documentation URL override')
-  .option('--support-email <email>', 'Support email override');
+  .name('mtc-admin')
+  .description('Multi-tenant admin + plugin toolkit for the MTC Platform')
+  .version('1.0.0');
 
-// Plugin scaffolding command
 program
+  .command('create-app')
+  .description('Scaffold the shadcn-powered admin workspace')
+  .argument('<name>', 'Directory / package name for the admin app')
+  .option('-d, --directory <directory>', 'Parent directory for the app', '.')
+  .option('--template <path>', 'Path to a custom admin starter template')
+  .option('--brand <brand>', 'Brand override for the starter')
+  .option('--scope <scope>', 'NPM scope for generated package name')
+  .option('--platform-name <name>', 'Platform display name override')
+  .option('--docs-url <url>', 'Docs URL override')
+  .option('--support-email <email>', 'Support email override')
+  .action(handleAction(async (name: string, options) => {
+    await createAdminApp(name, options);
+  }));
+
+const plugin = program.command('plugin').description('Plugin workspace commands');
+
+plugin
   .command('scaffold')
-  .description('Scaffold a new plugin')
-  .argument('<type>', 'Plugin type (cms, auth, payment, delivery, email, analytics, integration, ui, workflow, utility)')
-  .argument('<name>', 'Plugin name')
-  .option('-d, --directory <path>', 'Output directory', './plugins')
-  .option('--slug <slug>', 'Plugin slug (auto-generated from name if not provided)')
-  .option('--author <author>', 'Plugin author')
-  .option('--description <description>', 'Plugin description')
-  .option('--template <template>', 'Custom template to use')
-  .option('--brand <brand>', 'Brand name override')
-  .option('--scope <scope>', 'Package scope override')
-  .action(async (type, name, options) => {
-    try {
-      // Merge brand options from global CLI options
-      const globalOptions = program.opts();
-      const brandOptions = {
-        brand: options.brand || globalOptions.brand,
-        scope: options.scope || globalOptions.scope,
-        npmOrg: globalOptions['npm-org'],
-        githubOrg: globalOptions['github-org'],
-        brandColor: globalOptions['brand-color'],
-        brandLogo: globalOptions['brand-logo'],
-        platformName: globalOptions['platform-name'],
-        cliName: globalOptions['cli-name'],
-        docsUrl: globalOptions['docs-url'],
-        supportEmail: globalOptions['support-email'],
-      };
-      
-      await scaffoldPlugin(type, name, options, brandOptions);
-      console.log(chalk.green(`✅ Plugin "${name}" scaffolded successfully!`));
-    } catch (error) {
-      console.error(chalk.red(`❌ Error scaffolding plugin: ${error instanceof Error ? error.message : String(error)}`));
-      process.exit(1);
-    }
-  });
+  .description('Generate a plugin from the official template set')
+  .argument('<name>', 'Human readable plugin name (used for slug + class name)')
+  .requiredOption('-t, --type <type>', `Plugin type (${SUPPORTED_PLUGIN_TYPES.join(', ')})`)
+  .option('-d, --directory <directory>', 'Output directory', '.')
+  .option('--description <description>', 'Description for README + manifest')
+  .option('--author <author>', 'Author name for manifest')
+  .option('--slug <slug>', 'Slug override ( defaults to kebab-case(name) )')
+  .option('--template <path>', 'Alternative template directory')
+  .option('--force', 'Overwrite directory if it already exists')
+  .option('--brand <brand>', 'Brand override used for SDK / package scope')
+  .option('--scope <scope>', 'NPM scope override for generated package.json')
+  .option('--platform-name <name>', 'Platform name override')
+  .option('--docs-url <url>', 'Docs URL override')
+  .option('--support-email <email>', 'Support email override')
+  .action(handleAction(async (name: string, options) => {
+    await scaffoldPlugin(name, { ...options, type: options.type.toLowerCase() });
+  }));
 
-// Add hook command
-program
-  .command('add-hook')
-  .description('Add a hook to an existing plugin')
-  .argument('<hook-name>', 'Hook name (e.g., before_product_create)')
-  .argument('<plugin-path>', 'Path to plugin directory')
-  .option('--handler <handler>', 'Handler file name', 'hooks/handler.ts')
-  .option('--priority <priority>', 'Hook priority', '100')
-  .action(async (hookName, pluginPath, options) => {
-    try {
-      await addHook(hookName, pluginPath, options);
-      console.log(chalk.green(`✅ Hook "${hookName}" added successfully!`));
-    } catch (error) {
-      console.error(chalk.red(`❌ Error adding hook: ${error instanceof Error ? error.message : String(error)}`));
-      process.exit(1);
-    }
-  });
+const pluginAdd = plugin.command('add').description('Augment plugin assets');
 
-// Generate manifest command
-program
-  .command('generate-manifest')
-  .description('Generate plugin manifest from plugin directory')
-  .argument('<plugin-path>', 'Path to plugin directory')
-  .option('-o, --output <path>', 'Output file path', 'plugin.json')
-  .option('--validate', 'Validate manifest after generation')
-  .action(async (pluginPath, options) => {
-    try {
-      await generateManifest(pluginPath, options);
-      console.log(chalk.green(`✅ Manifest generated successfully!`));
-    } catch (error) {
-      console.error(chalk.red(`❌ Error generating manifest: ${error instanceof Error ? error.message : String(error)}`));
-      process.exit(1);
+pluginAdd
+  .command('component')
+  .description('Generate a new admin component and register it in plugin.json')
+  .argument('<plugin-path>', 'Path to the plugin directory')
+  .argument('<component-name>', 'Component name (PascalCase or words)')
+  .option('--kind <kind>', 'widget | menu', 'widget')
+  .option('--dashboard <dashboard>', 'Dashboard placement for widgets', 'analytics')
+  .option('--label <label>', 'Human readable label override')
+  .action(handleAction(async (pluginPath: string, componentName: string, options) => {
+    const kind = (options.kind ?? 'widget').toLowerCase();
+    if (!['widget', 'menu'].includes(kind)) {
+      throw new Error('Kind must be either "widget" or "menu"');
     }
-  });
+    await addPluginComponent(pluginPath, componentName, {
+      kind,
+      dashboard: options.dashboard,
+      label: options.label,
+    });
+  }));
 
-// Validate plugin command
-program
-  .command('validate')
-  .description('Validate a plugin')
-  .argument('<plugin-path>', 'Path to plugin directory or manifest file')
-  .option('--strict', 'Enable strict validation')
-  .action(async (pluginPath, options) => {
-    try {
-      await validatePlugin(pluginPath, options);
-      console.log(chalk.green('✅ Plugin validation passed!'));
-    } catch (error) {
-      console.error(chalk.red(`❌ Plugin validation failed: ${error instanceof Error ? error.message : String(error)}`));
-      process.exit(1);
-    }
-  });
+plugin
+  .command('dev')
+  .description('Run npm run dev inside a plugin directory')
+  .argument('[plugin-path]', 'Plugin directory (defaults to current dir)', '.')
+  .action(handleAction(async (pluginPath: string) => {
+    await runPluginDev(pluginPath);
+  }));
 
-// List plugins command
-program
-  .command('list')
-  .description('List installed plugins')
-  .option('--tenant <tenant>', 'Tenant ID (required for multi-tenant mode)')
-  .option('--category <category>', 'Filter by category')
-  .option('--status <status>', 'Filter by status (active, inactive)')
-  .option('--format <format>', 'Output format (table, json)', 'table')
-  .action(async (options) => {
-    try {
-      await listPlugins(options);
-    } catch (error) {
-      console.error(chalk.red(`❌ Error listing plugins: ${error instanceof Error ? error.message : String(error)}`));
-      process.exit(1);
-    }
-  });
+plugin
+  .command('build')
+  .description('Run npm run build inside a plugin directory')
+  .argument('[plugin-path]', 'Plugin directory (defaults to current dir)', '.')
+  .action(handleAction(async (pluginPath: string) => {
+    await runPluginBuild(pluginPath);
+  }));
 
-// Install plugin command
-program
-  .command('install')
-  .description('Install a plugin')
-  .argument('<plugin>', 'Plugin path or slug')
-  .option('--tenant <tenant>', 'Tenant ID (required for multi-tenant mode)')
-  .option('--config <config>', 'Plugin configuration (JSON string or file path)')
-  .option('--force', 'Force installation even if already installed')
-  .action(async (plugin, options) => {
-    try {
-      await installPlugin(plugin, options);
-      console.log(chalk.green(`✅ Plugin installed successfully!`));
-    } catch (error) {
-      console.error(chalk.red(`❌ Error installing plugin: ${error instanceof Error ? error.message : String(error)}`));
-      process.exit(1);
-    }
-  });
+plugin
+  .command('publish:prepare')
+  .description('Bundle a plugin tarball without triggering npm publish')
+  .argument('[plugin-path]', 'Plugin directory (defaults to current dir)', '.')
+  .option('--skip-build', 'Skip npm run build before packing')
+  .action(handleAction(async (pluginPath: string, options) => {
+    await preparePluginPublish(pluginPath, options);
+  }));
 
-// Uninstall plugin command
-program
-  .command('uninstall')
-  .description('Uninstall a plugin')
-  .argument('<plugin>', 'Plugin slug')
-  .option('--tenant <tenant>', 'Tenant ID (required for multi-tenant mode)')
-  .option('--force', 'Force uninstallation')
-  .action(async (plugin, options) => {
-    try {
-      await uninstallPlugin(plugin, options);
-      console.log(chalk.green(`✅ Plugin uninstalled successfully!`));
-    } catch (error) {
-      console.error(chalk.red(`❌ Error uninstalling plugin: ${error instanceof Error ? error.message : String(error)}`));
-      process.exit(1);
-    }
-  });
+plugin
+  .command('migration:create')
+  .description('Create a timestamped SQL migration and register it in plugin.json')
+  .argument('<plugin-path>', 'Plugin directory')
+  .argument('<name>', 'Migration name, e.g. add-customer-table')
+  .option('--table <table>', 'Custom table name override')
+  .option('--description <description>', 'Migration description header')
+  .action(handleAction(async (pluginPath: string, migrationName: string, options) => {
+    await createPluginMigration(pluginPath, migrationName, options);
+  }));
 
-// Error handling
-program.on('command:*', () => {
-  console.error(chalk.red(`❌ Invalid command: ${program.args.join(' ')}`));
-  console.log('See --help for a list of available commands.');
+program.hook('preAction', () => {
+  process.on('unhandledRejection', (error) => {
+    console.error(chalk.red('Unhandled rejection'), error);
+    process.exit(1);
+  });
+});
+
+program.parseAsync().catch((error) => {
+  console.error(chalk.red(error instanceof Error ? error.message : String(error)));
   process.exit(1);
 });
 
-// Parse command line arguments
-program.parse();
+function handleAction<T extends any[]>(action: (...args: T) => Promise<void>) {
+  return async (...args: T): Promise<void> => {
+    try {
+      await action(...args);
+    } catch (error) {
+      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+      process.exit(1);
+    }
+  };
+}

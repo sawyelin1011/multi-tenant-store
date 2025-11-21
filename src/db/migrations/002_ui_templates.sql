@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS ui_themes (
   UNIQUE(tenant_id, slug)
 );
 
-CREATE INDEX idx_ui_themes_tenant_id ON ui_themes(tenant_id);
-CREATE INDEX idx_ui_themes_slug ON ui_themes(slug);
+CREATE INDEX IF NOT EXISTS idx_ui_themes_tenant_id ON ui_themes(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ui_themes_slug ON ui_themes(slug);
 
 -- UI Layouts: Define page structure and grid systems
 CREATE TABLE IF NOT EXISTS ui_layouts (
@@ -39,10 +39,10 @@ CREATE TABLE IF NOT EXISTS ui_layouts (
   UNIQUE(tenant_id, slug)
 );
 
-CREATE INDEX idx_ui_layouts_tenant_id ON ui_layouts(tenant_id);
-CREATE INDEX idx_ui_layouts_plugin_id ON ui_layouts(plugin_id);
-CREATE INDEX idx_ui_layouts_slug ON ui_layouts(slug);
-CREATE INDEX idx_ui_layouts_type ON ui_layouts(type);
+CREATE INDEX IF NOT EXISTS idx_ui_layouts_tenant_id ON ui_layouts(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ui_layouts_plugin_id ON ui_layouts(plugin_id);
+CREATE INDEX IF NOT EXISTS idx_ui_layouts_slug ON ui_layouts(slug);
+CREATE INDEX IF NOT EXISTS idx_ui_layouts_type ON ui_layouts(type);
 
 -- UI Components: Reusable UI building blocks
 CREATE TABLE IF NOT EXISTS ui_components (
@@ -64,11 +64,11 @@ CREATE TABLE IF NOT EXISTS ui_components (
   UNIQUE(tenant_id, slug)
 );
 
-CREATE INDEX idx_ui_components_tenant_id ON ui_components(tenant_id);
-CREATE INDEX idx_ui_components_plugin_id ON ui_components(plugin_id);
-CREATE INDEX idx_ui_components_slug ON ui_components(slug);
-CREATE INDEX idx_ui_components_type ON ui_components(type);
-CREATE INDEX idx_ui_components_category ON ui_components(category);
+CREATE INDEX IF NOT EXISTS idx_ui_components_tenant_id ON ui_components(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ui_components_plugin_id ON ui_components(plugin_id);
+CREATE INDEX IF NOT EXISTS idx_ui_components_slug ON ui_components(slug);
+CREATE INDEX IF NOT EXISTS idx_ui_components_type ON ui_components(type);
+CREATE INDEX IF NOT EXISTS idx_ui_components_category ON ui_components(category);
 
 -- UI Widgets: Configured instances of components for specific pages
 CREATE TABLE IF NOT EXISTS ui_widgets (
@@ -85,10 +85,10 @@ CREATE TABLE IF NOT EXISTS ui_widgets (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_ui_widgets_tenant_id ON ui_widgets(tenant_id);
-CREATE INDEX idx_ui_widgets_component_id ON ui_widgets(component_id);
-CREATE INDEX idx_ui_widgets_page ON ui_widgets(page);
-CREATE INDEX idx_ui_widgets_page_region ON ui_widgets(page, region);
+CREATE INDEX IF NOT EXISTS idx_ui_widgets_tenant_id ON ui_widgets(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ui_widgets_component_id ON ui_widgets(component_id);
+CREATE INDEX IF NOT EXISTS idx_ui_widgets_page ON ui_widgets(page);
+CREATE INDEX IF NOT EXISTS idx_ui_widgets_page_region ON ui_widgets(page, region);
 
 -- UI Templates: Complete page configurations combining layout, theme, and widgets
 CREATE TABLE IF NOT EXISTS ui_templates (
@@ -108,8 +108,8 @@ CREATE TABLE IF NOT EXISTS ui_templates (
   UNIQUE(tenant_id, page)
 );
 
-CREATE INDEX idx_ui_templates_tenant_id ON ui_templates(tenant_id);
-CREATE INDEX idx_ui_templates_plugin_id ON ui_templates(plugin_id);
-CREATE INDEX idx_ui_templates_page ON ui_templates(page);
-CREATE INDEX idx_ui_templates_layout_id ON ui_templates(layout_id);
-CREATE INDEX idx_ui_templates_theme_id ON ui_templates(theme_id);
+CREATE INDEX IF NOT EXISTS idx_ui_templates_tenant_id ON ui_templates(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ui_templates_plugin_id ON ui_templates(plugin_id);
+CREATE INDEX IF NOT EXISTS idx_ui_templates_page ON ui_templates(page);
+CREATE INDEX IF NOT EXISTS idx_ui_templates_layout_id ON ui_templates(layout_id);
+CREATE INDEX IF NOT EXISTS idx_ui_templates_theme_id ON ui_templates(theme_id);

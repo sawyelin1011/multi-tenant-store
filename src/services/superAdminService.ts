@@ -45,7 +45,7 @@ export class SuperAdminService {
     }
   }
 
-  static getApiKey(): string {
+  static getApiKey(): string | undefined {
     return config.superAdminApiKey;
   }
 
@@ -54,7 +54,7 @@ export class SuperAdminService {
   }
 
   static async validateSuperAdminApiKey(apiKey: string): Promise<boolean> {
-    return apiKey === config.superAdminApiKey;
+    return apiKey === (config.superAdminApiKey || '');
   }
 }
 

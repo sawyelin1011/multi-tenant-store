@@ -22,7 +22,7 @@ export const config = {
   dbAutoMigrate: process.env.DB_AUTO_MIGRATE === 'true' || process.env.NODE_ENV === 'development',
   adminJwtSecret: process.env.ADMIN_JWT_SECRET,
   tenantJwtSecret: process.env.TENANT_JWT_SECRET,
-  superAdminApiKey: process.env.SUPER_ADMIN_API_KEY || 'sk_test_anyvaluedemo',
+  superAdminApiKey: process.env.SUPER_ADMIN_API_KEY,
   superAdminEmail: process.env.SUPER_ADMIN_EMAIL || 'admin@platform.example.com',
   superAdminPassword: process.env.SUPER_ADMIN_PASSWORD || 'admin123',
   bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '10', 10),

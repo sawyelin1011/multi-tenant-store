@@ -21,12 +21,20 @@
     "noEmit": false,
     "baseUrl": ".",
     "paths": {
-      "@mtc-platform/config": ["packages/config/src/index.ts"],
-      "@mtc-platform/config/*": ["packages/config/src/*"],
-      "@mtc-platform/plugin-sdk": ["packages/plugin-sdk/src/index.ts"],
-      "@mtc-platform/plugin-sdk/*": ["packages/plugin-sdk/src/*"]
+      "@mtc-platform/config": ["packages/config/dist/index.d.ts"],
+      "@mtc-platform/config/*": ["packages/config/dist/*"],
+      "@mtc-platform/plugin-sdk": ["packages/plugin-sdk/dist/index.d.ts"],
+      "@mtc-platform/plugin-sdk/*": ["packages/plugin-sdk/dist/*"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "packages",
+    "examples",
+    "scripts",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 }

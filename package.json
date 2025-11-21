@@ -95,6 +95,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240101.0",
     "@faker-js/faker": "^10.1.0",
+    "@types/lodash-es": "^4.17.12",
     "@playwright/test": "^1.56.1",
     "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",

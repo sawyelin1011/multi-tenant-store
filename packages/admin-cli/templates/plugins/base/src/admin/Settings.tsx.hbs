@@ -1,0 +1,38 @@
+import type { FormEvent } from 'react';
+import { useState } from 'react';
+
+interface SettingsProps {
+  initialConfig?: Record<string, any>;
+}
+
+export function Settings({ initialConfig }: SettingsProps) {
+  const [apiKey, setApiKey] = useState(initialConfig?.api_key ?? '');
+  const [enabled, setEnabled] = useState(initialConfig?.enabled ?? true);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    console.log('Save settings', { apiKey, enabled });
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="text-sm font-medium text-slate-700">API key</label>
+        <input
+          className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2"
+          placeholder="sk_live_..."
+          value={apiKey}
+          onChange={(event) => setApiKey(event.target.value)}
+        />
+      </div>
+      <label className="flex items-center gap-2 text-sm text-slate-600">
+        <input type="checkbox" checked={enabled} onChange={(event) => setEnabled(event.target.checked)} />
+        Enabled for all tenants
+      </label>
+
+      <button type="submit" className="rounded-lg bg-slate-900 px-4 py-2 text-white">
+        Save settings
+      </button>
+    </form>
+  );
+}

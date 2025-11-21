@@ -1,0 +1,26 @@
+{
+  "name": "{{npmName}}",
+  "version": "0.1.0",
+  "description": "{{description}}",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc --project tsconfig.json",
+    "test": "vitest",
+    "lint": "echo 'Add lint tooling as needed'"
+  },
+  "dependencies": {
+    "{{sdkPackageName}}": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.3.8",
+    "@types/react-dom": "^18.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.3",
+    "vitest": "^1.6.1"
+  }
+}

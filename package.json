@@ -14,6 +14,7 @@
     "cf:deploy": "wrangler deploy --env production",
     "cf:deploy:staging": "wrangler deploy --env staging",
     "migrate": "tsx src/db/migrate.ts",
+    "build:admin": "cd packages/admin && npm run build",
     "migrate:down": "tsx src/db/migrate.ts down",
     "db:generate": "drizzle-kit generate:sqlite --config drizzle.config.ts",
     "db:migrate:worker": "wrangler d1 migrations apply commerce-dev --env development",
@@ -38,6 +39,7 @@
     "build:sdk": "cd packages/plugin-sdk && npm run build",
     "build:cli": "cd packages/admin-cli && npm run build",
     "build:packages": "npm run build:sdk && npm run build:cli",
+    "build:all": "node ./scripts/build-all.js",
     "dev:plugin": "cd packages/plugin-sdk && npm run dev",
     "dev:cli": "cd packages/admin-cli && npm run dev",
     "plugin:scaffold": "cd packages/admin-cli && npm run scaffold",
@@ -56,6 +58,7 @@
   "author": "Platform Team",
   "license": "MIT",
   "dependencies": {
+    "@mtc-platform/admin": "file:packages/admin",
     "@mtc-platform/config": "file:packages/config",
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^9.0.9",

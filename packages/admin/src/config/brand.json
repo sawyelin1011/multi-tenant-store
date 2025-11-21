@@ -1,0 +1,14 @@
+{
+  "name": "MTC Platform Admin",
+  "platformName": "MTC Platform",
+  "tagline": "Production-ready multi-tenant commerce workspace",
+  "primaryColor": "#2563eb",
+  "supportEmail": "support@mtcplatform.com",
+  "docsUrl": "https://docs.mtcplatform.com",
+  "packageScope": "mtc-platform",
+  "navigation": [
+    { "label": "Dashboard", "href": "/dashboard" },
+    { "label": "Plugins", "href": "/plugins" },
+    { "label": "Settings", "href": "/settings" }
+  ]
+}

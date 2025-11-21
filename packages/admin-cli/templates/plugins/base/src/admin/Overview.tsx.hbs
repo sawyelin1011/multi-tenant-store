@@ -1,0 +1,20 @@
+import { PlugZap } from 'lucide-react';
+
+export function Overview() {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white/80 p-6">
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900/90 text-white">
+          <PlugZap className="h-5 w-5" />
+        </span>
+        <div>
+          <p className="text-sm font-medium text-slate-500">{{brand.platformName}} Plugin</p>
+          <h3 className="text-lg font-semibold text-slate-900">{{name}}</h3>
+        </div>
+      </div>
+      <p className="mt-4 text-sm text-slate-600">
+        Use this component to highlight the current plugin status, feature readiness, or surface common actions for admins.
+      </p>
+    </div>
+  );
+}

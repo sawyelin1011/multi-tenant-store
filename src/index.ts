@@ -4,16 +4,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { config } from './config/env.js';
 import { errorHandler } from './middleware/errorHandler.js';
-import { SuperAdminService } from './services/superAdminService.js';
+import { bootstrap } from './bootstrap/index.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin/index.js';
 import tenantRoutes from './routes/tenant/index.js';
 import storefrontRoutes from './routes/storefront/index.js';
 
 const app = express();
-
-// Initialize super admin
-SuperAdminService.initializeSuperAdmin().catch(console.error);
 
 // Middleware
 app.use(helmet());
@@ -44,10 +41,19 @@ app.use((req, res) => {
 // Error handler
 app.use(errorHandler);
 
-// Start server
-app.listen(config.port, () => {
-  console.log(`🚀 Server running on http://localhost:${config.port}`);
-  console.log(`Environment: ${config.nodeEnv}`);
+// Bootstrap and start server
+async function start() {
+  await bootstrap();
+  
+  app.listen(config.port, () => {
+    console.log(`🚀 Server running on http://localhost:${config.port}`);
+    console.log(`Environment: ${config.nodeEnv}`);
+  });
+}
+
+start().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });
 
 export default app;

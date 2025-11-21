@@ -17,6 +17,9 @@ export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '3000', 10),
   databaseUrl: process.env.DATABASE_URL,
+  dbType: process.env.DB_TYPE || 'postgres', // postgres or sqlite
+  dbPath: process.env.DB_PATH || './local.db', // for sqlite
+  dbAutoMigrate: process.env.DB_AUTO_MIGRATE === 'true' || process.env.NODE_ENV === 'development',
   adminJwtSecret: process.env.ADMIN_JWT_SECRET,
   tenantJwtSecret: process.env.TENANT_JWT_SECRET,
   superAdminApiKey: process.env.SUPER_ADMIN_API_KEY || 'sk_test_anyvaluedemo',

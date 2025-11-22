@@ -1,7 +1,9 @@
 import bcrypt from 'bcryptjs';
 import { config } from '../config/env.js';
-import { db } from '../config/database.js';
+import { db } from '../db/client.js';
+import { users } from '../db/schema.js';
 import { v4 as uuidv4 } from 'uuid';
+import { eq, and, desc } from 'drizzle-orm';
 
 export interface User {
   id: string;
@@ -9,8 +11,8 @@ export interface User {
   role: string;
   api_key?: string;
   is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface CreateUserData {
@@ -32,103 +34,92 @@ class UserService {
   async createUser(userData: CreateUserData): Promise<User> {
     const passwordHash = await bcrypt.hash(userData.password, config.bcryptRounds);
     
-    const user = {
+    const result = await db.insert(users).values({
       id: uuidv4(),
       email: userData.email,
       password_hash: passwordHash,
-      role: userData.role || 'user',
+      role: (userData.role || 'user') as 'user' | 'admin' | 'super_admin',
       api_key: userData.api_key,
       is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+      created_at: new Date(),
+      updated_at: new Date(),
+    }).returning();
 
-    const result = await db.one(
-      `INSERT INTO users (id, email, password_hash, role, api_key, is_active, created_at, updated_at)
-       VALUES ($[id], $[email], $[password_hash], $[role], $[api_key], $[is_active], $[created_at], $[updated_at])
-       RETURNING *`,
-      user
-    );
-
-    return this.parseUser(result);
+    return result[0] as User;
   }
 
   async getUserById(id: string): Promise<User | null> {
-    const result = await db.oneOrNone(
-      'SELECT * FROM users WHERE id = $[id]',
-      { id }
-    );
+    const result = await db.query.users.findFirst({
+      where: eq(users.id, id),
+    });
     
-    return result ? this.parseUser(result) : null;
+    return result as User | null;
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    const result = await db.oneOrNone(
-      'SELECT * FROM users WHERE email = $[email]',
-      { email }
-    );
+    const result = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
     
-    return result ? this.parseUser(result) : null;
+    return result as User | null;
   }
 
   async getUserByApiKey(apiKey: string): Promise<User | null> {
-    const result = await db.oneOrNone(
-      'SELECT * FROM users WHERE api_key = $[apiKey] AND is_active = true',
-      { apiKey }
-    );
+    const result = await db.query.users.findFirst({
+      where: and(
+        eq(users.api_key, apiKey),
+        eq(users.is_active, true),
+      ),
+    });
     
-    return result ? this.parseUser(result) : null;
+    return result as User | null;
   }
 
   async updateUser(id: string, userData: UpdateUserData): Promise<User | null> {
-    const updates: string[] = [];
-    const values: any = { id, updated_at: new Date().toISOString() };
+    const updates: any = {};
 
     if (userData.email !== undefined) {
-      updates.push('email = $[email]');
-      values.email = userData.email;
+      updates.email = userData.email;
     }
     
     if (userData.password !== undefined) {
       const passwordHash = await bcrypt.hash(userData.password, config.bcryptRounds);
-      updates.push('password_hash = $[password_hash]');
-      values.password_hash = passwordHash;
+      updates.password_hash = passwordHash;
     }
     
     if (userData.role !== undefined) {
-      updates.push('role = $[role]');
-      values.role = userData.role;
+      updates.role = userData.role as 'user' | 'admin' | 'super_admin';
     }
     
     if (userData.api_key !== undefined) {
-      updates.push('api_key = $[api_key]');
-      values.api_key = userData.api_key;
+      updates.api_key = userData.api_key;
     }
     
     if (userData.is_active !== undefined) {
-      updates.push('is_active = $[is_active]');
-      values.is_active = userData.is_active;
+      updates.is_active = userData.is_active;
     }
 
-    if (updates.length === 0) {
+    if (Object.keys(updates).length === 0) {
       return this.getUserById(id);
     }
 
-    updates.push('updated_at = $[updated_at]');
+    updates.updated_at = new Date();
 
-    const result = await db.oneOrNone(
-      `UPDATE users SET ${updates.join(', ')} WHERE id = $[id] RETURNING *`,
-      values
-    );
+    const result = await db.update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
 
-    return result ? this.parseUser(result) : null;
+    return result.length > 0 ? (result[0] as User) : null;
   }
 
   async validatePassword(email: string, password: string): Promise<User | null> {
-    const result = await db.oneOrNone(
-      'SELECT * FROM users WHERE email = $[email] AND is_active = true',
-      { email }
-    );
+    const result = await db.query.users.findFirst({
+      where: and(
+        eq(users.email, email),
+        eq(users.is_active, true),
+      ),
+    });
 
     if (!result) {
       return null;
@@ -139,39 +130,29 @@ class UserService {
       return null;
     }
 
-    return this.parseUser(result);
+    return result as User;
   }
 
   async listUsers(limit: number = 50, offset: number = 0): Promise<{ users: User[]; total: number }> {
-    const users = await db.manyOrNone(
-      'SELECT * FROM users ORDER BY created_at DESC LIMIT $[limit] OFFSET $[offset]',
-      { limit, offset }
-    );
+    const userList = await db.query.users.findMany({
+      orderBy: desc(users.created_at),
+      limit,
+      offset,
+    });
 
-    const totalResult = await db.one('SELECT COUNT(*) as count FROM users');
-    const total = parseInt(totalResult.count);
+    // Count total - get all records to count
+    const allRecords = await db.query.users.findMany();
+    const total = allRecords.length;
 
     return {
-      users: users.map((user: any) => this.parseUser(user)),
+      users: userList as User[],
       total,
     };
   }
 
   async deleteUser(id: string): Promise<boolean> {
-    const result = await db.result('DELETE FROM users WHERE id = $[id]', { id });
-    return result.rowCount > 0;
-  }
-
-  private parseUser(user: any): User {
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      api_key: user.api_key,
-      is_active: Boolean(user.is_active),
-      created_at: user.created_at,
-      updated_at: user.updated_at,
-    };
+    const result = await db.delete(users).where(eq(users.id, id));
+    return true;
   }
 }
 

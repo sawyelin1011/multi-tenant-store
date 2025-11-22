@@ -1,6 +1,9 @@
-import { db } from '../config/database.js';
+import { db } from '../db/client.js';
+import { tenants } from '../db/schema.js';
 import { Tenant } from '../types/index.js';
 import { ConflictError, NotFoundError } from '../utils/errors.js';
+import { eq, desc, SQL, sql } from 'drizzle-orm';
+import { v4 as uuidv4 } from 'uuid';
 
 export class TenantService {
   async createTenant(data: {
@@ -10,122 +13,120 @@ export class TenantService {
     subdomain?: string;
     plan?: string;
   }): Promise<Tenant> {
-    const existing = await db.oneOrNone('SELECT id FROM tenants WHERE slug = $1', [data.slug]);
+    const existing = await db.query.tenants.findFirst({
+      where: eq(tenants.slug, data.slug),
+    });
 
     if (existing) {
       throw new ConflictError('Tenant slug already exists');
     }
 
-    const tenant = await db.one(
-      `INSERT INTO tenants (slug, name, domain, subdomain, plan, status, settings, branding)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING *`,
-      [
-        data.slug,
-        data.name,
-        data.domain,
-        data.subdomain,
-        data.plan || 'basic',
-        'active',
-        '{}',
-        '{}',
-      ]
-    );
+    const tenant = await db.insert(tenants).values({
+      id: uuidv4(),
+      slug: data.slug,
+      name: data.name,
+      domain: data.domain,
+      subdomain: data.subdomain,
+      plan: (data.plan || 'basic') as 'basic' | 'premium' | 'enterprise',
+      status: 'active' as 'active' | 'inactive' | 'suspended',
+      settings: '{}',
+      branding: '{}',
+      created_at: new Date(),
+      updated_at: new Date(),
+    }).returning();
 
-    return tenant;
+    return tenant[0] as any as Tenant;
   }
 
   async getTenant(id: string): Promise<Tenant> {
-    const tenant = await db.oneOrNone('SELECT * FROM tenants WHERE id = $1', [id]);
+    const tenant = await db.query.tenants.findFirst({
+      where: eq(tenants.id, id),
+    });
 
     if (!tenant) {
       throw new NotFoundError('Tenant not found');
     }
 
-    return tenant;
+    return tenant as any as Tenant;
   }
 
   async getTenantBySlug(slug: string): Promise<Tenant> {
-    const tenant = await db.oneOrNone('SELECT * FROM tenants WHERE slug = $1', [slug]);
+    const tenant = await db.query.tenants.findFirst({
+      where: eq(tenants.slug, slug),
+    });
 
     if (!tenant) {
       throw new NotFoundError('Tenant not found');
     }
 
-    return tenant;
+    return tenant as any as Tenant;
   }
 
   async listTenants(limit: number = 50, offset: number = 0) {
-    const data = await db.manyOrNone('SELECT * FROM tenants ORDER BY created_at DESC LIMIT $1 OFFSET $2', [
+    const data = await db.query.tenants.findMany({
+      orderBy: desc(tenants.created_at),
       limit,
       offset,
-    ]);
+    });
 
-    const [{ count }] = await db.one('SELECT COUNT(*) as count FROM tenants');
+    // Count total - get all records to count (Drizzle limitation with PostgreSQL)
+    const allRecords = await db.query.tenants.findMany();
+    const total = allRecords.length;
 
     return {
-      data,
-      total: parseInt(count, 10),
+      data: data as any as Tenant[],
+      total,
       page: Math.floor(offset / limit) + 1,
       limit,
-      pages: Math.ceil(parseInt(count, 10) / limit),
+      pages: Math.ceil(total / limit),
     };
   }
 
   async updateTenant(id: string, data: Partial<Tenant>): Promise<Tenant> {
-    const tenant = await db.one(
-      `UPDATE tenants 
-       SET name = COALESCE($2, name),
-           domain = COALESCE($3, domain),
-           subdomain = COALESCE($4, subdomain),
-           plan = COALESCE($5, plan),
-           status = COALESCE($6, status),
-           settings = COALESCE($7, settings),
-           branding = COALESCE($8, branding),
-           updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1
-       RETURNING *`,
-      [
-        id,
-        data.name,
-        data.domain,
-        data.subdomain,
-        data.plan,
-        data.status,
-        data.settings ? JSON.stringify(data.settings) : null,
-        data.branding ? JSON.stringify(data.branding) : null,
-      ]
-    );
+    const updates: any = {};
+    if (data.name) updates.name = data.name;
+    if (data.domain) updates.domain = data.domain;
+    if (data.subdomain) updates.subdomain = data.subdomain;
+    if (data.plan) updates.plan = data.plan;
+    if (data.status) updates.status = data.status;
+    if (data.settings) updates.settings = JSON.stringify(data.settings);
+    if (data.branding) updates.branding = JSON.stringify(data.branding);
+    updates.updated_at = new Date();
 
-    return tenant;
+    const result = await db.update(tenants)
+      .set(updates)
+      .where(eq(tenants.id, id))
+      .returning();
+
+    return result[0] as any as Tenant;
   }
 
   async deleteTenant(id: string): Promise<void> {
-    await db.none('DELETE FROM tenants WHERE id = $1', [id]);
+    await db.delete(tenants).where(eq(tenants.id, id));
   }
 
   async updateSettings(tenantId: string, settings: Record<string, any>): Promise<Tenant> {
-    const tenant = await db.one(
-      `UPDATE tenants 
-       SET settings = $2, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1
-       RETURNING *`,
-      [tenantId, JSON.stringify(settings)]
-    );
+    const result = await db.update(tenants)
+      .set({
+        settings: JSON.stringify(settings),
+        updated_at: new Date(),
+      })
+      .where(eq(tenants.id, tenantId))
+      .returning();
 
-    return tenant;
+    return result[0] as any as Tenant;
   }
 
   async updateBranding(tenantId: string, branding: Record<string, any>): Promise<Tenant> {
-    const tenant = await db.one(
-      `UPDATE tenants 
-       SET branding = $2, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1
-       RETURNING *`,
-      [tenantId, JSON.stringify(branding)]
-    );
+    const result = await db.update(tenants)
+      .set({
+        branding: JSON.stringify(branding),
+        updated_at: new Date(),
+      })
+      .where(eq(tenants.id, tenantId))
+      .returning();
 
-    return tenant;
+    return result[0] as any as Tenant;
   }
 }
 

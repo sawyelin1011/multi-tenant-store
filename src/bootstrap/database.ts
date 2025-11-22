@@ -1,5 +1,6 @@
 import { config } from '../config/env.js';
-import { runMigrations } from '../db/migrate.js';
+import { runDrizzleMigrations } from '../db/migrate-drizzle.js';
+import { seed } from '../db/seed.js';
 
 export async function bootstrapDatabase(): Promise<boolean> {
   if (!config.dbAutoMigrate) {
@@ -9,12 +10,17 @@ export async function bootstrapDatabase(): Promise<boolean> {
 
   try {
     console.log('🔄 Running database migrations...');
-    await runMigrations();
+    await runDrizzleMigrations();
+    
+    // Seed if needed
+    console.log('🌱 Checking if seed data needed...');
+    await seed();
+    
     return true;
   } catch (error) {
     console.error('❌ Database migration failed:', error);
     console.error('⚠️  Application will continue but may not function correctly');
-    console.error('💡 Run: npm run db:migrate:up');
+    console.error('💡 Run: npm run db:push');
     return false;
   }
 }

@@ -17,6 +17,9 @@ wrangler.local.toml
 *.local.toml
 build/
 local.db
+db.sqlite
+db.sqlite-shm
+db.sqlite-wal
 *.db
 *.sqlite
 *.sqlite3

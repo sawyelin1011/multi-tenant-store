@@ -1,131 +1,122 @@
+import { nanoid } from 'nanoid';
 import { db } from './client.js';
-import { users, tenants, products, productTypes } from './schema.js';
-import bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
+import { order_items, orders, products, stores, tenants, users } from './schema.js';
 
-export async function seed(): Promise<void> {
+export function seed() {
+  console.log('🌱 Seeding database...');
+
   try {
-    // Check if super admin already exists
-    const adminExists = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.email, process.env.SUPER_ADMIN_EMAIL || 'admin@platform.local'),
-    });
-
-    if (adminExists) {
-      console.log('✅ Seed data already exists, skipping...');
+    const existingUser = db.select().from(users).limit(1).all();
+    if (existingUser.length > 0) {
+      console.log('✅ Database already seeded');
       return;
     }
 
-    console.log('🌱 Seeding database...');
+    const adminId = 'admin-1';
+    const tenantId = nanoid();
+    const storeId = nanoid();
+    const userId = 'user-1';
 
-    const superAdminId = uuidv4();
-    const tenantId = uuidv4();
-    const productTypeId = uuidv4();
-    const userId = uuidv4();
+    db.insert(users)
+      .values({
+        id: adminId,
+        email: process.env.SUPER_ADMIN_EMAIL || 'admin@platform.local',
+        api_key: process.env.SUPER_ADMIN_API_KEY || 'sk_test_admin123456',
+        role: 'admin',
+      })
+      .run();
 
-    // Create super admin
-    const passwordHash = await bcrypt.hash(process.env.SUPER_ADMIN_PASSWORD || 'admin123', 10);
-    
-    await db.insert(users).values({
-      id: superAdminId,
-      email: process.env.SUPER_ADMIN_EMAIL || 'admin@platform.local',
-      password_hash: passwordHash,
-      api_key: process.env.SUPER_ADMIN_API_KEY || 'sk_test_realkey123456789',
-      role: 'super_admin',
-      is_active: true,
-      created_at: new Date(),
-      updated_at: new Date(),
-    });
-    console.log(`  ✓ Created super admin: ${process.env.SUPER_ADMIN_EMAIL || 'admin@platform.local'}`);
+    db.insert(users)
+      .values({
+        id: userId,
+        email: 'customer@test.local',
+        role: 'customer',
+      })
+      .run();
 
-    // Create test tenant
-    await db.insert(tenants).values({
-      id: tenantId,
-      slug: 'test-tenant',
-      name: 'Test Tenant',
-      domain: 'test.example.com',
-      subdomain: 'test',
-      status: 'active',
-      plan: 'basic',
-      settings: JSON.stringify({}),
-      branding: JSON.stringify({}),
-      created_at: new Date(),
-      updated_at: new Date(),
-    });
-    console.log('  ✓ Created test tenant');
+    db.insert(tenants)
+      .values({
+        id: tenantId,
+        name: 'Test Tenant',
+        slug: 'test-tenant',
+      })
+      .run();
 
-    // Create test product type
-    await db.insert(productTypes).values({
-      id: productTypeId,
-      tenant_id: tenantId,
-      name: 'Digital Product',
-      slug: 'digital-product',
-      schema: JSON.stringify({
-        fields: [
-          { name: 'title', type: 'string', required: true },
-          { name: 'description', type: 'text' },
-          { name: 'price', type: 'number', required: true },
-        ]
-      }),
-      ui_config: JSON.stringify({}),
-      validation_rules: JSON.stringify({}),
-      workflows: JSON.stringify({}),
-      is_active: true,
-      created_at: new Date(),
-      updated_at: new Date(),
-    });
-    console.log('  ✓ Created test product type');
-
-    // Create test products
-    await db.insert(products).values([
-      {
-        id: uuidv4(),
+    db.insert(stores)
+      .values({
+        id: storeId,
         tenant_id: tenantId,
-        product_type_id: productTypeId,
-        name: 'Premium Digital Course',
-        slug: 'premium-digital-course',
-        status: 'active',
-        metadata: JSON.stringify({
-          description: 'Advanced training course',
+        name: 'Test Store',
+        type: 'digital',
+      })
+      .run();
+
+    const prod1Id = nanoid();
+    const prod2Id = nanoid();
+
+    db.insert(products)
+      .values([
+        {
+          id: prod1Id,
+          store_id: storeId,
+          name: 'Digital Product 1',
+          sku: 'PROD-001',
           price: 99.99,
-        }),
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-      {
-        id: uuidv4(),
-        tenant_id: tenantId,
-        product_type_id: productTypeId,
-        name: 'Budget eBook',
-        slug: 'budget-ebook',
-        status: 'active',
-        metadata: JSON.stringify({
-          description: 'Starter guide for beginners',
-          price: 29.99,
-        }),
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-    ]);
-    console.log('  ✓ Created test products');
+          description: 'Test digital product',
+          type: 'digital',
+        },
+        {
+          id: prod2Id,
+          store_id: storeId,
+          name: 'Digital Product 2',
+          sku: 'PROD-002',
+          price: 199.99,
+          description: 'Premium product',
+          type: 'digital',
+        },
+      ])
+      .run();
 
-    // Create test customer user
-    const customerPasswordHash = await bcrypt.hash('customer123', 10);
-    await db.insert(users).values({
-      id: userId,
-      email: 'customer@test.local',
-      password_hash: customerPasswordHash,
-      role: 'user',
-      is_active: true,
-      created_at: new Date(),
-      updated_at: new Date(),
-    });
-    console.log('  ✓ Created test customer user');
+    const orderId = nanoid();
 
-    console.log('✅ Seed complete\n');
+    db.insert(orders)
+      .values({
+        id: orderId,
+        store_id: storeId,
+        user_id: userId,
+        total: 299.98,
+        status: 'completed',
+      })
+      .run();
+
+    db.insert(order_items)
+      .values([
+        {
+          id: nanoid(),
+          order_id: orderId,
+          product_id: prod1Id,
+          quantity: 1,
+          price: 99.99,
+        },
+        {
+          id: nanoid(),
+          order_id: orderId,
+          product_id: prod2Id,
+          quantity: 1,
+          price: 199.99,
+        },
+      ])
+      .run();
+
+    console.log('✅ Seed complete');
+    console.log(`  - Admin user: ${process.env.SUPER_ADMIN_EMAIL || 'admin@platform.local'}`);
+    console.log(`  - API key: ${process.env.SUPER_ADMIN_API_KEY || 'sk_test_admin123456'}`);
+    console.log(`  - Test tenant: ${tenantId}`);
+    console.log(`  - Test store: ${storeId}`);
+    console.log('  - Test products: 2');
+    console.log('  - Test orders: 1');
   } catch (error) {
     console.error('❌ Seed failed:', error);
     throw error;
   }
 }
-
-export default seed;

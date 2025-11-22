@@ -10,7 +10,7 @@ export async function runDrizzleMigrations(): Promise<void> {
   try {
     console.log('🔄 Running Drizzle migrations...');
     
-    const migrationsFolder = path.join(__dirname, '../../drizzle/migrations');
+    const migrationsFolder = path.join(__dirname, '../../drizzle');
     
     await migrate(db, { migrationsFolder });
     

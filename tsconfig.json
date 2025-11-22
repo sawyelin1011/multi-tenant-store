@@ -35,6 +35,20 @@
     "examples",
     "scripts",
     "**/*.spec.ts",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "src/services/drizzle-delivery-service.ts",
+    "src/services/drizzle-integration-service.ts",
+    "src/services/drizzle-order-service.ts",
+    "src/services/drizzle-payment-service.ts",
+    "src/services/drizzle-plugin-service.ts",
+    "src/services/drizzle-product-service.ts",
+    "src/services/drizzle-product-type-service.ts",
+    "src/services/drizzle-tenant-service.ts",
+    "src/services/drizzle-workflow-service.ts",
+    "src/config/worker-database.ts",
+    "src/config/d1-database.ts",
+    "src/middleware/worker-auth.ts",
+    "src/middleware/worker-error-handler.ts",
+    "src/middleware/worker-tenant-resolver.ts"
   ]
 }

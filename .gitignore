@@ -20,5 +20,3 @@ local.db
 *.db
 *.sqlite
 *.sqlite3
-drizzle/
-.drizzle/

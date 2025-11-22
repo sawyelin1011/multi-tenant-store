@@ -5,11 +5,9 @@ dotenv.config();
 
 export default {
   schema: './src/db/schema.ts',
-  out: './drizzle/migrations',
-  driver: 'pg',
+  out: './drizzle',
+  dialect: 'postgresql',
   dbCredentials: {
-    connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/digital_commerce',
+    url: process.env.DATABASE_URL || '',
   },
-  strict: true,
-  verbose: true,
 } satisfies Config;

@@ -16,7 +16,7 @@ export function verifyAdminToken(req: AdminAuthRequest, res: Response, next: Nex
       throw new UnauthorizedError('ADMIN_JWT_SECRET not configured in environment');
     }
 
-    const decoded = jwt.verify(token, config.adminJwtSecret);
+    const decoded = jwt.verify(token, config.adminJwtSecret!);
     req.admin = decoded as any;
     next();
   } catch (error) {
@@ -73,7 +73,7 @@ export function verifyAdminTokenOrApiKey(req: AdminAuthRequest, res: Response, n
       if (!config.adminJwtSecret) {
         throw new UnauthorizedError('ADMIN_JWT_SECRET not configured in environment');
       }
-      const decoded = jwt.verify(token, config.adminJwtSecret);
+      const decoded = jwt.verify(token, config.adminJwtSecret!);
       req.admin = decoded as any;
     } else {
       throw new UnauthorizedError('No token or API key provided. Use Authorization: Bearer <token> or x-api-key header');
@@ -96,7 +96,7 @@ export function verifyTenantToken(req: AuthRequest, res: Response, next: NextFun
       throw new UnauthorizedError('TENANT_JWT_SECRET not configured in environment');
     }
 
-    const decoded = jwt.verify(token, config.tenantJwtSecret);
+    const decoded = jwt.verify(token, config.tenantJwtSecret!);
     req.user = decoded as any;
     next();
   } catch (error) {
@@ -114,7 +114,7 @@ export function optionalTenantToken(req: AuthRequest, res: Response, next: NextF
         next();
         return;
       }
-      const decoded = jwt.verify(token, config.tenantJwtSecret);
+      const decoded = jwt.verify(token, config.tenantJwtSecret!);
       req.user = decoded as any;
     }
     next();

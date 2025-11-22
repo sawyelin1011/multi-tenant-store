@@ -3,8 +3,10 @@ import type { Config } from 'drizzle-kit';
 export default {
   schema: './src/db/schema.ts',
   out: './drizzle/migrations',
-  driver: 'better-sqlite',
+  dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DB_FILE_NAME || './local.db',
+    url: process.env.DATABASE_URL || 'postgresql://localhost:5432/digital_commerce',
   },
+  strict: true,
+  verbose: true,
 } satisfies Config;

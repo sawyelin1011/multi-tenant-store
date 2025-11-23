@@ -29,6 +29,31 @@
       "key": "API_KEY",
       "value": "sk_test_admin123456",
       "type": "string"
+    },
+    {
+      "key": "TENANT_ID",
+      "value": "tenant-id",
+      "type": "string"
+    },
+    {
+      "key": "STORE_ID",
+      "value": "store-id",
+      "type": "string"
+    },
+    {
+      "key": "PRODUCT_ID",
+      "value": "product-id",
+      "type": "string"
+    },
+    {
+      "key": "ORDER_ID",
+      "value": "order-id",
+      "type": "string"
+    },
+    {
+      "key": "USER_ID",
+      "value": "user-id",
+      "type": "string"
     }
   ],
   "item": [
@@ -182,9 +207,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/stores/:id",
+              "raw": "{{base_url}}/api/stores/{{STORE_ID}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "stores", ":id"]
+              "path": ["api", "stores", "{{STORE_ID}}"]
             }
           }
         },
@@ -206,7 +231,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"tenant_id\":\"tenant-id\",\"name\":\"New Store\",\"type\":\"digital\"}"
+              "raw": "{\"tenant_id\":\"{{TENANT_ID}}\",\"name\":\"New Store\",\"type\":\"digital\"}"
             },
             "url": {
               "raw": "{{base_url}}/api/stores",
@@ -239,6 +264,24 @@
           }
         },
         {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/products/{{PRODUCT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{PRODUCT_ID}}"]
+            }
+          }
+        },
+        {
           "name": "Create Product",
           "request": {
             "method": "POST",
@@ -256,7 +299,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"store_id\":\"store-id\",\"name\":\"Product Name\",\"price\":99.99}"
+              "raw": "{\"store_id\":\"{{STORE_ID}}\",\"name\":\"Product Name\",\"price\":99.99,\"sku\":\"SKU-123\",\"description\":\"Optional description\",\"type\":\"digital\"}"
             },
             "url": {
               "raw": "{{base_url}}/api/products",
@@ -289,6 +332,24 @@
           }
         },
         {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}"]
+            }
+          }
+        },
+        {
           "name": "Create Order",
           "request": {
             "method": "POST",
@@ -306,7 +367,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"store_id\":\"store-id\",\"total\":199.99,\"status\":\"pending\"}"
+              "raw": "{\"store_id\":\"{{STORE_ID}}\",\"user_id\":\"{{USER_ID}}\",\"total\":199.99,\"status\":\"pending\"}"
             },
             "url": {
               "raw": "{{base_url}}/api/orders",

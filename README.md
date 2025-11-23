@@ -176,9 +176,10 @@ Example duplicate email response:
 3. Set collection variables:
    - `base_url` (defaults to `http://localhost:3000`)
    - `API_KEY` (defaults to `sk_test_admin123456`)
+   - `TENANT_ID` / `STORE_ID` / `PRODUCT_ID` / `ORDER_ID` / `USER_ID` (use IDs returned from previous calls)
 4. Send the **Health Check** request, then work through the folders.
 
-Every request already includes the required `x-api-key` header and sample bodies.
+Every request already includes the required `x-api-key` header and sample bodies. Update the ID variables before calling `/:id` endpoints to avoid `404 Not Found` responses.
 
 ---
 

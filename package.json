@@ -4,12 +4,37 @@
   "description": "Multi-tenant MTC Platform with plugin architecture",
   "main": "dist/index.js",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
+    "dev": "tsx src/index.ts",
+    "dev:node": "tsx src/index.ts",
+    "dev:worker": "wrangler dev --local",
+    "build": "npm run build:all",
+    "build:all": "npm run build:node && npm run build:worker",
+    "build:node": "tsc",
+    "build:worker": "tsc --outDir dist/worker --declaration false --sourceMap false",
+    "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
-    "dev": "tsx src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "migrate": "npm run db:migrate",
+    "migrate:d1": "wrangler d1 migrations apply --remote",
+    "seed": "tsx src/db/seed.ts",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write .",
+    "clean": "rm -rf dist .wrangler",
+    "deploy": "npm run deploy:production",
+    "deploy:dev": "npm run build:all && wrangler deploy --env development",
+    "deploy:staging": "npm run build:all && wrangler deploy --env staging",
+    "deploy:production": "npm run build:all && npm run test && wrangler deploy --env production",
     "check:setup": "node -e \"console.log('setup complete')\""
   },
   "dependencies": {
@@ -22,11 +47,17 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251121.0",
+    "@playwright/test": "^1.56.1",
     "@types/better-sqlite3": "^7.6.4",
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.0",
+    "@vitest/ui": "^1.6.1",
     "drizzle-kit": "^0.31.7",
+    "playwright": "^1.56.1",
     "tsx": "^4.20.6",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.6.1",
+    "wrangler": "^3.114.15"
   }
 }

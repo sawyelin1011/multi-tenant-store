@@ -33,6 +33,48 @@ const createOrderSchema = z.object({
   status: z.enum(['pending', 'processing', 'completed', 'cancelled']).default('pending'),
 });
 
+const updateUserSchema = z.object({
+  email: z.string().email('Invalid email format').optional(),
+  role: z.enum(['user', 'admin']).optional(),
+});
+
+const updateTenantSchema = z.object({
+  name: z.string().min(1, 'Name required').max(255).optional(),
+  slug: z.string().min(1, 'Slug required').regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric').optional(),
+  config: z.record(z.any()).optional(),
+});
+
+const updateStoreSchema = z.object({
+  name: z.string().min(1, 'Name required').max(255).optional(),
+  type: z.enum(['digital', 'physical', 'hybrid']).optional(),
+  config: z.record(z.any()).optional(),
+});
+
+const updateProductSchema = z.object({
+  name: z.string().min(1, 'Name required').max(255).optional(),
+  price: z.number().positive('Price must be positive').optional(),
+  description: z.string().optional(),
+  sku: z.string().optional(),
+  type: z.enum(['digital', 'physical']).optional(),
+  status: z.enum(['active', 'inactive', 'draft']).optional(),
+});
+
+const updateOrderSchema = z.object({
+  status: z.enum(['pending', 'processing', 'completed', 'cancelled']).optional(),
+  total: z.number().positive().optional(),
+});
+
+const createOrderItemSchema = z.object({
+  product_id: z.string().min(1, 'Product ID required'),
+  quantity: z.number().positive('Quantity must be positive'),
+  price: z.number().positive('Price must be positive'),
+});
+
+const paginationSchema = z.object({
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  offset: z.coerce.number().int().nonnegative().default(0),
+});
+
 export function validate<T>(schema: z.ZodSchema<T>, data: unknown): T {
   try {
     return schema.parse(data);
@@ -51,4 +93,11 @@ export {
   createStoreSchema,
   createProductSchema,
   createOrderSchema,
+  updateUserSchema,
+  updateTenantSchema,
+  updateStoreSchema,
+  updateProductSchema,
+  updateOrderSchema,
+  createOrderItemSchema,
+  paginationSchema,
 };

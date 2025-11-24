@@ -4,6 +4,30 @@ A lightweight, production-ready multi-tenant commerce API built with **Express**
 
 ---
 
+## Documentation
+
+📚 **Comprehensive documentation is now available in the [docs/](./docs/) folder:**
+
+- **[Quick Start Guide](./docs/QUICK_START.md)** - Get running in 5 minutes
+- **[Documentation Overview](./docs/README.md)** - Complete documentation index
+- **[Development Guides](./docs/DEVELOPMENT/README.md)** - For platform contributors
+- **[API Documentation](./docs/API/README.md)** - Complete API reference
+- **[Plugin Development](./docs/PLUGINS/README.md)** - Build custom functionality
+- **[Templates Guide](./docs/TEMPLATES/README.md)** - Customize store appearance
+- **[Deployment Guides](./docs/DEPLOYMENT/README.md)** - Production deployment
+
+### Quick Links
+
+| Audience | Start Here | Key Resources |
+|----------|------------|----------------|
+| **New Users** | [Quick Start](./docs/QUICK_START.md) | Setup guides, basic usage |
+| **Developers** | [Development Setup](./docs/DEVELOPMENT/SETUP.md) | Architecture, contributing |
+| **API Users** | [API Reference](./docs/API/REST_API.md) | Complete API documentation |
+| **Plugin Devs** | [Plugin Guide](./docs/PLUGINS/DEVELOPMENT_GUIDE.md) | Plugin development |
+| **DevOps** | [Deployment Guide](./docs/DEPLOYMENT/PRODUCTION.md) | Production deployment |
+
+---
+
 ## Table of Contents
 1. [Features](#features)
 2. [Requirements](#requirements)

@@ -1,8 +1,74 @@
-name = "mtc-api"
-main = "src/worker.ts"
-compatibility_date = "2024-01-01"
+#:schema node_modules/wrangler/config-schema.json
 
-type = "service"
+name = "mtc-platform"
+main = "src/worker/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
 
+# Build configuration
+[build]
+command = "npm run build:worker"
+cwd = "./."
+watch_paths = ["src/worker/**/*.ts", "src/db/**/*.ts", "src/utils/**/*.ts"]
+
+[build.upload]
+format = "service-worker"
+main = "./dist/worker/index.js"
+
+# Triggers
+[triggers]
+crons = ["0 2 * * *"]  # Daily cleanup at 2 AM UTC
+
+# Environment: Development (local)
+[env.development]
+name = "mtc-platform-dev"
+routes = [
+  { pattern = "api.dev.local/*", zone_name = "dev.local" }
+]
+vars = { ENVIRONMENT = "development", LOG_LEVEL = "debug" }
+
+[env.development.d1_databases]
+DB = { database_id = "dev-db-id", database_name = "mtc_dev" }
+
+[env.development.kv_namespaces]
+CACHE = { binding = "CACHE", id = "dev-cache-id", preview_id = "dev-cache-preview" }
+SESSIONS = { binding = "SESSIONS", id = "dev-sessions-id", preview_id = "dev-sessions-preview" }
+
+[env.development.r2_buckets]
+UPLOADS = { binding = "UPLOADS", bucket_name = "mtc-uploads-dev" }
+
+# Environment: Staging
+[env.staging]
+name = "mtc-platform-staging"
+routes = [
+  { pattern = "api.staging.mtc.local/*", zone_name = "mtc.local" }
+]
+vars = { ENVIRONMENT = "staging", LOG_LEVEL = "info" }
+
+[env.staging.d1_databases]
+DB = { database_id = "staging-db-id", database_name = "mtc_staging" }
+
+[env.staging.kv_namespaces]
+CACHE = { binding = "CACHE", id = "staging-cache-id", preview_id = "staging-cache-preview" }
+SESSIONS = { binding = "SESSIONS", id = "staging-sessions-id", preview_id = "staging-sessions-preview" }
+
+[env.staging.r2_buckets]
+UPLOADS = { binding = "UPLOADS", bucket_name = "mtc-uploads-staging" }
+
+# Environment: Production
 [env.production]
-vars = { ENVIRONMENT = "production" }
+name = "mtc-platform"
+routes = [
+  { pattern = "api.mtc.io/*", zone_name = "mtc.io" }
+]
+vars = { ENVIRONMENT = "production", LOG_LEVEL = "warn" }
+
+[env.production.d1_databases]
+DB = { database_id = "prod-db-id", database_name = "mtc_prod" }
+
+[env.production.kv_namespaces]
+CACHE = { binding = "CACHE", id = "prod-cache-id" }
+SESSIONS = { binding = "SESSIONS", id = "prod-sessions-id" }
+
+[env.production.r2_buckets]
+UPLOADS = { binding = "UPLOADS", bucket_name = "mtc-uploads" }

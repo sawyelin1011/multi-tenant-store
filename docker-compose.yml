@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mtc-platform
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      LOG_LEVEL: debug
+      SQLITE_DB: /app/db.sqlite
+      SUPER_ADMIN_API_KEY: sk_test_admin123456
+      SUPER_ADMIN_EMAIL: admin@platform.local
+      ALLOWED_ORIGINS: http://localhost:3000
+    volumes:
+      - ./src:/app/src
+      - ./db.sqlite:/app/db.sqlite
+      - ./node_modules:/app/node_modules
+    command: npm run dev
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Test container
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mtc-platform-tests
+    environment:
+      NODE_ENV: test
+      CI: 'true'
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./e2e:/app/e2e
+    command: npm run test
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  app-data:

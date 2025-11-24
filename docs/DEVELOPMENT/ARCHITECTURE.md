@@ -854,3 +854,446 @@ Resolved template for "dashboard" page:
 - Marketing automation
 - Subscription management
 - Affiliate system
+
+---
+
+## Architecture Diagrams
+
+Visual flowcharts and diagrams illustrating system architecture, request flow, and key processes.
+
+### Request Flow
+
+#### Workers Request Flow (Edge Computing)
+
+```mermaid
+graph TD
+    A["Client Request<br/>(anywhere in world)"] -->|Route to nearest edge| B["Cloudflare Edge<br/>(30+ locations)"]
+    B -->|Worker Handler| C["Hono Router"]
+    C -->|Extract Path| D["Route Matching"]
+    D -->|JWT Verification| E["Auth Middleware"]
+    E -->|Extract Tenant| F["Tenant Resolution"]
+    F -->|Query Execution| G["D1 SQLite"]
+    G -->|Read/Write| H["KV Cache Layer"]
+    H -->|File Ops| I["R2 Storage"]
+    I -->|Response Assembly| J["JSON Response"]
+    J -->|Cached at Edge| K["Global Cache"]
+    K -->|Return to Client| L["Ultra-Low Latency Response"]
+    
+    style A fill:#e1f5ff
+    style L fill:#c8e6c9
+    style B fill:#fff9c4
+    style G fill:#f8bbd0
+    style K fill:#fff9c4
+```
+
+**Key Points:**
+- Request handled at edge closest to user
+- D1 database is centralized (request goes to DB region)
+- KV cache is distributed (cache at each edge)
+- Response returns from nearest edge location
+
+#### Express Request Flow (Traditional)
+
+```mermaid
+graph TD
+    A["Client Request<br/>(HTTP)"] -->|Network| B["Load Balancer"]
+    B -->|Distribute| C["Express Server 1"]
+    B -->|Distribute| D["Express Server 2"]
+    B -->|Distribute| E["Express Server N"]
+    C -->|JWT Verify| F["Auth Middleware"]
+    D -->|JWT Verify| F
+    E -->|JWT Verify| F
+    F -->|Extract Tenant| G["Tenant Middleware"]
+    G -->|Cached Get| H["Redis Cache"]
+    H -->|Miss| I["PostgreSQL Database"]
+    I -->|Result| J["Service Layer"]
+    J -->|File Ops| K["AWS S3 or Local Storage"]
+    K -->|Response| L["JSON Response"]
+    L -->|Cache Result| H
+    H -->|Return to Client| M["Response to Client"]
+    
+    style A fill:#e1f5ff
+    style M fill:#c8e6c9
+    style B fill:#fff9c4
+    style I fill:#f8bbd0
+    style H fill:#fff9c4
+```
+
+**Key Points:**
+- Multiple Express instances behind load balancer
+- Redis provides in-process cache
+- All instances access same PostgreSQL
+- Horizontal scaling via more instances
+
+### Plugin Lifecycle
+
+#### Plugin Installation & Activation
+
+```mermaid
+graph LR
+    A["Plugin Registry<br/>(Available)"] -->|Install| B["Tenant Plugin<br/>(Inactive)"]
+    B -->|Configure Settings| C["Plugin Config<br/>(in Database)"]
+    C -->|Enable| D["Active Plugin<br/>(Running)"]
+    D -->|Hooks| E["Hook Registry"]
+    E -->|beforeProductCreate| F["Plugin Handler"]
+    E -->|afterOrderCreate| G["Plugin Handler"]
+    E -->|beforePayment| H["Plugin Handler"]
+    F -->|Execution| I["Plugin Execution"]
+    G -->|Execution| I
+    H -->|Execution| I
+    I -->|Disable| J["Inactive"]
+    J -->|Uninstall| K["Removed"]
+    
+    style A fill:#e3f2fd
+    style D fill:#c8e6c9
+    style K fill:#ffcdd2
+    style I fill:#fff9c4
+```
+
+#### Plugin Execution Flow
+
+```mermaid
+sequenceDiagram
+    participant Core as Platform Core
+    participant Hook as Hook Registry
+    participant Plugin as Plugin Handler
+    participant DB as Database
+    participant External as External Service
+
+    Core->>Hook: Trigger Event (product.created)
+    Hook->>Plugin: Call Registered Handler
+    Plugin->>DB: Read Product Data
+    DB-->>Plugin: Return Product
+    Plugin->>External: Send Webhook/Email
+    External-->>Plugin: Acknowledge
+    Plugin->>DB: Update Plugin State
+    Plugin-->>Hook: Return Result
+    Hook-->>Core: Continue Processing
+```
+
+### Data Flow Examples
+
+#### Multi-Tenant Data Isolation
+
+```mermaid
+graph TD
+    A["Client Request"] --> B["Tenant Resolution"]
+    B --> C["tenant_id Extraction"]
+    C --> D["Query Building"]
+    D --> E["WHERE tenant_id = ?"]
+    E --> F["Database Query"]
+    F --> G["Filtered Results"]
+    G --> H["Response to Client"]
+    
+    I["Other Tenant Request"] --> J["Different tenant_id"]
+    J --> K["WHERE tenant_id = different_id"]
+    K --> L["Separate Query"]
+    L --> M["No Data Cross-Contamination"]
+    
+    style A fill:#e1f5ff
+    style H fill:#c8e6c9
+    style I fill:#f3e5f5
+    style M fill:#c8e6c9
+```
+
+#### Plugin Data Flow
+
+```mermaid
+graph LR
+    A["Platform Event"] --> B["Hook Registry"]
+    B --> C["Plugin 1 Handler"]
+    B --> D["Plugin 2 Handler"]
+    B --> E["Plugin N Handler"]
+    
+    C --> F["External API 1"]
+    D --> G["Database Update"]
+    E --> H["Email Service"]
+    
+    F --> I["Result 1"]
+    G --> J["Result 2"]
+    H --> K["Result N"]
+    
+    I --> L["Aggregate Results"]
+    J --> L
+    K --> L
+    L --> M["Continue Platform Flow"]
+    
+    style A fill:#e3f2fd
+    style L fill:#c8e6c9
+    style M fill:#4caf50
+```
+
+### Runtime Comparison
+
+#### Performance Characteristics
+
+| Feature | Express Runtime | Workers Runtime |
+|----------|----------------|-----------------|
+| **Latency** | 50-200ms | 10-50ms |
+| **Scaling** | Manual/Auto-scaling | Automatic |
+| **Geography** | Single region | Global edge |
+| **Database** | PostgreSQL | D1 SQLite |
+| **Cache** | Redis | KV Storage |
+| **Storage** | S3/Local | R2/Local |
+| **Cold Start** | N/A | 0-5ms |
+| **Memory Limit** | Configurable | 128MB |
+| **CPU Limit** | Configurable | 50ms CPU-time |
+| **Concurrent Requests** | High | Very High |
+
+#### Deployment Architecture
+
+```mermaid
+graph TB
+    subgraph "Traditional Deployment"
+        A["Load Balancer"] --> B["Express App 1"]
+        A --> C["Express App 2"]
+        A --> D["Express App N"]
+        B --> E["PostgreSQL"]
+        C --> E
+        D --> E
+        B --> F["Redis Cache"]
+        C --> F
+        D --> F
+    end
+    
+    subgraph "Workers Deployment"
+        G["Cloudflare Edge"] --> H["Worker 1"]
+        G --> I["Worker 2"]
+        G --> J["Worker N"]
+        H --> K["D1 Database"]
+        I --> K
+        J --> K
+        H --> L["KV Storage"]
+        I --> L
+        J --> L
+    end
+    
+    style A fill:#ffecb3
+    style G fill:#e8f5e8
+    style E fill:#fff3e0
+    style K fill:#e3f2fd
+    style F fill:#fce4ec
+    style L fill:#fce4ec
+```
+
+### Security Architecture
+
+#### Authentication & Authorization Flow
+
+```mermaid
+sequenceDiagram
+    participant Client as Client
+    participant API as API Gateway
+    participant Auth as Auth Service
+    participant DB as Database
+
+    Client->>API: Request with API Key
+    API->>Auth: Validate API Key
+    Auth->>DB: Lookup API Key
+    DB-->>Auth: Return Key Details
+    Auth-->>API: Validation Result
+    
+    alt Valid API Key
+        API->>Auth: Extract Tenant Context
+        Auth->>DB: Get Tenant Permissions
+        DB-->>Auth: Return Permissions
+        Auth-->>API: Tenant Context
+        API-->>Client: Process Request
+    else Invalid API Key
+        API-->>Client: 401 Unauthorized
+    end
+```
+
+#### Multi-Tenant Security Layers
+
+```mermaid
+graph TD
+    A["Client Request"] --> B["Network Security<br/>(HTTPS, WAF)"]
+    B --> C["API Gateway<br/>(Rate Limiting)"]
+    C --> D["Authentication<br/>(API Key Validation)"]
+    D --> E["Authorization<br/>(Tenant Scoping)"]
+    E --> F["Application Layer<br/>(Business Logic)"]
+    F --> G["Data Access Layer<br/>(Tenant Filtering)"]
+    G --> H["Database<br/>(Row-Level Security)"]
+    
+    I["Admin Request"] --> J["Additional Security<br/>(MFA, Audit)"]
+    J --> K["Elevated Permissions<br/>(Super Admin)"]
+    K --> F
+    
+    style A fill:#e1f5ff
+    style H fill:#c8e6c9
+    style I fill:#fff3e0
+    style K fill:#ff9800
+```
+
+### Plugin Architecture
+
+#### Plugin System Components
+
+```mermaid
+graph TB
+    subgraph "Plugin Ecosystem"
+        A["Plugin Registry"]
+        B["Plugin Manager"]
+        C["Hook Registry"]
+        D["Event Bus"]
+    end
+    
+    subgraph "Plugin Lifecycle"
+        E["Installation"]
+        F["Configuration"]
+        G["Activation"]
+        H["Execution"]
+        I["Deactivation"]
+        J["Uninstallation"]
+    end
+    
+    subgraph "Plugin Components"
+        K["Hooks"]
+        L["Routes"]
+        M["UI Components"]
+        N["Services"]
+    end
+    
+    A --> E
+    B --> F
+    C --> G
+    D --> H
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+    I --> J
+    
+    C --> K
+    B --> L
+    B --> M
+    B --> N
+    
+    style A fill:#e3f2fd
+    style D fill:#e8f5e8
+    style H fill:#c8e6c9
+```
+
+#### Plugin Hook System
+
+```mermaid
+graph LR
+    A["Platform Event"] --> B["Hook Dispatcher"]
+    B --> C["Priority Sorting"]
+    C --> D["Plugin Hook 1<br/>(Priority: 10)"]
+    C --> E["Plugin Hook 2<br/>(Priority: 5)"]
+    C --> F["Plugin Hook N<br/>(Priority: 1)"]
+    
+    D --> G["Execution 1"]
+    E --> H["Execution 2"]
+    F --> I["Execution N"]
+    
+    G --> J["Result 1"]
+    H --> K["Result 2"]
+    I --> L["Result N"]
+    
+    J --> M["Aggregate Results"]
+    K --> M
+    L --> M
+    M --> N["Continue Platform Flow"]
+    
+    alt Hook Returns Error
+        M --> O["Error Handling"]
+        O --> P["Rollback if Needed"]
+    else All Hooks Success
+        M --> N
+    end
+    
+    style A fill:#e3f2fd
+    style M fill:#c8e6c9
+    style N fill:#4caf50
+    style O fill:#f44336
+```
+
+### Database Architecture
+
+#### Multi-Tenant Database Design
+
+```mermaid
+erDiagram
+    TENANTS ||--o{ USERS : has
+    TENANTS ||--o{ STORES : owns
+    STORES ||--o{ PRODUCTS : contains
+    STORES ||--o{ ORDERS : receives
+    ORDERS ||--o{ ORDER_ITEMS : includes
+    PRODUCTS ||--o{ ORDER_ITEMS : referenced_in
+    TENANTS ||--o{ TENANT_PLUGINS : installs
+    PLUGINS ||--o{ TENANT_PLUGINS : installed_in
+    STORES ||--o{ PRODUCT_TYPES : defines
+    PRODUCT_TYPES ||--o{ PRODUCTS : typed_as
+    
+    TENANTS {
+        string id PK
+        string name
+        string slug
+        json settings
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    USERS {
+        string id PK
+        string tenant_id FK
+        string email
+        string role
+        json metadata
+        timestamp created_at
+    }
+    
+    STORES {
+        string id PK
+        string tenant_id FK
+        string name
+        string type
+        json settings
+        timestamp created_at
+    }
+    
+    PRODUCTS {
+        string id PK
+        string store_id FK
+        string product_type_id FK
+        string name
+        decimal price
+        json data
+        timestamp created_at
+    }
+```
+
+#### Plugin Data Storage
+
+```mermaid
+graph TD
+    A["Plugin Data"] --> B["Plugin Metadata"]
+    A --> C["Plugin Configuration"]
+    A --> D["Plugin State"]
+    
+    B --> E["plugin.json"]
+    B --> F["version info"]
+    B --> G["dependencies"]
+    
+    C --> H["tenant_plugins table"]
+    C --> I["JSON settings"]
+    C --> J["API keys/secrets"]
+    
+    D --> K["plugin_state table"]
+    D --> L["runtime data"]
+    D --> M["cache data"]
+    
+    N["Plugin Files"] --> O["Code Files"]
+    N --> P["Static Assets"]
+    N --> Q["Templates"]
+    
+    style A fill:#e3f2fd
+    style H fill:#e8f5e8
+    style K fill:#fff3e0
+    style O fill:#c8e6c9
+```
+
+These diagrams provide a comprehensive visual understanding of the MTC Platform's architecture, from high-level request flows to detailed component interactions. They serve as reference guides for developers, architects, and system administrators working with the platform.

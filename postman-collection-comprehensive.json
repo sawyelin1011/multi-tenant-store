@@ -1,0 +1,1364 @@
+{
+  "info": {
+    "_postman_id": "complete-api-collection",
+    "name": "MTC Platform API - Complete",
+    "description": "Comprehensive Postman collection for multi-tenant commerce platform - all endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.0.0"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "x-api-key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{API_KEY}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:3000", "type": "string"},
+    {"key": "API_KEY", "value": "sk_test_admin123456", "type": "string"},
+    {"key": "TENANT_ID", "value": "tenant-id", "type": "string"},
+    {"key": "STORE_ID", "value": "store-id", "type": "string"},
+    {"key": "PRODUCT_ID", "value": "product-id", "type": "string"},
+    {"key": "ORDER_ID", "value": "order-id", "type": "string"},
+    {"key": "USER_ID", "value": "user-id", "type": "string"},
+    {"key": "VARIANT_ID", "value": "variant-id", "type": "string"},
+    {"key": "ITEM_ID", "value": "item-id", "type": "string"},
+    {"key": "WEBHOOK_ID", "value": "webhook-id", "type": "string"},
+    {"key": "PAYMENT_ID", "value": "payment-id", "type": "string"}
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/users?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{USER_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{USER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"email\":\"newuser@example.com\",\"role\":\"user\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"email\":\"updated@example.com\",\"role\":\"admin\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/users/{{USER_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{USER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{USER_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{USER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "List API Keys",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{USER_ID}}/api-keys",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{USER_ID}}", "api-keys"]
+            }
+          }
+        },
+        {
+          "name": "Create API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"name\":\"My API Key\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/users/{{USER_ID}}/api-keys",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{USER_ID}}", "api-keys"]
+            }
+          }
+        },
+        {
+          "name": "Revoke API Key",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{USER_ID}}/api-keys/{{VARIANT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{USER_ID}}", "api-keys", "{{VARIANT_ID}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tenants",
+      "item": [
+        {
+          "name": "List Tenants",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/tenants?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Tenant by ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/tenants/{{TENANT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants", "{{TENANT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Tenant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"name\":\"New Tenant\",\"slug\":\"new-tenant\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/tenants",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants"]
+            }
+          }
+        },
+        {
+          "name": "Update Tenant",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"name\":\"Updated Tenant\",\"slug\":\"updated-tenant\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/tenants/{{TENANT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants", "{{TENANT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Tenant",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/tenants/{{TENANT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants", "{{TENANT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Tenant Config",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/tenants/{{TENANT_ID}}/config",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants", "{{TENANT_ID}}", "config"]
+            }
+          }
+        },
+        {
+          "name": "Update Tenant Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"theme\":\"dark\",\"language\":\"en\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/tenants/{{TENANT_ID}}/config",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants", "{{TENANT_ID}}", "config"]
+            }
+          }
+        },
+        {
+          "name": "Get Tenant Usage",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/tenants/{{TENANT_ID}}/usage",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants", "{{TENANT_ID}}", "usage"]
+            }
+          }
+        },
+        {
+          "name": "List Tenant Members",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/tenants/{{TENANT_ID}}/members",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants", "{{TENANT_ID}}", "members"]
+            }
+          }
+        },
+        {
+          "name": "Add Tenant Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"user_id\":\"{{USER_ID}}\",\"role\":\"admin\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/tenants/{{TENANT_ID}}/members",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants", "{{TENANT_ID}}", "members"]
+            }
+          }
+        },
+        {
+          "name": "Remove Tenant Member",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/tenants/{{TENANT_ID}}/members/{{USER_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants", "{{TENANT_ID}}", "members", "{{USER_ID}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stores",
+      "item": [
+        {
+          "name": "List Stores",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/stores?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Store by ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/stores/{{STORE_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores", "{{STORE_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"tenant_id\":\"{{TENANT_ID}}\",\"name\":\"New Store\",\"type\":\"digital\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/stores",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores"]
+            }
+          }
+        },
+        {
+          "name": "Update Store",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"name\":\"Updated Store\",\"type\":\"hybrid\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/stores/{{STORE_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores", "{{STORE_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Store",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/stores/{{STORE_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores", "{{STORE_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Store Config",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/stores/{{STORE_ID}}/config",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores", "{{STORE_ID}}", "config"]
+            }
+          }
+        },
+        {
+          "name": "Update Store Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"currency\":\"USD\",\"timezone\":\"UTC\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/stores/{{STORE_ID}}/config",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores", "{{STORE_ID}}", "config"]
+            }
+          }
+        },
+        {
+          "name": "Get Store Stats",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/stores/{{STORE_ID}}/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores", "{{STORE_ID}}", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Get Store Settings",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/stores/{{STORE_ID}}/settings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores", "{{STORE_ID}}", "settings"]
+            }
+          }
+        },
+        {
+          "name": "Update Store Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"tax_rate\":0.08}"},
+            "url": {
+              "raw": "{{base_url}}/api/stores/{{STORE_ID}}/settings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores", "{{STORE_ID}}", "settings"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/products?limit=20&offset=0&store_id={{STORE_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"},
+                {"key": "store_id", "value": "{{STORE_ID}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/products/{{PRODUCT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{PRODUCT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"store_id\":\"{{STORE_ID}}\",\"name\":\"New Product\",\"price\":99.99,\"sku\":\"SKU-123\",\"type\":\"digital\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"]
+            }
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"name\":\"Updated Product\",\"price\":149.99}"},
+            "url": {
+              "raw": "{{base_url}}/api/products/{{PRODUCT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{PRODUCT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/products/{{PRODUCT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{PRODUCT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "List Product Variants",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/products/{{PRODUCT_ID}}/variants",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{PRODUCT_ID}}", "variants"]
+            }
+          }
+        },
+        {
+          "name": "Add Product Variant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"color\":\"red\",\"size\":\"large\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/products/{{PRODUCT_ID}}/variants",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{PRODUCT_ID}}", "variants"]
+            }
+          }
+        },
+        {
+          "name": "Delete Product Variant",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/products/{{PRODUCT_ID}}/variants/{{VARIANT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{PRODUCT_ID}}", "variants", "{{VARIANT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Product Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"status\":\"active\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/products/{{PRODUCT_ID}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{PRODUCT_ID}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get Store Products",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/products/store/{{STORE_ID}}?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "store", "{{STORE_ID}}"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bulk Create Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"products\":[{\"store_id\":\"{{STORE_ID}}\",\"name\":\"Product 1\",\"price\":99.99},{\"store_id\":\"{{STORE_ID}}\",\"name\":\"Product 2\",\"price\":199.99}]}"},
+            "url": {
+              "raw": "{{base_url}}/api/products/bulk",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "bulk"]
+            }
+          }
+        },
+        {
+          "name": "Bulk Delete Products",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"product_ids\":[\"prod-1\",\"prod-2\"]}"},
+            "url": {
+              "raw": "{{base_url}}/api/products/bulk",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "bulk"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/orders?limit=20&offset=0&store_id={{STORE_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"},
+                {"key": "store_id", "value": "{{STORE_ID}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"store_id\":\"{{STORE_ID}}\",\"user_id\":\"{{USER_ID}}\",\"total\":199.99,\"status\":\"pending\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"total\":249.99,\"status\":\"processing\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "List Order Items",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}/items",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}", "items"]
+            }
+          }
+        },
+        {
+          "name": "Add Order Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"product_id\":\"{{PRODUCT_ID}}\",\"quantity\":2,\"price\":99.99}"},
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}/items",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}", "items"]
+            }
+          }
+        },
+        {
+          "name": "Remove Order Item",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}/items/{{ITEM_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}", "items", "{{ITEM_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"status\":\"completed\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get Order Timeline",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}/timeline",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}", "timeline"]
+            }
+          }
+        },
+        {
+          "name": "Add Order Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"note\":\"Order is ready to ship\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}/notes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}", "notes"]
+            }
+          }
+        },
+        {
+          "name": "Get Store Orders",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/orders/store/{{STORE_ID}}?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "store", "{{STORE_ID}}"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Orders",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/orders/user/{{USER_ID}}?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "user", "{{USER_ID}}"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refund Order",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}/refund",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}", "refund"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Shipping",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"shipping_info\":{\"carrier\":\"FedEx\",\"tracking_number\":\"123456789\"}}"},
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{ORDER_ID}}/shipping",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{ORDER_ID}}", "shipping"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "List Inventory",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/inventory?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "inventory"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product Inventory",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/inventory/{{PRODUCT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "inventory", "{{PRODUCT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Inventory",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"stock\":100}"},
+            "url": {
+              "raw": "{{base_url}}/api/inventory/{{PRODUCT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "inventory", "{{PRODUCT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Adjust Stock",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"adjustment\":10}"},
+            "url": {
+              "raw": "{{base_url}}/api/inventory/{{PRODUCT_ID}}/stock",
+              "host": ["{{base_url}}"],
+              "path": ["api", "inventory", "{{PRODUCT_ID}}", "stock"]
+            }
+          }
+        },
+        {
+          "name": "Get Inventory History",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/inventory/{{PRODUCT_ID}}/history",
+              "host": ["{{base_url}}"],
+              "path": ["api", "inventory", "{{PRODUCT_ID}}", "history"]
+            }
+          }
+        },
+        {
+          "name": "Sync Inventory",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/inventory/sync",
+              "host": ["{{base_url}}"],
+              "path": ["api", "inventory", "sync"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "List Payments",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/payments?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Payment by ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/payments/{{PAYMENT_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "{{PAYMENT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"amount\":99.99,\"order_id\":\"{{ORDER_ID}}\",\"method\":\"card\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Receipt",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/payments/{{PAYMENT_ID}}/receipt",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "{{PAYMENT_ID}}", "receipt"]
+            }
+          }
+        },
+        {
+          "name": "Refund Payment",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/payments/{{PAYMENT_ID}}/refund",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "{{PAYMENT_ID}}", "refund"]
+            }
+          }
+        },
+        {
+          "name": "Get Order Payments",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/payments/order/{{ORDER_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "order", "{{ORDER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Payment Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"status\":\"completed\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/payments/{{PAYMENT_ID}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "{{PAYMENT_ID}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports & Analytics",
+      "item": [
+        {
+          "name": "Get Sales Report",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/reports/sales",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "sales"]
+            }
+          }
+        },
+        {
+          "name": "Get Products Report",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/reports/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "products"]
+            }
+          }
+        },
+        {
+          "name": "Get Customers Report",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/reports/customers",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "customers"]
+            }
+          }
+        },
+        {
+          "name": "Get Revenue Report",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/reports/revenue",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "revenue"]
+            }
+          }
+        },
+        {
+          "name": "Get Inventory Report",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/reports/inventory",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "inventory"]
+            }
+          }
+        },
+        {
+          "name": "Get Dashboard Metrics",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Get Analytics Trends",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/trends",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "trends"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "List Webhooks",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/webhooks?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "webhooks"],
+              "query": [
+                {"key": "limit", "value": "20"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"url\":\"https://example.com/webhook\",\"events\":[\"order.created\",\"order.updated\"]}"},
+            "url": {
+              "raw": "{{base_url}}/api/webhooks",
+              "host": ["{{base_url}}"],
+              "path": ["api", "webhooks"]
+            }
+          }
+        },
+        {
+          "name": "Update Webhook",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"url\":\"https://example.com/webhook-updated\",\"events\":[\"order.created\"]}"},
+            "url": {
+              "raw": "{{base_url}}/api/webhooks/{{WEBHOOK_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "webhooks", "{{WEBHOOK_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Webhook",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/webhooks/{{WEBHOOK_ID}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "webhooks", "{{WEBHOOK_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Webhook Logs",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/webhooks/{{WEBHOOK_ID}}/logs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "webhooks", "{{WEBHOOK_ID}}", "logs"]
+            }
+          }
+        },
+        {
+          "name": "Test Webhook",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/webhooks/{{WEBHOOK_ID}}/test",
+              "host": ["{{base_url}}"],
+              "path": ["api", "webhooks", "{{WEBHOOK_ID}}", "test"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Settings & Configuration",
+      "item": [
+        {
+          "name": "Get Global Settings",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/settings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings"]
+            }
+          }
+        },
+        {
+          "name": "Update Global Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"theme\":\"dark\",\"language\":\"en\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/settings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings"]
+            }
+          }
+        },
+        {
+          "name": "Get Email Settings",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/settings/email",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings", "email"]
+            }
+          }
+        },
+        {
+          "name": "Update Email Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"smtp_host\":\"smtp.gmail.com\",\"from\":\"noreply@example.com\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/settings/email",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings", "email"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Settings",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/settings/payment",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings", "payment"]
+            }
+          }
+        },
+        {
+          "name": "Update Payment Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"provider\":\"stripe\",\"mode\":\"test\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/settings/payment",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings", "payment"]
+            }
+          }
+        },
+        {
+          "name": "Get Shipping Settings",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"}],
+            "url": {
+              "raw": "{{base_url}}/api/settings/shipping",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings", "shipping"]
+            }
+          }
+        },
+        {
+          "name": "Update Shipping Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "x-api-key", "value": "{{API_KEY}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"provider\":\"fedex\",\"default_service\":\"standard\"}"},
+            "url": {
+              "raw": "{{base_url}}/api/settings/shipping",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings", "shipping"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -7,7 +7,7 @@ import { ErrorAlert } from '@/components/common/ErrorAlert';
 import { api } from '@/lib/api';
 import type { DashboardStats } from '@/types';
 
-export function Dashboard() {
+export function DashboardNew() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,25 +45,25 @@ export function Dashboard() {
 
       <DashboardGrid
         stats={{
-          totalTenants: stats?.totalStores ?? 0,
-          totalStores: stats?.totalStores ?? 0,
-          totalProducts: stats?.totalOrders ?? 0,
-          totalOrders: stats?.totalOrders ?? 0,
-          totalRevenue: parseInt(String(stats?.totalRevenue ?? 0), 10),
-          monthlyRevenue: parseInt(String(stats?.totalRevenue ?? 0), 10) / 12,
+          totalTenants: 12,
+          totalStores: 45,
+          totalProducts: 234,
+          totalOrders: 1456,
+          totalRevenue: 125430,
+          monthlyRevenue: 23450,
         }}
       />
 
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
         <ChartCard title="Sales Trend" description="Last 30 days">
           <div className="h-64 flex items-center justify-center text-muted-foreground">
-            Integrate SalesChart here
+            Chart placeholder (integrate Recharts)
           </div>
         </ChartCard>
 
         <ChartCard title="Order Status" description="Current month">
           <div className="h-64 flex items-center justify-center text-muted-foreground">
-            Integrate OrderStatusChart here
+            Chart placeholder (integrate Recharts)
           </div>
         </ChartCard>
       </div>

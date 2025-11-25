@@ -1,23 +1,57 @@
-import { Sidebar } from './components/layout/Sidebar';
-import { Header } from './components/layout/Header';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { MainLayout } from './components/layout/MainLayout';
 import { Dashboard } from './pages/Dashboard';
-import { useEffect } from 'react';
-import { injectBrandTheme } from './lib/theme';
+import { Tenants } from './pages/Tenants';
+import { Stores } from './pages/Stores';
+import { Login } from './pages/Login';
+import { useAuthStore } from './store/authStore';
+import { Toaster } from './components/ui/toaster';
+
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuthStore();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <MainLayout>{children}</MainLayout>;
+}
 
 export default function App() {
-  useEffect(() => {
-    injectBrandTheme();
-  }, []);
-
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <div className="flex flex-1 flex-col">
-        <Header />
-        <main className="flex-1 bg-slate-50/70 px-6 py-8">
-          <Dashboard />
-        </main>
-      </div>
-    </div>
+    <>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/tenants"
+          element={
+            <PrivateRoute>
+              <Tenants />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/stores"
+          element={
+            <PrivateRoute>
+              <Stores />
+            </PrivateRoute>
+          }
+        />
+
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+
+      <Toaster />
+    </>
   );
 }

@@ -21,7 +21,6 @@ import {
   Layers,
 } from 'lucide-react';
 import { adminConfig } from '@/config/admin.config';
-import { NavLink } from 'react-router-dom';
 
 export interface MenuItem {
   label: string;
@@ -83,7 +82,7 @@ const MENU_ITEMS: MenuItem[] = [
   },
 ];
 
-export function Sidebar() {
+export function SidebarNew() {
   const { isCollapsed, toggle } = useSidebar();
   const { isMobile } = useResponsive();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -92,7 +91,7 @@ export function Sidebar() {
 
   if (isMobile && !showMobileMenu) {
     return (
-      <div className="fixed top-4 left-4 z-50">
+      <div className="fixed top-0 left-0 z-50 p-4">
         <Button
           variant="outline"
           size="icon"
@@ -116,7 +115,7 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          'fixed left-0 top-0 h-screen bg-sidebar-background border-r border-sidebar-border transition-all duration-300 z-50 md:relative md:z-0 flex flex-col',
+          'fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 z-50 md:relative md:z-0 flex flex-col',
           isCollapsed ? 'w-20' : 'w-64',
           isMobile && !showMobileMenu && '-translate-x-full'
         )}
@@ -131,7 +130,6 @@ export function Sidebar() {
                 <h1 className="text-sm font-bold text-sidebar-foreground truncate">
                   {adminConfig.branding.appName}
                 </h1>
-                <span className="text-xs text-muted-foreground">Admin Console</span>
               </div>
             </div>
           )}
@@ -154,22 +152,20 @@ export function Sidebar() {
         <ScrollArea className="flex-1 px-3 py-4">
           <nav className="space-y-2">
             {enabledMenuItems.map((item) => (
-              <NavLink
+              <a
                 key={item.href}
-                to={item.href}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium',
-                    'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                    isActive && 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  )
-                }
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+                  'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                  window.location.pathname === item.href && 'bg-sidebar-accent text-sidebar-accent-foreground'
+                )}
                 title={isCollapsed ? item.label : undefined}
               >
                 <span className="flex-shrink-0">{item.icon}</span>
                 {!isCollapsed && (
                   <>
-                    <span className="flex-1 truncate">{item.label}</span>
+                    <span className="flex-1 truncate text-sm font-medium">{item.label}</span>
                     {item.badge && item.badge > 0 && (
                       <Badge variant="secondary" className="ml-auto">
                         {item.badge}
@@ -177,7 +173,7 @@ export function Sidebar() {
                     )}
                   </>
                 )}
-              </NavLink>
+              </a>
             ))}
           </nav>
         </ScrollArea>

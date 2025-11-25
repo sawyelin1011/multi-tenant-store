@@ -3,6 +3,11 @@ import { MainLayout } from './components/layout/MainLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Tenants } from './pages/Tenants';
 import { Stores } from './pages/Stores';
+import { Products } from './pages/Products';
+import { Orders } from './pages/Orders';
+import { Users } from './pages/Users';
+import { Analytics } from './pages/Analytics';
+import { Settings } from './pages/Settings';
 import { Login } from './pages/Login';
 import { useAuthStore } from './store/authStore';
 import { Toaster } from './components/ui/toaster';
@@ -44,6 +49,46 @@ export default function App() {
           element={
             <PrivateRoute>
               <Stores />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <PrivateRoute>
+              <Products />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <PrivateRoute>
+              <Orders />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <PrivateRoute>
+              <Users />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <PrivateRoute>
+              <Analytics />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <Settings />
             </PrivateRoute>
           }
         />

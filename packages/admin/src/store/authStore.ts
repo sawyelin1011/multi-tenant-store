@@ -8,11 +8,13 @@ interface AuthState {
   logout: () => void;
 }
 
+const defaultApiKey = import.meta.env.VITE_API_KEY || null;
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      apiKey: null,
-      isAuthenticated: false,
+      apiKey: defaultApiKey,
+      isAuthenticated: Boolean(defaultApiKey),
       setApiKey: (key) => set({ apiKey: key, isAuthenticated: true }),
       logout: () => set({ apiKey: null, isAuthenticated: false }),
     }),

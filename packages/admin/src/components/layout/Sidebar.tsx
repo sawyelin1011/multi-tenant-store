@@ -1,198 +1,119 @@
 import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { ChevronLeft, Menu } from 'lucide-react';
+import { NAVIGATION_ITEMS } from './Navigation';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useSidebar } from '@/hooks/useSidebar';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Menu,
-  X,
-  LayoutDashboard,
-  Building2,
-  Store,
-  Package,
-  ShoppingCart,
-  Users,
-  BarChart3,
-  Settings,
-  Layers,
-} from 'lucide-react';
 import { adminConfig } from '@/config/admin.config';
-import { NavLink } from 'react-router-dom';
-
-export interface MenuItem {
-  label: string;
-  href: string;
-  icon: React.ReactNode;
-  badge?: number;
-  children?: MenuItem[];
-  enabled?: boolean;
-}
-
-const MENU_ITEMS: MenuItem[] = [
-  {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: <LayoutDashboard className="h-5 w-5" />,
-    enabled: true,
-  },
-  {
-    label: 'Tenants',
-    href: '/tenants',
-    icon: <Building2 className="h-5 w-5" />,
-    enabled: adminConfig.features.enableTenantManagement,
-  },
-  {
-    label: 'Stores',
-    href: '/stores',
-    icon: <Store className="h-5 w-5" />,
-    enabled: adminConfig.features.enableStoreManagement,
-  },
-  {
-    label: 'Products',
-    href: '/products',
-    icon: <Package className="h-5 w-5" />,
-    enabled: adminConfig.features.enableProductManagement,
-  },
-  {
-    label: 'Orders',
-    href: '/orders',
-    icon: <ShoppingCart className="h-5 w-5" />,
-    enabled: adminConfig.features.enableOrderManagement,
-  },
-  {
-    label: 'Users',
-    href: '/users',
-    icon: <Users className="h-5 w-5" />,
-    enabled: adminConfig.features.enableUserManagement,
-  },
-  {
-    label: 'Analytics',
-    href: '/analytics',
-    icon: <BarChart3 className="h-5 w-5" />,
-    enabled: adminConfig.features.enableAnalytics,
-  },
-  {
-    label: 'Settings',
-    href: '/settings',
-    icon: <Settings className="h-5 w-5" />,
-    enabled: adminConfig.features.enableSettings,
-  },
-];
 
 export function Sidebar() {
-  const { isCollapsed, toggle } = useSidebar();
+  const location = useLocation();
   const { isMobile } = useResponsive();
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const { isCollapsed, toggle } = useSidebar();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const enabledMenuItems = MENU_ITEMS.filter((item) => item.enabled !== false);
-
-  if (isMobile && !showMobileMenu) {
-    return (
-      <div className="fixed top-4 left-4 z-50">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setShowMobileMenu(true)}
-          className="md:hidden"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      {isMobile && showMobileMenu && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setShowMobileMenu(false)}
-        />
-      )}
-
-      <aside
-        className={cn(
-          'fixed left-0 top-0 h-screen bg-sidebar-background border-r border-sidebar-border transition-all duration-300 z-50 md:relative md:z-0 flex flex-col',
-          isCollapsed ? 'w-20' : 'w-64',
-          isMobile && !showMobileMenu && '-translate-x-full'
-        )}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-sidebar-border h-16">
-          {!isCollapsed && (
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Layers className="h-4 w-4" />
-              </div>
-              <div className="flex flex-col">
-                <h1 className="text-sm font-bold text-sidebar-foreground truncate">
-                  {adminConfig.branding.appName}
-                </h1>
-                <span className="text-xs text-muted-foreground">Admin Console</span>
-              </div>
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full bg-card border-r">
+      {/* Logo & Collapse Button */}
+      <div className="flex items-center justify-between h-16 px-4 border-b">
+        {!isCollapsed && (
+          <Link to="/dashboard" className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold">
+              M
             </div>
-          )}
+            <span className="font-semibold text-lg">{adminConfig.branding.appName}</span>
+          </Link>
+        )}
+        {isCollapsed && (
+          <Link to="/dashboard" className="flex items-center justify-center w-full">
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold">
+              M
+            </div>
+          </Link>
+        )}
+        {!isMobile && (
           <Button
             variant="ghost"
             size="icon"
-            onClick={isMobile ? () => setShowMobileMenu(false) : toggle}
-            className="text-sidebar-foreground hover:bg-sidebar-accent"
+            onClick={toggle}
+            className="ml-auto"
           >
-            {isMobile ? (
-              <X className="h-5 w-5" />
-            ) : isCollapsed ? (
-              <ChevronRight className="h-5 w-5" />
-            ) : (
-              <ChevronLeft className="h-5 w-5" />
-            )}
+            <ChevronLeft className={cn('h-5 w-5 transition-transform', isCollapsed && 'rotate-180')} />
           </Button>
-        </div>
+        )}
+      </div>
 
-        <ScrollArea className="flex-1 px-3 py-4">
-          <nav className="space-y-2">
-            {enabledMenuItems.map((item) => (
-              <NavLink
-                key={item.href}
-                to={item.href}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium',
-                    'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                    isActive && 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  )
-                }
-                title={isCollapsed ? item.label : undefined}
-              >
-                <span className="flex-shrink-0">{item.icon}</span>
-                {!isCollapsed && (
-                  <>
-                    <span className="flex-1 truncate">{item.label}</span>
-                    {item.badge && item.badge > 0 && (
-                      <Badge variant="secondary" className="ml-auto">
-                        {item.badge}
-                      </Badge>
-                    )}
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </nav>
-        </ScrollArea>
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-4 px-3">
+        <ul className="space-y-1">
+          {NAVIGATION_ITEMS.map((item) => {
+            const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+            return (
+              <li key={item.href}>
+                <Link
+                  to={item.href}
+                  onClick={() => isMobile && setMobileOpen(false)}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all',
+                    'hover:bg-accent hover:text-accent-foreground',
+                    isActive && 'bg-primary text-primary-foreground hover:bg-primary/90',
+                    isCollapsed && 'justify-center'
+                  )}
+                  title={isCollapsed ? item.label : undefined}
+                >
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  {!isCollapsed && <span className="flex-1 font-medium">{item.label}</span>}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
 
-        <div className="border-t border-sidebar-border p-3">
-          <Button
-            variant="outline"
-            size={isCollapsed ? 'icon' : 'default'}
-            className="w-full"
-            onClick={() => (window.location.href = '/settings')}
-          >
-            {isCollapsed ? <Settings className="h-4 w-4" /> : 'Settings'}
-          </Button>
+      {/* Footer */}
+      <div className="border-t p-4">
+        <div className={cn('text-xs text-muted-foreground', isCollapsed && 'text-center')}>
+          {isCollapsed ? '©' : `© 2024 ${adminConfig.branding.company}`}
         </div>
-      </aside>
-    </>
+      </div>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile Menu Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="fixed top-4 left-4 z-50 md:hidden"
+          onClick={() => setMobileOpen(true)}
+        >
+          <Menu className="h-6 w-6" />
+        </Button>
+
+        {/* Mobile Drawer */}
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetContent side="left" className="p-0 w-72">
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+      </>
+    );
+  }
+
+  // Desktop Sidebar
+  return (
+    <aside
+      className={cn(
+        'hidden md:flex flex-col bg-card border-r transition-all duration-300',
+        isCollapsed ? 'w-20' : 'w-64'
+      )}
+    >
+      <SidebarContent />
+    </aside>
   );
 }

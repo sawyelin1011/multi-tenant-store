@@ -36,9 +36,9 @@ apiClient.interceptors.response.use(
   }
 );
 
-const unwrap = async <T>(promise: Promise<{ data: T }>): Promise<T> => {
+const unwrap = async <T>(promise: Promise<{ data: { success: boolean; data: T } }>): Promise<T> => {
   const response = await promise;
-  return response.data;
+  return response.data.data;
 };
 
 // API Methods
@@ -51,45 +51,45 @@ export const api = {
   },
 
   // Dashboard
-  getDashboardStats: () => unwrap<DashboardStats>(apiClient.get('/admin/dashboard/stats')),
+  getDashboardStats: () => unwrap<DashboardStats>(apiClient.get('/dashboard/stats')),
 
   // Tenants
-  getTenants: (params?: any) => unwrap<Tenant[]>(apiClient.get('/admin/tenants', { params })),
-  getTenant: (id: string) => unwrap<Tenant>(apiClient.get(`/admin/tenants/${id}`)),
-  createTenant: (data: any) => unwrap<Tenant>(apiClient.post('/admin/tenants', data)),
-  updateTenant: (id: string, data: any) => unwrap<Tenant>(apiClient.put(`/admin/tenants/${id}`, data)),
-  deleteTenant: (id: string) => unwrap<void>(apiClient.delete(`/admin/tenants/${id}`)),
+  getTenants: (params?: any) => unwrap<Tenant[]>(apiClient.get('/tenants', { params })),
+  getTenant: (id: string) => unwrap<Tenant>(apiClient.get(`/tenants/${id}`)),
+  createTenant: (data: any) => unwrap<Tenant>(apiClient.post('/tenants', data)),
+  updateTenant: (id: string, data: any) => unwrap<Tenant>(apiClient.put(`/tenants/${id}`, data)),
+  deleteTenant: (id: string) => unwrap<void>(apiClient.delete(`/tenants/${id}`)),
 
   // Stores
-  getStores: (params?: any) => unwrap<Store[]>(apiClient.get('/storefront/stores', { params })),
-  getStore: (id: string) => unwrap<Store>(apiClient.get(`/storefront/stores/${id}`)),
-  createStore: (data: any) => unwrap<Store>(apiClient.post('/storefront/stores', data)),
-  updateStore: (id: string, data: any) => unwrap<Store>(apiClient.put(`/storefront/stores/${id}`, data)),
-  deleteStore: (id: string) => unwrap<void>(apiClient.delete(`/storefront/stores/${id}`)),
+  getStores: (params?: any) => unwrap<Store[]>(apiClient.get('/stores', { params })),
+  getStore: (id: string) => unwrap<Store>(apiClient.get(`/stores/${id}`)),
+  createStore: (data: any) => unwrap<Store>(apiClient.post('/stores', data)),
+  updateStore: (id: string, data: any) => unwrap<Store>(apiClient.put(`/stores/${id}`, data)),
+  deleteStore: (id: string) => unwrap<void>(apiClient.delete(`/stores/${id}`)),
 
   // Products
-  getProducts: (params?: any) => unwrap<Product[]>(apiClient.get('/storefront/products', { params })),
-  getProduct: (id: string) => unwrap<Product>(apiClient.get(`/storefront/products/${id}`)),
-  createProduct: (data: any) => unwrap<Product>(apiClient.post('/storefront/products', data)),
-  updateProduct: (id: string, data: any) => unwrap<Product>(apiClient.put(`/storefront/products/${id}`, data)),
-  deleteProduct: (id: string) => unwrap<void>(apiClient.delete(`/storefront/products/${id}`)),
+  getProducts: (params?: any) => unwrap<Product[]>(apiClient.get('/products', { params })),
+  getProduct: (id: string) => unwrap<Product>(apiClient.get(`/products/${id}`)),
+  createProduct: (data: any) => unwrap<Product>(apiClient.post('/products', data)),
+  updateProduct: (id: string, data: any) => unwrap<Product>(apiClient.put(`/products/${id}`, data)),
+  deleteProduct: (id: string) => unwrap<void>(apiClient.delete(`/products/${id}`)),
   bulkUploadProducts: (storeId: string, data: any) =>
-    unwrap<any>(apiClient.post(`/storefront/products/bulk-upload`, { storeId, products: data })),
+    unwrap<any>(apiClient.post(`/products/bulk-upload`, { storeId, products: data })),
 
   // Orders
-  getOrders: (params?: any) => unwrap<Order[]>(apiClient.get('/storefront/orders', { params })),
-  getOrder: (id: string) => unwrap<Order>(apiClient.get(`/storefront/orders/${id}`)),
-  updateOrder: (id: string, data: any) => unwrap<Order>(apiClient.put(`/storefront/orders/${id}`, data)),
+  getOrders: (params?: any) => unwrap<Order[]>(apiClient.get('/orders', { params })),
+  getOrder: (id: string) => unwrap<Order>(apiClient.get(`/orders/${id}`)),
+  updateOrder: (id: string, data: any) => unwrap<Order>(apiClient.put(`/orders/${id}`, data)),
 
   // Users
-  getUsers: (params?: any) => unwrap<User[]>(apiClient.get('/admin/users', { params })),
-  getUser: (id: string) => unwrap<User>(apiClient.get(`/admin/users/${id}`)),
-  createUser: (data: any) => unwrap<User>(apiClient.post('/admin/users', data)),
-  updateUser: (id: string, data: any) => unwrap<User>(apiClient.put(`/admin/users/${id}`, data)),
-  deleteUser: (id: string) => unwrap<void>(apiClient.delete(`/admin/users/${id}`)),
+  getUsers: (params?: any) => unwrap<User[]>(apiClient.get('/users', { params })),
+  getUser: (id: string) => unwrap<User>(apiClient.get(`/users/${id}`)),
+  createUser: (data: any) => unwrap<User>(apiClient.post('/users', data)),
+  updateUser: (id: string, data: any) => unwrap<User>(apiClient.put(`/users/${id}`, data)),
+  deleteUser: (id: string) => unwrap<void>(apiClient.delete(`/users/${id}`)),
 
   // Analytics
-  getAnalytics: (params?: any) => unwrap<any>(apiClient.get('/admin/analytics', { params })),
-  getSalesChart: (params?: any) => unwrap<any>(apiClient.get('/admin/analytics/sales', { params })),
-  getRevenueChart: (params?: any) => unwrap<any>(apiClient.get('/admin/analytics/revenue', { params })),
+  getAnalytics: (params?: any) => unwrap<any>(apiClient.get('/analytics', { params })),
+  getSalesChart: (params?: any) => unwrap<any>(apiClient.get('/analytics/sales', { params })),
+  getRevenueChart: (params?: any) => unwrap<any>(apiClient.get('/analytics/revenue', { params })),
 };

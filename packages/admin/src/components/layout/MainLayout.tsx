@@ -13,8 +13,8 @@ export function MainLayout({ children }: MainLayoutProps) {
       <div className="flex-1 flex flex-col overflow-hidden">
         <HeaderNew />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 overflow-y-auto bg-muted/10 p-4 md:p-6 lg:p-8">
+          <div className="w-full max-w-screen-2xl mx-auto space-y-6">
             {children}
           </div>
         </main>

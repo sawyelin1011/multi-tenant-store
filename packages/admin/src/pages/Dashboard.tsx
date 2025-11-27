@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react';
 import { DashboardGrid } from '@/components/dashboard/DashboardGrid';
 import { ChartCard } from '@/components/dashboard/ChartCard';
 import { RecentOrdersTable } from '@/components/dashboard/RecentOrdersTable';
+import { SalesChart } from '@/components/charts/SalesChart';
+import { OrderStatusChart } from '@/components/charts/OrderStatusChart';
+import { RevenueChart } from '@/components/charts/RevenueChart';
+import { AnalyticsChart } from '@/components/charts/AnalyticsChart';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-import { ErrorAlert } from '@/components/common/ErrorAlert';
 import { api } from '@/lib/api';
 import type { DashboardStats } from '@/types';
 
@@ -45,10 +48,10 @@ export function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to your admin console</p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-sm md:text-base text-muted-foreground mt-1">Welcome to your admin console</p>
       </div>
 
       <DashboardGrid
@@ -63,16 +66,22 @@ export function Dashboard() {
       />
 
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-        <ChartCard title="Sales Trend" description="Last 30 days">
-          <div className="h-64 flex items-center justify-center text-muted-foreground">
-            Integrate SalesChart here
-          </div>
+        <ChartCard title="Sales Trend" description="Last 6 months">
+          <SalesChart />
         </ChartCard>
 
-        <ChartCard title="Order Status" description="Current month">
-          <div className="h-64 flex items-center justify-center text-muted-foreground">
-            Integrate OrderStatusChart here
-          </div>
+        <ChartCard title="Order Status" description="Distribution">
+          <OrderStatusChart />
+        </ChartCard>
+      </div>
+
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+        <ChartCard title="Revenue Overview" description="Last 6 months">
+          <RevenueChart />
+        </ChartCard>
+
+        <ChartCard title="Analytics" description="Weekly metrics">
+          <AnalyticsChart />
         </ChartCard>
       </div>
 

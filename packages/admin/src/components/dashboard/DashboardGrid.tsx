@@ -23,38 +23,38 @@ export function DashboardGrid({ stats }: DashboardGridProps) {
         title="Total Tenants"
         value={totalTenants}
         description="Active tenant accounts"
-        icon={<Building2 className="h-4 w-4 text-muted-foreground" />}
+        icon={<Building2 className="h-4 w-4 text-primary" />}
       />
       <StatCard
         title="Total Stores"
         value={totalStores}
         description="Active storefronts"
-        icon={<Store className="h-4 w-4 text-muted-foreground" />}
+        icon={<Store className="h-4 w-4 text-primary" />}
       />
       <StatCard
         title="Total Products"
         value={totalProducts}
         description="Products in catalog"
-        icon={<Package className="h-4 w-4 text-muted-foreground" />}
+        icon={<Package className="h-4 w-4 text-primary" />}
       />
       <StatCard
         title="Total Orders"
         value={totalOrders}
         description="All time orders"
-        icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
+        icon={<ShoppingCart className="h-4 w-4 text-primary" />}
       />
       <StatCard
         title="Total Revenue"
-        value={`$${totalRevenue.toLocaleString()}`}
+        value={`${totalRevenue.toLocaleString()}`}
         description="All time revenue"
-        icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+        icon={<DollarSign className="h-4 w-4 text-primary" />}
         trend={{ value: '+12.5% from last month', direction: 'up' }}
       />
       <StatCard
         title="Monthly Revenue"
-        value={`$${monthlyRevenue.toLocaleString()}`}
+        value={`${monthlyRevenue.toLocaleString()}`}
         description="This month"
-        icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
+        icon={<TrendingUp className="h-4 w-4 text-primary" />}
         trend={{ value: '+8.3% from last month', direction: 'up' }}
       />
     </div>

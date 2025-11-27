@@ -49,9 +49,13 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm md:text-base text-muted-foreground mt-1">Welcome to your admin console</p>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="px-2 py-1 rounded-full border border-border/50 bg-card/80 backdrop-blur-sm">Live</span>
+          <span>All systems operational</span>
+        </div>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">Dashboard</h1>
+        <p className="text-sm md:text-base text-muted-foreground mt-1">Welcome back! Here's what's happening with your platform today.</p>
       </div>
 
       <DashboardGrid

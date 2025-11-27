@@ -18,7 +18,7 @@ export function DashboardGrid({ stats }: DashboardGridProps) {
   const { totalTenants = 0, totalStores = 0, totalProducts = 0, totalOrders = 0, totalRevenue = 0, monthlyRevenue = 0 } = stats || {};
 
   return (
-    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <StatCard
         title="Total Tenants"
         value={totalTenants}

@@ -16,7 +16,7 @@ export const useAuthStore = create<AuthState>()(
       apiKey: defaultApiKey,
       isAuthenticated: Boolean(defaultApiKey),
       setApiKey: (key) => set({ apiKey: key, isAuthenticated: true }),
-      logout: () => set({ apiKey: null, isAuthenticated: false }),
+      logout: () => set({ apiKey: defaultApiKey, isAuthenticated: Boolean(defaultApiKey) }),
     }),
     { name: 'admin-auth' }
   )

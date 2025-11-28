@@ -1,89 +1,154 @@
-import axios, { type AxiosInstance } from 'axios';
-import { adminConfig } from '@/config/admin.config';
+import axios, { AxiosError, type AxiosRequestConfig } from 'axios'
+import { useAuthStore } from '@/store/authStore'
+import type { ApiError, AuthResponse } from '@/types'
 
-export const apiClient: AxiosInstance = axios.create({
-  baseURL: adminConfig.api.baseUrl,
-  timeout: adminConfig.api.timeout,
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
+const API_KEY = import.meta.env.VITE_API_KEY || ''
+
+export const api = axios.create({
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-});
+})
 
-// Request interceptor
-apiClient.interceptors.request.use(
+const redirectToLogin = () => {
+  if (typeof window === 'undefined') return
+  if (window.location.pathname !== '/login') {
+    window.location.href = '/login'
+  }
+}
+
+api.interceptors.request.use(
   (config) => {
-    const apiKey = localStorage.getItem('api_key');
-    if (apiKey) {
-      config.headers['x-api-key'] = apiKey;
+    const token = useAuthStore.getState().token
+    const apiKey = useAuthStore.getState().apiKey || API_KEY
+    
+    config.headers = config.headers ?? {}
+    
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    } else if (apiKey) {
+      config.headers['x-api-key'] = apiKey
     }
-    return config;
+    
+    // Add current tenant/store context
+    const currentStore = useAuthStore.getState().currentStore
+    if (currentStore) {
+      config.headers['x-store-id'] = currentStore.id
+    }
+    
+    return config
   },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+  (error) => Promise.reject(error),
+)
 
-// Response interceptor
-apiClient.interceptors.response.use(
-  (response) => response.data,
-  (error) => {
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError<ApiError>) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('api_key');
-      window.location.href = '/login';
+      const { token } = useAuthStore.getState()
+      if (token) {
+        useAuthStore.getState().logout()
+      }
+      redirectToLogin()
     }
-    return Promise.reject(error);
-  }
-);
-
-// API Methods
-export const api = {
-  // Auth
-  login: (apiKey: string) => apiClient.post('/auth/login', { apiKey }),
-  logout: () => {
-    localStorage.removeItem('api_key');
-    window.location.href = '/login';
+    return Promise.reject(error)
   },
+)
 
-  // Dashboard
-  getDashboardStats: () => apiClient.get('/admin/dashboard/stats'),
+export const buildQueryString = (params?: Record<string, string | number | boolean | undefined | null>) => {
+  if (!params) return ''
+  const searchParams = new URLSearchParams()
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') return
+    searchParams.set(key, String(value))
+  })
+  const queryString = searchParams.toString()
+  return queryString ? `?${queryString}` : ''
+}
 
-  // Tenants
-  getTenants: (params?: any) => apiClient.get('/admin/tenants', { params }),
-  getTenant: (id: string) => apiClient.get(`/admin/tenants/${id}`),
-  createTenant: (data: any) => apiClient.post('/admin/tenants', data),
-  updateTenant: (id: string, data: any) => apiClient.put(`/admin/tenants/${id}`, data),
-  deleteTenant: (id: string) => apiClient.delete(`/admin/tenants/${id}`),
+export async function fetcher<T>(url: string): Promise<T> {
+  const response = await api.get<T>(url)
+  return response.data
+}
 
-  // Stores
-  getStores: (params?: any) => apiClient.get('/storefront/stores', { params }),
-  getStore: (id: string) => apiClient.get(`/storefront/stores/${id}`),
-  createStore: (data: any) => apiClient.post('/storefront/stores', data),
-  updateStore: (id: string, data: any) => apiClient.put(`/storefront/stores/${id}`, data),
-  deleteStore: (id: string) => apiClient.delete(`/storefront/stores/${id}`),
+export const apiClient = {
+  get: async <T>(url: string, config?: AxiosRequestConfig) => {
+    const response = await api.get<T>(url, config)
+    return response.data
+  },
+  post: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => {
+    const response = await api.post<T>(url, data, config)
+    return response.data
+  },
+  put: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => {
+    const response = await api.put<T>(url, data, config)
+    return response.data
+  },
+  patch: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => {
+    const response = await api.patch<T>(url, data, config)
+    return response.data
+  },
+  delete: async <T>(url: string, config?: AxiosRequestConfig) => {
+    const response = await api.delete<T>(url, config)
+    return response.data
+  },
+}
 
-  // Products
-  getProducts: (params?: any) => apiClient.get('/storefront/products', { params }),
-  getProduct: (id: string) => apiClient.get(`/storefront/products/${id}`),
-  createProduct: (data: any) => apiClient.post('/storefront/products', data),
-  updateProduct: (id: string, data: any) => apiClient.put(`/storefront/products/${id}`, data),
-  deleteProduct: (id: string) => apiClient.delete(`/storefront/products/${id}`),
-  bulkUploadProducts: (storeId: string, data: any) =>
-    apiClient.post(`/storefront/products/bulk-upload`, { storeId, products: data }),
+// Multi-Tenant API Endpoints
+export const tenantsApi = {
+  list: (params?: any) => apiClient.get('/tenants', { params }),
+  get: (id: string) => apiClient.get(`/tenants/${id}`),
+  create: (data: any) => apiClient.post('/tenants', data),
+  update: (id: string, data: any) => apiClient.patch(`/tenants/${id}`, data),
+  delete: (id: string) => apiClient.delete(`/tenants/${id}`),
+}
 
-  // Orders
-  getOrders: (params?: any) => apiClient.get('/storefront/orders', { params }),
-  getOrder: (id: string) => apiClient.get(`/storefront/orders/${id}`),
-  updateOrder: (id: string, data: any) => apiClient.put(`/storefront/orders/${id}`, data),
+export const storesApi = {
+  list: (params?: any) => apiClient.get('/stores', { params }),
+  get: (id: string) => apiClient.get(`/stores/${id}`),
+  create: (data: any) => apiClient.post('/stores', data),
+  update: (id: string, data: any) => apiClient.patch(`/stores/${id}`, data),
+  delete: (id: string) => apiClient.delete(`/stores/${id}`),
+}
 
-  // Users
-  getUsers: (params?: any) => apiClient.get('/admin/users', { params }),
-  getUser: (id: string) => apiClient.get(`/admin/users/${id}`),
-  createUser: (data: any) => apiClient.post('/admin/users', data),
-  updateUser: (id: string, data: any) => apiClient.put(`/admin/users/${id}`, data),
-  deleteUser: (id: string) => apiClient.delete(`/admin/users/${id}`),
+export const productsApi = {
+  list: (params?: any) => apiClient.get('/products', { params }),
+  get: (id: string) => apiClient.get(`/products/${id}`),
+  create: (data: any) => apiClient.post('/products', data),
+  update: (id: string, data: any) => apiClient.patch(`/products/${id}`, data),
+  delete: (id: string) => apiClient.delete(`/products/${id}`),
+}
 
-  // Analytics
-  getAnalytics: (params?: any) => apiClient.get('/admin/analytics', { params }),
-  getSalesChart: (params?: any) => apiClient.get('/admin/analytics/sales', { params }),
-  getRevenueChart: (params?: any) => apiClient.get('/admin/analytics/revenue', { params }),
-};
+export const ordersApi = {
+  list: (params?: any) => apiClient.get('/orders', { params }),
+  get: (id: string) => apiClient.get(`/orders/${id}`),
+  update: (id: string, data: any) => apiClient.patch(`/orders/${id}`, data),
+}
+
+export const usersApi = {
+  list: (params?: any) => apiClient.get('/users', { params }),
+  get: (id: string) => apiClient.get(`/users/${id}`),
+  create: (data: any) => apiClient.post('/users', data),
+  update: (id: string, data: any) => apiClient.patch(`/users/${id}`, data),
+  delete: (id: string) => apiClient.delete(`/users/${id}`),
+}
+
+export const analyticsApi = {
+  dashboard: () => apiClient.get('/analytics/dashboard'),
+  sales: (params?: any) => apiClient.get('/analytics/sales', { params }),
+  revenue: (params?: any) => apiClient.get('/analytics/revenue', { params }),
+}
+
+export const authApi = {
+  login: (payload: { email: string; password: string }) => 
+    apiClient.post<AuthResponse>('/auth/login', payload),
+  logout: () => apiClient.post('/auth/logout'),
+  me: () => apiClient.get<UserResponse>('/auth/me'),
+  refreshToken: () => apiClient.post<AuthResponse>('/auth/refresh'),
+}
+
+type UserResponse = {
+  user: AuthResponse['user']
+}

@@ -1,108 +1,142 @@
-export interface Tenant {
-  id: string;
-  name: string;
-  slug: string;
-  email: string;
-  status: 'active' | 'inactive' | 'suspended';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Store {
-  id: string;
-  tenantId: string;
-  name: string;
-  slug: string;
-  description?: string;
-  logo?: string;
-  status: 'active' | 'inactive';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Product {
-  id: string;
-  storeId: string;
-  name: string;
-  slug: string;
-  description: string;
-  price: number;
-  currency: string;
-  type: 'digital' | 'physical';
-  status: 'active' | 'inactive' | 'draft';
-  images?: string[];
-  downloadUrl?: string;
-  metadata?: Record<string, any>;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Order {
-  id: string;
-  storeId: string;
-  customerId: string;
-  customerEmail: string;
-  status: 'pending' | 'completed' | 'cancelled' | 'refunded';
-  total: number;
-  currency: string;
-  items: OrderItem[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface OrderItem {
-  id: string;
-  productId: string;
-  productName: string;
-  quantity: number;
-  price: number;
-}
-
 export interface User {
-  id: string;
-  email: string;
-  name?: string;
-  role: 'admin' | 'user' | 'manager';
-  status: 'active' | 'inactive';
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  email: string
+  name: string
+  role: 'admin' | 'editor' | 'viewer'
+  avatar?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AuthResponse {
+  token: string
+  user: User
 }
 
 export interface DashboardStats {
-  totalStores: number;
-  totalProducts: number;
-  totalOrders: number;
-  totalRevenue: number;
-  recentOrders: Order[];
-  salesTrend: ChartData[];
+  totalContent: number
+  totalUsers: number
+  totalCollections: number
+  totalMedia: number
 }
 
-export interface ChartData {
-  label: string;
-  value: number;
-  date?: string;
+export interface RecentActivity {
+  id: string
+  type: 'content' | 'user' | 'collection' | 'media'
+  action: 'created' | 'updated' | 'deleted'
+  description: string
+  user: {
+    id: string
+    name: string
+    avatar?: string
+  }
+  timestamp: string
 }
 
-export interface MenuItem {
-  label: string;
-  href: string;
-  icon: React.ReactNode;
-  badge?: number;
-  children?: MenuItem[];
+export interface Content {
+  id: string
+  title: string
+  slug: string
+  content: string
+  status: 'draft' | 'published' | 'archived'
+  collection?: {
+    id: string
+    name: string
+  }
+  author: {
+    id: string
+    name: string
+    avatar?: string
+  }
+  featured_image?: string
+  createdAt: string
+  updatedAt: string
+  publishedAt?: string
 }
 
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+export interface ContentPayload {
+  title: string
+  slug: string
+  content: string
+  status: Content['status']
+  collectionId?: string
+  featuredImage?: string
+  summary?: string
+  meta?: Record<string, string>
+}
+
+export interface Collection {
+  id: string
+  name: string
+  slug: string
+  description?: string
+  icon?: string
+  color?: string
+  contentCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Media {
+  id: string
+  filename: string
+  originalName: string
+  mimeType: string
+  size: number
+  url: string
+  thumbnailUrl?: string
+  uploadedBy: {
+    id: string
+    name: string
+  }
+  createdAt: string
+}
+
+export interface Plugin {
+  id: string
+  name: string
+  slug: string
+  description?: string
+  version: string
+  icon?: string
+  enabled: boolean
+  hasSettings: boolean
+  menuItems?: PluginMenuItem[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface PluginMenuItem {
+  label: string
+  href: string
+  icon?: string
+}
+
+export interface Settings {
+  siteName: string
+  siteDescription?: string
+  siteLogo?: string
+  siteFavicon?: string
+  timezone: string
+  dateFormat: string
+  enableRegistration: boolean
+  defaultRole: string
+  maintenance: boolean
+  customCSS?: string
+  customJS?: string
 }
 
 export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data: T[]
+  meta: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
+}
+
+export interface ApiError {
+  message: string
+  errors?: Record<string, string[]>
 }

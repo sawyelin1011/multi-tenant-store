@@ -1,536 +1,360 @@
-# MTC Platform - Admin Dashboard
+# MTC Platform Admin Dashboard
 
-Production-ready admin dashboard built with Vite, React 18, TypeScript, shadcn/ui, and Tailwind CSS. Features responsive design, collapsible sidebar, customizable themes, and complete CRUD operations.
+> **Multi-Tenant Commerce Platform Admin Interface**  
+> Modern, production-ready admin dashboard built with React, Vite, TailwindCSS, and Radix UI
 
-## Features
+## 🎨 Overview
 
-✅ **Modern Tech Stack**
-- Vite 5 + React 18 + TypeScript
-- shadcn/ui components (Radix UI primitives)
-- Tailwind CSS 3 + CSS Variables
-- React Router v7 for navigation
-- Zustand for state management
-- Recharts for data visualization
-- Axios for API calls
-- React Hook Form + Zod for forms
+This admin dashboard is based on the excellent [v0-dashboard-demo](https://github.com/sawyelin1011/v0-dashboard-demo) and adapted for the MTC Platform's multi-tenant e-commerce system.
 
-✅ **Responsive Design**
-- Mobile-first approach
+### Features
+
+✨ **Modern UI/UX**
+- Dark theme optimized for long sessions
+- Glassmorphism effects and smooth animations
+- Fully responsive (mobile, tablet, desktop)
 - Collapsible sidebar with icon-only mode
-- Touch-optimized interactions
-- Breakpoints: Mobile (<768px), Tablet (768-1024px), Desktop (>1024px)
 
-✅ **Dark Mode**
-- System, Light, Dark theme options
-- CSS variables for easy customization
-- Persisted preferences
+🏪 **Multi-Tenant Commerce**
+- Store selector to switch between stores
+- Tenant management (super admin)
+- Product catalog management
+- Order processing and fulfillment
+- User and role management
 
-✅ **Feature Management**
-- Configuration-driven features
-- Environment-based settings
-- Customizable branding
-- Template system
+🚀 **Tech Stack**
+- **React 18.3.1** - UI framework
+- **Vite 5.4** - Build tool and dev server
+- **TailwindCSS 3.4** - Utility-first CSS
+- **Radix UI** - Headless component primitives
+- **Tanstack Query** - Data fetching and caching
+- **React Router Dom** - Client-side routing
+- **Axios** - HTTP client
+- **Zustand** - State management
+- **React Hook Form + Zod** - Form validation
+- **Recharts** - Data visualization
+- **Lucide React** - Beautiful icons
 
-✅ **Complete CRUD Pages**
-- Dashboard with stats and charts
-- Tenants management
-- Stores management
-- Products management (with bulk upload)
-- Orders tracking
-- Users management
-- Analytics with charts
-- Settings
-
-## Quick Start
-
-### Installation
+## 📦 Installation
 
 ```bash
-cd packages/admin
+cd /home/engine/project/packages/admin
+
+# Install dependencies
 npm install
+
+# Create environment file
+cp .env.example .env
+
+# Edit .env with your API key
+nano .env
 ```
 
-### Configuration
-
-1. Copy `.env.example` to `.env`:
+## 🚀 Development
 
 ```bash
-cp .env.example .env
+# Start dev server (http://localhost:5173)
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Lint code
+npm run lint
 ```
 
-2. Update environment variables:
+## 🔑 Environment Variables
 
-```env
+Create a `.env` file:
+
+```bash
 # API Configuration
-VITE_API_URL=http://localhost:3000/api
+VITE_API_BASE_URL=http://localhost:3000/api
 VITE_API_KEY=your_api_key_here
 
-# Branding
-VITE_APP_NAME=Your Company
-VITE_COMPANY_NAME=Your Company Inc
-VITE_LOGO_URL=/logo.png
-VITE_LOGO_SMALL_URL=/logo-small.png
+# App Configuration
+VITE_APP_NAME=MTC Platform Admin
+VITE_APP_VERSION=2.0.0
 
-# Theme
-VITE_THEME=system
-VITE_TEMPLATE=default
-
-# Features (true/false)
-VITE_ENABLE_TENANTS=true
-VITE_ENABLE_STORES=true
-VITE_ENABLE_PRODUCTS=true
-VITE_ENABLE_ORDERS=true
-VITE_ENABLE_USERS=true
+# Features
 VITE_ENABLE_ANALYTICS=true
-
-# Environment
-VITE_ENV=development
+VITE_ENABLE_PLUGINS=false
 ```
 
-### Development
-
-```bash
-npm run dev
-```
-
-The app will be available at `http://localhost:5173`
-
-### Build
-
-```bash
-npm run build
-```
-
-### Preview Production Build
-
-```bash
-npm run preview
-```
-
-## Project Structure
+## 📁 Project Structure
 
 ```
-packages/admin/
-├── src/
-│   ├── components/
-│   │   ├── ui/              # shadcn/ui components
-│   │   ├── layout/          # Layout components
-│   │   │   ├── Sidebar.tsx
-│   │   │   ├── HeaderNew.tsx
-│   │   │   ├── MainLayout.tsx
-│   │   │   └── Navigation.tsx
-│   │   ├── dashboard/       # Dashboard widgets
-│   │   │   ├── StatCard.tsx
-│   │   │   ├── DashboardGrid.tsx
-│   │   │   ├── ChartCard.tsx
-│   │   │   └── RecentOrdersTable.tsx
-│   │   ├── tables/          # Data tables
-│   │   │   ├── TenantsTable.tsx
-│   │   │   ├── StoresTable.tsx
-│   │   │   ├── ProductsTable.tsx
-│   │   │   ├── OrdersTable.tsx
-│   │   │   └── UsersTable.tsx
-│   │   ├── charts/          # Recharts components
-│   │   │   ├── SalesChart.tsx
-│   │   │   ├── OrderStatusChart.tsx
-│   │   │   ├── RevenueChart.tsx
-│   │   │   └── AnalyticsChart.tsx
-│   │   ├── dialogs/         # Modal dialogs
-│   │   │   ├── DeleteConfirmation.tsx
-│   │   │   ├── CreateModal.tsx
-│   │   │   └── BulkUploadModal.tsx
-│   │   └── common/          # Shared components
-│   │       ├── LoadingSpinner.tsx
-│   │       ├── EmptyState.tsx
-│   │       ├── ErrorAlert.tsx
-│   │       ├── SearchBar.tsx
-│   │       ├── FilterBar.tsx
-│   │       └── Breadcrumbs.tsx
-│   ├── pages/
-│   │   ├── Dashboard.tsx
-│   │   ├── Tenants.tsx
-│   │   ├── Stores.tsx
-│   │   ├── Products.tsx
-│   │   ├── Orders.tsx
-│   │   ├── Users.tsx
-│   │   ├── Analytics.tsx
-│   │   ├── Settings.tsx
-│   │   └── Login.tsx
-│   ├── hooks/
-│   │   ├── useAuth.ts
-│   │   ├── useApi.ts
-│   │   ├── useSidebar.ts
-│   │   ├── useResponsive.ts
-│   │   ├── useFetch.ts
-│   │   └── useTheme.ts
-│   ├── store/
-│   │   ├── authStore.ts      # Zustand auth state
-│   │   ├── uiStore.ts        # UI preferences
-│   │   └── appStore.ts       # Global app state
-│   ├── lib/
-│   │   ├── api.ts            # API client (Axios)
-│   │   └── utils.ts          # Utility functions
-│   ├── types/
-│   │   └── index.ts          # TypeScript types
-│   ├── config/
-│   │   ├── admin.config.ts   # Main configuration
-│   │   ├── branding.config.ts
-│   │   ├── template.config.ts
-│   │   ├── config.ts         # Runtime config
-│   │   └── environments/
-│   │       ├── dev.ts
-│   │       ├── staging.ts
-│   │       └── prod.ts
-│   ├── templates/
-│   │   └── default/
-│   │       ├── colors.ts
-│   │       └── layout.ts
-│   ├── App.tsx              # Router setup
-│   ├── main.tsx             # Entry point
-│   └── index.css            # Global styles
-├── public/
-├── components.json          # shadcn/ui config
-├── tailwind.config.ts
-├── vite.config.ts
-├── tsconfig.json
-├── .env.example
-├── package.json
-└── README.md
+src/
+├── components/
+│   ├── admin/
+│   │   ├── admin-header.tsx      # Top navigation bar
+│   │   ├── admin-sidebar.tsx     # Left sidebar navigation
+│   │   └── store-selector.tsx    # Store switching dropdown
+│   ├── ui/                        # Radix UI components
+│   └── dashboard-shell.tsx        # Main layout wrapper
+├── pages/
+│   ├── admin/
+│   │   ├── DashboardPage.tsx     # Analytics overview
+│   │   ├── products/             # Product management
+│   │   ├── orders/               # Order processing
+│   │   ├── stores/               # Store management
+│   │   ├── tenants/              # Tenant management
+│   │   ├── users/                # User management
+│   │   └── settings/             # App settings
+│   └── LoginPage.tsx             # Authentication
+├── hooks/
+│   ├── useProducts.ts            # Product data hooks
+│   ├── useOrders.ts              # Order data hooks
+│   ├── useStores.ts              # Store data hooks
+│   └── useDashboard.ts           # Dashboard metrics
+├── lib/
+│   ├── api.ts                    # API client & endpoints
+│   ├── utils.ts                  # Utility functions
+│   └── constants.ts              # App constants
+├── store/
+│   └── authStore.ts              # Auth & app state
+├── types/
+│   └── index.ts                  # TypeScript types
+├── layouts/
+│   ├── AdminLayout.tsx           # Protected layout
+│   └── RootLayout.tsx            # Root layout
+├── config/
+│   └── themes.ts                 # Theme configuration
+├── styles/
+│   └── globals.css               # Global styles
+├── App.tsx                       # Main app component
+└── main.tsx                      # Entry point
 ```
 
-## Configuration
+## 🌐 API Endpoints
 
-### Admin Configuration (`src/config/admin.config.ts`)
+All endpoints use the base URL: `http://localhost:3000/api`
 
+### Authentication
+- `POST /auth/login` - User login
+- `POST /auth/logout` - User logout
+- `GET /auth/me` - Current user info
+- `POST /auth/refresh` - Refresh token
+
+### Tenants
+- `GET /tenants` - List all tenants
+- `POST /tenants` - Create tenant
+- `GET /tenants/:id` - Get tenant
+- `PATCH /tenants/:id` - Update tenant
+- `DELETE /tenants/:id` - Delete tenant
+
+### Stores
+- `GET /stores` - List stores
+- `POST /stores` - Create store
+- `GET /stores/:id` - Get store
+- `PATCH /stores/:id` - Update store
+- `DELETE /stores/:id` - Delete store
+
+### Products
+- `GET /products` - List products
+- `POST /products` - Create product
+- `GET /products/:id` - Get product
+- `PATCH /products/:id` - Update product
+- `DELETE /products/:id` - Delete product
+
+### Orders
+- `GET /orders` - List orders
+- `GET /orders/:id` - Get order
+- `PATCH /orders/:id` - Update order status
+
+### Users
+- `GET /users` - List users
+- `POST /users` - Create user
+- `GET /users/:id` - Get user
+- `PATCH /users/:id` - Update user
+- `DELETE /users/:id` - Delete user
+
+### Analytics
+- `GET /analytics/dashboard` - Dashboard metrics
+- `GET /analytics/sales` - Sales data
+- `GET /analytics/revenue` - Revenue data
+
+## 🔐 Authentication
+
+The admin uses two authentication methods:
+
+1. **API Key Authentication** (development)
+   - Set `VITE_API_KEY` in `.env`
+   - Sent as `x-api-key` header
+
+2. **Bearer Token** (production)
+   - Login via `/auth/login`
+   - Token stored in Zustand
+   - Sent as `Authorization: Bearer {token}`
+
+## 🏪 Store Context
+
+When managing resources for a specific store:
+- Select store from dropdown in header
+- Store ID sent as `x-store-id` header
+- All API requests scoped to selected store
+
+## 🎨 Theming
+
+The dashboard uses a dark theme by default with:
+- Custom color palette (indigo/purple gradient)
+- Glassmorphism effects
+- Smooth animations and transitions
+- Responsive layouts
+
+To customize colors, edit `src/config/themes.ts` and Tailwind config.
+
+## 📱 Responsive Design
+
+The dashboard is fully responsive:
+- **Mobile** (< 640px): Bottom navigation, mobile menu
+- **Tablet** (640-1024px): Sidebar collapses to icons
+- **Desktop** (>1024px): Full sidebar with labels
+
+## 🧩 Components
+
+### Radix UI Components Included
+- Accordion, Alert Dialog, Avatar
+- Button, Card, Checkbox
+- Dialog, Dropdown Menu
+- Form, Input, Label
+- Select, Separator, Sheet
+- Tabs, Table, Toast
+- Tooltip, and more...
+
+All styled with Tailwind and customizable.
+
+## 🔧 Customization
+
+### Adding a New Page
+
+1. Create page component:
 ```typescript
-export const adminConfig = {
-  api: {
-    baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
-    timeout: 30000,
-  },
-  branding: {
-    appName: import.meta.env.VITE_APP_NAME || 'MTC Platform',
-    logo: import.meta.env.VITE_LOGO_URL || '/logo.png',
-    company: import.meta.env.VITE_COMPANY_NAME || 'Your Company',
-  },
-  theme: {
-    defaultTheme: 'system',
-    templates: ['default', 'dark', 'light', 'custom'],
-  },
-  features: {
-    enableTenantManagement: true,
-    enableStoreManagement: true,
-    enableProductManagement: true,
-    enableOrderManagement: true,
-    enableUserManagement: true,
-    enableAnalytics: true,
-    enableSettings: true,
-  },
-  layout: {
-    sidebarCollapsedByDefault: false,
-    sidebarPosition: 'left',
-  },
-};
-```
-
-### Customizing Branding
-
-1. **Update environment variables** in `.env`:
-   ```env
-   VITE_APP_NAME=My Platform
-   VITE_COMPANY_NAME=My Company
-   ```
-
-2. **Replace logo files** in `public/`:
-   - `logo.png` - Full logo
-   - `logo-small.png` - Icon/small logo
-   - `favicon.ico` - Browser icon
-
-3. **Customize colors** in `src/templates/default/colors.ts`
-
-### Adding New Pages
-
-1. Create page component in `src/pages/`:
-   ```tsx
-   // src/pages/MyNewPage.tsx
-   export function MyNewPage() {
-     return <div>My New Page</div>;
-   }
-   ```
-
-2. Add route in `src/App.tsx`:
-   ```tsx
-   <Route
-     path="/my-page"
-     element={
-       <PrivateRoute>
-         <MyNewPage />
-       </PrivateRoute>
-     }
-   />
-   ```
-
-3. Add navigation item in `src/components/layout/Navigation.tsx`
-
-## API Integration
-
-### API Client
-
-The app uses Axios with interceptors for authentication:
-
-```typescript
-// src/lib/api.ts
-import axios from 'axios';
-import { adminConfig } from '@/config/admin.config';
-
-export const apiClient = axios.create({
-  baseURL: adminConfig.api.baseUrl,
-  timeout: adminConfig.api.timeout,
-});
-
-// Auto-attach API key to requests
-apiClient.interceptors.request.use((config) => {
-  const apiKey = localStorage.getItem('api_key');
-  if (apiKey) {
-    config.headers['x-api-key'] = apiKey;
-  }
-  return config;
-});
-
-// Auto-redirect to login on 401
-apiClient.interceptors.response.use(
-  (response) => response.data,
-  (error) => {
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-```
-
-### Using API Hooks
-
-```tsx
-import { useApi } from '@/hooks/useApi';
-
-function MyComponent() {
-  const { data, loading, error, refetch } = useApi('/endpoint');
-
-  if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorAlert message={error} />;
-
-  return <div>{JSON.stringify(data)}</div>;
-}
-```
-
-### Direct API Calls
-
-```tsx
-import { api } from '@/lib/api';
-
-async function fetchData() {
-  const tenants = await api.getTenants();
-  const tenant = await api.getTenant('id');
-  await api.createTenant(data);
-  await api.updateTenant('id', data);
-  await api.deleteTenant('id');
-}
-```
-
-## Authentication
-
-The app uses API key authentication stored in localStorage:
-
-```tsx
-import { useAuthStore } from '@/store/authStore';
-
-function LoginPage() {
-  const { setApiKey } = useAuthStore();
-
-  const handleLogin = (apiKey: string) => {
-    localStorage.setItem('api_key', apiKey);
-    setApiKey(apiKey);
-    navigate('/dashboard');
-  };
-}
-```
-
-Protected routes automatically redirect to `/login` if not authenticated.
-
-## Responsive Design
-
-### Breakpoints
-
-```typescript
-// useResponsive hook
-const { isMobile, isTablet, isDesktop, width } = useResponsive();
-
-// Breakpoints:
-// Mobile: < 768px
-// Tablet: 768px - 1024px
-// Desktop: > 1024px
-```
-
-### Sidebar Behavior
-
-- **Desktop**: Full sidebar with labels
-- **Desktop (collapsed)**: Icon-only sidebar (80px width)
-- **Tablet**: Auto-collapse option
-- **Mobile**: Overlay sidebar with backdrop
-
-## Theming
-
-### Switch Theme
-
-```tsx
-import { useTheme } from '@/hooks/useTheme';
-
-function ThemeSwitcher() {
-  const { theme, setTheme } = useTheme();
-
+// src/pages/admin/custom/CustomPage.tsx
+export function CustomPage() {
   return (
-    <select value={theme} onChange={(e) => setTheme(e.target.value)}>
-      <option value="light">Light</option>
-      <option value="dark">Dark</option>
-      <option value="system">System</option>
-    </select>
-  );
+    <div>
+      <h1>Custom Page</h1>
+      {/* Your content */}
+    </div>
+  )
 }
 ```
 
-### Customizing Colors
+2. Add route to `src/App.tsx`:
+```typescript
+<Route path="custom" element={<CustomPage />} />
+```
 
-Edit CSS variables in `src/index.css`:
+3. Add to navigation in `src/components/admin/admin-sidebar.tsx`:
+```typescript
+{ icon: CustomIcon, label: 'Custom', href: '/admin/custom' }
+```
 
-```css
-:root {
-  --primary: 0 0% 9%;
-  --primary-foreground: 0 0% 98%;
-  /* ... more variables */
+### Creating API Hooks
+
+```typescript
+// src/hooks/useCustom.ts
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { apiClient } from '@/lib/api'
+
+export function useCustomList() {
+  return useQuery({
+    queryKey: ['custom'],
+    queryFn: () => apiClient.get('/custom')
+  })
+}
+
+export function useCreateCustom() {
+  return useMutation({
+    mutationFn: (data: any) => apiClient.post('/custom', data)
+  })
 }
 ```
 
-## Charts
+## 🐛 Troubleshooting
 
-Using Recharts for data visualization:
-
-```tsx
-import { SalesChart } from '@/components/charts/SalesChart';
-
-function Dashboard() {
-  const data = [
-    { date: 'Jan', sales: 4000, orders: 240 },
-    { date: 'Feb', sales: 3000, orders: 198 },
-  ];
-
-  return <SalesChart data={data} />;
-}
-```
-
-Available charts:
-- `SalesChart` - Line chart
-- `OrderStatusChart` - Pie chart
-- `RevenueChart` - Bar chart
-- `AnalyticsChart` - Area chart
-
-## Forms
-
-Using React Hook Form + Zod for validation:
-
-```tsx
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-const schema = z.object({
-  name: z.string().min(1, 'Required'),
-  email: z.string().email('Invalid email'),
-});
-
-function MyForm() {
-  const form = useForm({
-    resolver: zodResolver(schema),
-  });
-
-  return <form onSubmit={form.handleSubmit(onSubmit)}>...</form>;
-}
-```
-
-## Deployment
-
-### Build for Production
+### Build Errors
 
 ```bash
+# Clear cache and reinstall
+rm -rf node_modules package-lock.json
+npm install
 npm run build
 ```
-
-Output will be in `dist/` directory.
-
-### Environment-Specific Builds
-
-```bash
-# Development
-VITE_ENV=development npm run build
-
-# Staging
-VITE_ENV=staging npm run build
-
-# Production
-VITE_ENV=production npm run build
-```
-
-### Deploy to Static Hosting
-
-The built files can be deployed to:
-- Vercel
-- Netlify
-- AWS S3 + CloudFront
-- Cloudflare Pages
-- Any static file hosting
-
-## Testing
-
-```bash
-# Run tests (if configured)
-npm test
-
-# Type checking
-npm run build
-```
-
-## Troubleshooting
 
 ### API Connection Issues
 
-1. Check `VITE_API_URL` in `.env`
-2. Verify API server is running
+1. Check backend is running: `http://localhost:3000`
+2. Verify API key in `.env`
 3. Check browser console for errors
-4. Ensure CORS is configured on backend
+4. Check network tab for failed requests
 
-### Authentication Issues
+### Authentication Problems
 
-1. Check API key is valid
-2. Clear localStorage: `localStorage.clear()`
-3. Re-login with valid API key
+1. Clear browser localStorage
+2. Check API key is valid
+3. Verify `/auth/login` endpoint works
+4. Check token expiration
 
-### Build Issues
+## 📚 Resources
 
-1. Delete `node_modules` and reinstall:
-   ```bash
-   rm -rf node_modules package-lock.json
-   npm install
-   ```
+- [React Documentation](https://react.dev)
+- [Vite Documentation](https://vitejs.dev)
+- [TailwindCSS Documentation](https://tailwindcss.com)
+- [Radix UI Documentation](https://www.radix-ui.com)
+- [Tanstack Query Documentation](https://tanstack.com/query)
+- [React Router Documentation](https://reactrouter.com)
+- [Original v0-dashboard-demo](https://github.com/sawyelin1011/v0-dashboard-demo)
 
-2. Clear Vite cache:
-   ```bash
-   rm -rf node_modules/.vite
-   ```
+## ⚠️ Migration Status
 
-## License
+🚧 **Work in Progress**
 
-MIT
+The dashboard is currently being adapted from the v0-dashboard-demo (CMS) to MTC Platform (ecommerce).
 
-## Support
+See `INTEGRATION_GUIDE.md` for detailed migration tasks and progress.
 
-For issues or questions, contact: support@example.com
+### Completed
+- ✅ Repository cloned and integrated
+- ✅ Package.json updated
+- ✅ API client adapted for multi-tenant
+- ✅ Authentication configured
+
+### Remaining
+- ⏳ Rename Collections → Products
+- ⏳ Rename Content → Orders
+- ⏳ Create Store Selector component
+- ⏳ Create Stores management page
+- ⏳ Create Tenants management page
+- ⏳ Update navigation menu
+- ⏳ Update AuthStore with multi-tenant fields
+- ⏳ Replace Tanstack Router with React Router
+- ⏳ Create App.tsx with routes
+- ⏳ Test all endpoints
+
+**Estimated completion:** 4-6 hours
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🤝 Contributing
+
+This is a private monorepo package. For contributions, please follow the standard Git workflow.
+
+## 📞 Support
+
+For issues or questions:
+- Check `INTEGRATION_GUIDE.md` for detailed documentation
+- Review `QUICK_START.sh` for setup script
+- Contact platform team
+
+---
+
+**Version:** 2.0.0  
+**Last Updated:** 2025-01-25  
+**Status:** Integration in Progress

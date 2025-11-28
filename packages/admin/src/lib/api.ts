@@ -1,95 +1,154 @@
-import axios, { type AxiosInstance } from 'axios';
-import { adminConfig } from '@/config/admin.config';
-import type { DashboardStats, Tenant, Store, Product, Order, User } from '@/types';
+import axios, { AxiosError, type AxiosRequestConfig } from 'axios'
+import { useAuthStore } from '@/store/authStore'
+import type { ApiError, AuthResponse } from '@/types'
 
-export const apiClient: AxiosInstance = axios.create({
-  baseURL: adminConfig.api.baseUrl,
-  timeout: adminConfig.api.timeout,
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
+const API_KEY = import.meta.env.VITE_API_KEY || ''
+
+export const api = axios.create({
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-});
+})
 
-// Request interceptor
-apiClient.interceptors.request.use(
+const redirectToLogin = () => {
+  if (typeof window === 'undefined') return
+  if (window.location.pathname !== '/login') {
+    window.location.href = '/login'
+  }
+}
+
+api.interceptors.request.use(
   (config) => {
-    const apiKey = localStorage.getItem('api_key');
-    if (apiKey) {
-      config.headers['x-api-key'] = apiKey;
+    const token = useAuthStore.getState().token
+    const apiKey = useAuthStore.getState().apiKey || API_KEY
+    
+    config.headers = config.headers ?? {}
+    
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    } else if (apiKey) {
+      config.headers['x-api-key'] = apiKey
     }
-    return config;
+    
+    // Add current tenant/store context
+    const currentStore = useAuthStore.getState().currentStore
+    if (currentStore) {
+      config.headers['x-store-id'] = currentStore.id
+    }
+    
+    return config
   },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+  (error) => Promise.reject(error),
+)
 
-// Response interceptor - Return response directly since interceptor returns data
-apiClient.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  (error: AxiosError<ApiError>) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('api_key');
-      window.location.href = '/login';
+      const { token } = useAuthStore.getState()
+      if (token) {
+        useAuthStore.getState().logout()
+      }
+      redirectToLogin()
     }
-    return Promise.reject(error);
-  }
-);
-
-const unwrap = async <T>(promise: Promise<{ data: { success: boolean; data: T } }>): Promise<T> => {
-  const response = await promise;
-  return response.data.data;
-};
-
-// API Methods
-export const api = {
-  // Auth
-  login: (apiKey: string) => unwrap<any>(apiClient.post('/auth/login', { apiKey })),
-  logout: () => {
-    localStorage.removeItem('api_key');
-    window.location.href = '/login';
+    return Promise.reject(error)
   },
+)
 
-  // Dashboard
-  getDashboardStats: () => unwrap<DashboardStats>(apiClient.get('/dashboard/stats')),
+export const buildQueryString = (params?: Record<string, string | number | boolean | undefined | null>) => {
+  if (!params) return ''
+  const searchParams = new URLSearchParams()
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') return
+    searchParams.set(key, String(value))
+  })
+  const queryString = searchParams.toString()
+  return queryString ? `?${queryString}` : ''
+}
 
-  // Tenants
-  getTenants: (params?: any) => unwrap<Tenant[]>(apiClient.get('/tenants', { params })),
-  getTenant: (id: string) => unwrap<Tenant>(apiClient.get(`/tenants/${id}`)),
-  createTenant: (data: any) => unwrap<Tenant>(apiClient.post('/tenants', data)),
-  updateTenant: (id: string, data: any) => unwrap<Tenant>(apiClient.put(`/tenants/${id}`, data)),
-  deleteTenant: (id: string) => unwrap<void>(apiClient.delete(`/tenants/${id}`)),
+export async function fetcher<T>(url: string): Promise<T> {
+  const response = await api.get<T>(url)
+  return response.data
+}
 
-  // Stores
-  getStores: (params?: any) => unwrap<Store[]>(apiClient.get('/stores', { params })),
-  getStore: (id: string) => unwrap<Store>(apiClient.get(`/stores/${id}`)),
-  createStore: (data: any) => unwrap<Store>(apiClient.post('/stores', data)),
-  updateStore: (id: string, data: any) => unwrap<Store>(apiClient.put(`/stores/${id}`, data)),
-  deleteStore: (id: string) => unwrap<void>(apiClient.delete(`/stores/${id}`)),
+export const apiClient = {
+  get: async <T>(url: string, config?: AxiosRequestConfig) => {
+    const response = await api.get<T>(url, config)
+    return response.data
+  },
+  post: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => {
+    const response = await api.post<T>(url, data, config)
+    return response.data
+  },
+  put: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => {
+    const response = await api.put<T>(url, data, config)
+    return response.data
+  },
+  patch: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => {
+    const response = await api.patch<T>(url, data, config)
+    return response.data
+  },
+  delete: async <T>(url: string, config?: AxiosRequestConfig) => {
+    const response = await api.delete<T>(url, config)
+    return response.data
+  },
+}
 
-  // Products
-  getProducts: (params?: any) => unwrap<Product[]>(apiClient.get('/products', { params })),
-  getProduct: (id: string) => unwrap<Product>(apiClient.get(`/products/${id}`)),
-  createProduct: (data: any) => unwrap<Product>(apiClient.post('/products', data)),
-  updateProduct: (id: string, data: any) => unwrap<Product>(apiClient.put(`/products/${id}`, data)),
-  deleteProduct: (id: string) => unwrap<void>(apiClient.delete(`/products/${id}`)),
-  bulkUploadProducts: (storeId: string, data: any) =>
-    unwrap<any>(apiClient.post(`/products/bulk-upload`, { storeId, products: data })),
+// Multi-Tenant API Endpoints
+export const tenantsApi = {
+  list: (params?: any) => apiClient.get('/tenants', { params }),
+  get: (id: string) => apiClient.get(`/tenants/${id}`),
+  create: (data: any) => apiClient.post('/tenants', data),
+  update: (id: string, data: any) => apiClient.patch(`/tenants/${id}`, data),
+  delete: (id: string) => apiClient.delete(`/tenants/${id}`),
+}
 
-  // Orders
-  getOrders: (params?: any) => unwrap<Order[]>(apiClient.get('/orders', { params })),
-  getOrder: (id: string) => unwrap<Order>(apiClient.get(`/orders/${id}`)),
-  updateOrder: (id: string, data: any) => unwrap<Order>(apiClient.put(`/orders/${id}`, data)),
+export const storesApi = {
+  list: (params?: any) => apiClient.get('/stores', { params }),
+  get: (id: string) => apiClient.get(`/stores/${id}`),
+  create: (data: any) => apiClient.post('/stores', data),
+  update: (id: string, data: any) => apiClient.patch(`/stores/${id}`, data),
+  delete: (id: string) => apiClient.delete(`/stores/${id}`),
+}
 
-  // Users
-  getUsers: (params?: any) => unwrap<User[]>(apiClient.get('/users', { params })),
-  getUser: (id: string) => unwrap<User>(apiClient.get(`/users/${id}`)),
-  createUser: (data: any) => unwrap<User>(apiClient.post('/users', data)),
-  updateUser: (id: string, data: any) => unwrap<User>(apiClient.put(`/users/${id}`, data)),
-  deleteUser: (id: string) => unwrap<void>(apiClient.delete(`/users/${id}`)),
+export const productsApi = {
+  list: (params?: any) => apiClient.get('/products', { params }),
+  get: (id: string) => apiClient.get(`/products/${id}`),
+  create: (data: any) => apiClient.post('/products', data),
+  update: (id: string, data: any) => apiClient.patch(`/products/${id}`, data),
+  delete: (id: string) => apiClient.delete(`/products/${id}`),
+}
 
-  // Analytics
-  getAnalytics: (params?: any) => unwrap<any>(apiClient.get('/analytics', { params })),
-  getSalesChart: (params?: any) => unwrap<any>(apiClient.get('/analytics/sales', { params })),
-  getRevenueChart: (params?: any) => unwrap<any>(apiClient.get('/analytics/revenue', { params })),
-};
+export const ordersApi = {
+  list: (params?: any) => apiClient.get('/orders', { params }),
+  get: (id: string) => apiClient.get(`/orders/${id}`),
+  update: (id: string, data: any) => apiClient.patch(`/orders/${id}`, data),
+}
+
+export const usersApi = {
+  list: (params?: any) => apiClient.get('/users', { params }),
+  get: (id: string) => apiClient.get(`/users/${id}`),
+  create: (data: any) => apiClient.post('/users', data),
+  update: (id: string, data: any) => apiClient.patch(`/users/${id}`, data),
+  delete: (id: string) => apiClient.delete(`/users/${id}`),
+}
+
+export const analyticsApi = {
+  dashboard: () => apiClient.get('/analytics/dashboard'),
+  sales: (params?: any) => apiClient.get('/analytics/sales', { params }),
+  revenue: (params?: any) => apiClient.get('/analytics/revenue', { params }),
+}
+
+export const authApi = {
+  login: (payload: { email: string; password: string }) => 
+    apiClient.post<AuthResponse>('/auth/login', payload),
+  logout: () => apiClient.post('/auth/logout'),
+  me: () => apiClient.get<UserResponse>('/auth/me'),
+  refreshToken: () => apiClient.post<AuthResponse>('/auth/refresh'),
+}
+
+type UserResponse = {
+  user: AuthResponse['user']
+}
